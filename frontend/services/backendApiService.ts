@@ -47,8 +47,10 @@ export class BackendApiService {
                 const blob = this.base64ToBlob(inputData);
                 formData.append('file', blob, 'image.jpg');
 
-                // Append threshold param
-                formData.append('threshold', String(params.threshold));
+                // Append threshold param only if enabled
+                if (params.enableThreshold) {
+                    formData.append('threshold', String(params.threshold));
+                }
 
                 response = await fetch(url, {
                     method: "POST",

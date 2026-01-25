@@ -1,5 +1,5 @@
 
-import { DEFAULT_NODE_PARAMS, NodeData } from '@/app/types/node';
+import { DEFAULT_NODE_ICONS, DEFAULT_NODE_PARAMS, NodeData } from '@/app/types/node';
 import { OPENCV_FUNCTIONS_CONFIG } from '@/app/types/opencv';
 import { Node } from '@xyflow/react';
 import { useEffect, useState } from 'react';
@@ -27,11 +27,13 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
     const handleFunctionChange = (newFunctionName: string) => {
         setFunctionName(newFunctionName);
         const defaultParams = DEFAULT_NODE_PARAMS[newFunctionName as keyof typeof DEFAULT_NODE_PARAMS] || {};
+        const defaultIcon = DEFAULT_NODE_ICONS[newFunctionName as keyof typeof DEFAULT_NODE_ICONS] || 'settings';
         setParams(defaultParams);
 
         onUpdateNode(selectedNode.id, {
             functionName: newFunctionName as any,
-            params: defaultParams
+            params: defaultParams,
+            icon: defaultIcon,
         });
     };
 

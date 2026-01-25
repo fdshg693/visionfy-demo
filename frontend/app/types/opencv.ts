@@ -14,16 +14,24 @@ export interface OpencvFunctionConfig {
 }
 
 export const OPENCV_FUNCTIONS_CONFIG: Record<string, OpencvFunctionConfig> = {
-    'cvtcolor': {
-        description: '色空間をRGBからグレースケールに変換します。',
+    'grayscale': {
+        description: 'グレースケールに変換します（cv2.COLOR_BGR2GRAY固定）。閾値を指定すると二値化も行います。',
         params: [
             {
-                name: 'code',
+                name: 'enableThreshold',
                 type: 'select',
                 options: [
-                    { label: 'COLOR_RGB2GRAY', value: CV2_COLOR_RGB2GRAY }
+                    { label: 'OFF', value: 0 },
+                    { label: 'ON', value: 1 }
                 ],
-                defaultValue: CV2_COLOR_RGB2GRAY
+                defaultValue: 0,
+                label: 'Threshold'
+            },
+            {
+                name: 'threshold',
+                type: 'number',
+                defaultValue: 128,
+                label: 'Threshold Value (0-255)'
             }
         ]
     },

@@ -1,6 +1,6 @@
 import { NodeData } from '@/app/types/node';
 import { Handle, Node, NodeProps, Position, useReactFlow } from '@xyflow/react';
-import { ChartNoAxesColumn, CheckCircle, Image as ImageIcon, Play, Settings } from 'lucide-react';
+import { ChartNoAxesColumn, CheckCircle, Image as ImageIcon, Paintbrush, Palette, Play, Settings } from 'lucide-react';
 import { useCallback } from 'react';
 import styles from './ProcessNode.module.css';
 
@@ -11,7 +11,8 @@ const ICON_MAP: Record<string, React.FC<{ size?: number; className?: string }>> 
     'image': ImageIcon,
     'check': CheckCircle,
     'play': Play,
-    // Add more icons as needed
+    'brush': Paintbrush,     // For GaussianBlur
+    'palette': Palette,       // For cvtColor
 };
 
 export function ProcessNode({ id, data }: NodeProps<Node>) {
@@ -56,8 +57,11 @@ export function ProcessNode({ id, data }: NodeProps<Node>) {
                         <label>{key}</label>
                         <input
                             type="number"
-                            value={value as number}
-                            onChange={(e) => handleParamChange(key, parseFloat(e.target.value))}
+                            value={isNaN(value as number) ? '' : value as number}
+                            onChange={(e) => {
+                                const parsed = parseFloat(e.target.value);
+                                handleParamChange(key, isNaN(parsed) ? 0 : parsed);
+                            }}
                             className="nodrag"
                         />
                     </div>
@@ -70,9 +74,10 @@ export function ProcessNode({ id, data }: NodeProps<Node>) {
                         <div style={{ display: 'flex', gap: '4px' }}>
                             <input
                                 type="number"
-                                value={value[0]}
+                                value={isNaN(value[0]) ? '' : value[0]}
                                 onChange={(e) => {
-                                    const newVal = [parseFloat(e.target.value), value[1]];
+                                    const parsed = parseFloat(e.target.value);
+                                    const newVal = [isNaN(parsed) ? 0 : parsed, value[1]];
                                     handleParamChange(key, newVal);
                                 }}
                                 className="nodrag"
@@ -80,9 +85,10 @@ export function ProcessNode({ id, data }: NodeProps<Node>) {
                             />
                             <input
                                 type="number"
-                                value={value[1]}
+                                value={isNaN(value[1]) ? '' : value[1]}
                                 onChange={(e) => {
-                                    const newVal = [value[0], parseFloat(e.target.value)];
+                                    const parsed = parseFloat(e.target.value);
+                                    const newVal = [value[0], isNaN(parsed) ? 0 : parsed];
                                     handleParamChange(key, newVal);
                                 }}
                                 className="nodrag"

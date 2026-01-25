@@ -30,18 +30,10 @@ export interface GaussianBlurData extends BaseProcessNodeData {
     params: GaussianBlurParams;
 }
 
-// 3. Color Conversion (RGB2GRAY)
-export interface CvtColorParams {
-    code: number; // Fixed to 7 (cv2.COLOR_RGB2GRAY)
-}
-export interface CvtColorData extends BaseProcessNodeData {
-    functionName: 'cvtcolor';
-    params: CvtColorParams;
-}
-
-// 4. Grayscale
+// 3. Grayscale (cv2.cvtColor BGR2GRAY + optional threshold)
 export interface GrayscaleParams {
-    threshold: number;
+    enableThreshold: boolean; // Whether to apply thresholding
+    threshold: number; // 0-255, thresholding after grayscale conversion
 }
 export interface GrayscaleData extends BaseProcessNodeData {
     functionName: 'grayscale';
@@ -49,7 +41,7 @@ export interface GrayscaleData extends BaseProcessNodeData {
 }
 
 // Discriminated Union
-export type ProcessNodeData = CLAHEData | GaussianBlurData | CvtColorData | GrayscaleData;
+export type ProcessNodeData = CLAHEData | GaussianBlurData | GrayscaleData;
 
 // For backward compatibility or general usage where strict narrowing isn't immediately possible
 // We can use ProcessNodeData as the main type.
@@ -58,7 +50,12 @@ export type NodeData = ProcessNodeData;
 export const DEFAULT_NODE_PARAMS: Record<ProcessNodeData['functionName'], any> = {
     'createclahe': { clipLimit: 40.0, tileGridSize: [8, 8] },
     'gaussianblur': { ksize: [5, 5], sigmaX: 0, sigmaY: 0 },
-    'cvtcolor': { code: 7 },
-    'grayscale': { threshold: 128 },
+    'grayscale': { enableThreshold: false, threshold: 128 },
 };
 
+// Icon mapping for each function
+export const DEFAULT_NODE_ICONS: Record<ProcessNodeData['functionName'], string> = {
+    'createclahe': 'histogram',
+    'gaussianblur': 'brush',
+    'grayscale': 'palette',
+};

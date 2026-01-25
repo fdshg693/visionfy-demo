@@ -4,7 +4,7 @@ import { NodeInspector } from '@/app/components/inspector/NodeInspector';
 import { EndNode } from '@/app/components/nodes/EndNode';
 import { ProcessNode } from '@/app/components/nodes/ProcessNode';
 import { StartNode } from '@/app/components/nodes/StartNode';
-import { DEFAULT_NODE_PARAMS, NodeData } from '@/app/types/node';
+import { DEFAULT_NODE_ICONS, DEFAULT_NODE_PARAMS, NodeData } from '@/app/types/node';
 import {
     Background,
     Controls,
@@ -245,6 +245,15 @@ export default function NodeEditor() {
         [edges, setEdges]
     );
 
+    // Edge deletion handler - click on edge to delete it
+    const onEdgeClick = useCallback(
+        (event: React.MouseEvent, edge: Edge) => {
+            event.stopPropagation();
+            setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+        },
+        [setEdges]
+    );
+
     const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
         setSelectedNodeId(node.id);
     }, []);
@@ -271,16 +280,17 @@ export default function NodeEditor() {
     }, [setNodes]);
 
     const handleAddNode = useCallback(() => {
+        const defaultFn = 'createclahe' as const;
         const newNode: Node = {
             id: `node-${Date.now()}`,
             type: 'processNode',
             position: { x: Math.random() * 400, y: Math.random() * 400 },
             data: {
                 label: 'New Node',
-                functionName: 'createclahe',
-                params: DEFAULT_NODE_PARAMS['createclahe'],
+                functionName: defaultFn,
+                params: DEFAULT_NODE_PARAMS[defaultFn],
                 executionStatus: 'idle',
-                icon: 'histogram',
+                icon: DEFAULT_NODE_ICONS[defaultFn],
             } as NodeData,
         };
         setNodes((nds) => nds.concat(newNode));
@@ -299,6 +309,7 @@ export default function NodeEditor() {
                     onEdgesChange={onEdgesChange}
                     onConnect={onConnect}
                     onNodeClick={onNodeClick}
+                    onEdgeClick={onEdgeClick}
                     onPaneClick={onPaneClick}
                     nodeTypes={nodeTypes}
                     fitView
@@ -306,6 +317,7 @@ export default function NodeEditor() {
                     defaultEdgeOptions={{
                         style: { stroke: '#b1b1b7', strokeWidth: 2 },
                         animated: true,
+                        interactionWidth: 20,
                     }}
                 >
                     <Controls />
