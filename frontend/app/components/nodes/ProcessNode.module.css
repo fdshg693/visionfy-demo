@@ -1,0 +1,61 @@
+.node {
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: #1f2937;
+    /* Gray-800 */
+    color: white;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 2px solid transparent;
+}
+
+.node.idle {
+    border-color: #666;
+}
+
+.node.running {
+    border-color: #f59e0b;
+}
+
+.node.success {
+    border-color: #10b981;
+}
+
+.node.error {
+    border-color: #ef4444;
+}
+
+.handle {
+    background: #d1d5db;
+    width: 10px;
+    height: 10px;
+}
+
+.label {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.functionName {
+    font-size: 12px;
+    color: #d1d5db;
+    background: #374151;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.startNode {
+    border-color: #9b59b6;
+    /* Purple for start */
+    background: #2d1f36;
+}
+
+.endNode {
+    border-color: #f1c40f;
+    /* Yellow for end */
+    background: #36321f;
+}

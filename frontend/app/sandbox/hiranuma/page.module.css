@@ -1,0 +1,55 @@
+.container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+}
+
+.leftPanel {
+    width: 300px;
+    background: #111827;
+    border-right: 1px solid #374151;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 20px;
+    align-items: center;
+}
+
+.flowArea {
+    flex: 1;
+    position: relative;
+    background: #1a1a2e;
+}
+
+.toolbar {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    display: flex;
+    gap: 10px;
+}
+
+.addBtn {
+    padding: 10px 20px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.addBtn:hover {
+    background: #2563eb;
+}
+
+.sidebar {
+    width: 300px;
+    background: #111827;
+    border-left: 1px solid #374151;
+    overflow-y: auto;
+}

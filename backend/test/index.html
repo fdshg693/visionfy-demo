@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visionfy Backend API Tester</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="background-orb orb-1"></div>
+    <div class="background-orb orb-2"></div>
+
+    <div class="container">
+      <header>
+        <h1>API Test Console</h1>
+        <p class="subtitle">Visionfy Demo Backend Service</p>
+      </header>
+
+      <main>
+        <!-- Configuration Section -->
+        <section class="card">
+          <div class="card-header">
+            <h2>Configuration</h2>
+            <span class="badge">CONFIG</span>
+          </div>
+          <div class="card-body">
+            <p class="description">Set the API Base URL.</p>
+            <div class="input-group">
+                <style>
+                    /* Inline style for the flex layout of this specific input group */
+                    .url-input-container {
+                        display: flex;
+                        gap: 10px;
+                        align-items: center;
+                    }
+                    .url-input-container input {
+                        flex-grow: 1;
+                    }
+                </style>
+                <label for="api-url">API URL</label>
+                <div class="url-input-container">
+                    <input type="text" id="api-url" placeholder="http://localhost:8000" />
+                    <button id="btn-save-url" class="btn secondary">Save</button>
+                </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Health Check Section -->
+        <section class="card">
+          <div class="card-header">
+            <h2>Health Check</h2>
+            <span class="badge get">GET</span>
+          </div>
+          <div class="card-body">
+            <p class="description">Verify backend service status.</p>
+            <button id="btn-health" class="btn primary">Check Health</button>
+            <div id="res-health" class="response-area hidden">
+              <div class="result-section">
+                  <h4 class="section-title">Request</h4>
+                  <pre><code class="req-content"></code></pre>
+              </div>
+              <div class="result-section">
+                  <h4 class="section-title">Response</h4>
+                  <pre><code class="res-content"></code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Create Clane API Section -->
+        <section class="card">
+          <div class="card-header">
+            <h2>Create Clane</h2>
+            <span class="badge post">POST</span>
+          </div>
+          <div class="card-body">
+            <p class="description">Upload an image to apply CLAHE.</p>
+            
+            <div class="input-group">
+                <label for="file-createclane">Image File</label>
+                <input type="file" id="file-createclane" accept="image/*" />
+            </div>
+
+            <div class="input-group">
+                <label for="clip-limit">Clip Limit</label>
+                <input type="number" id="clip-limit" value="2.0" step="0.1" />
+            </div>
+
+            <div class="input-group">
+                <label for="grid-size">Grid Size</label>
+                <input type="number" id="grid-size" value="8" step="1" />
+            </div>
+
+            <button id="btn-createclane" class="btn primary">
+              Upload & Process
+            </button>
+            <div id="res-createclane" class="response-area hidden">
+              <div class="result-section">
+                  <h4 class="section-title">Request</h4>
+                  <pre><code class="req-content"></code></pre>
+              </div>
+              <div class="result-section">
+                  <h4 class="section-title">Response</h4>
+                  <pre><code class="res-content"></code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>
