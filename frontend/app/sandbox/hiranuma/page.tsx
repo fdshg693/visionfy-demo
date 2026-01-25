@@ -41,6 +41,18 @@ const initialNodes: Node[] = [
         data: { label: 'Start' }
     },
     {
+        id: 'clahe-demo',
+        type: 'processNode',
+        position: { x: 250, y: 150 },
+        data: {
+            label: 'CLAHE',
+            functionName: 'createclahe',
+            params: { clipLimit: 40.0, tileGridSize: [8, 8] },
+            executionStatus: 'idle',
+            icon: 'histogram'
+        }
+    },
+    {
         id: 'end',
         type: 'endNode',
         position: { x: 500, y: 150 },
@@ -249,9 +261,10 @@ export default function NodeEditor() {
             position: { x: Math.random() * 400, y: Math.random() * 400 },
             data: {
                 label: 'New Node',
-                functionName: 'gaussianblur',
-                params: DEFAULT_NODE_PARAMS['gaussianblur'],
+                functionName: 'createclahe',
+                params: DEFAULT_NODE_PARAMS['createclahe'],
                 executionStatus: 'idle',
+                icon: 'histogram',
             } as NodeData,
         };
         setNodes((nds) => nds.concat(newNode));

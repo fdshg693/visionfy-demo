@@ -4,6 +4,7 @@ export type ExecutionStatus = 'idle' | 'running' | 'success' | 'error';
 export interface BaseProcessNodeData extends Record<string, unknown> {
     label: string;
     executionStatus?: ExecutionStatus;
+    icon?: string;
 }
 
 // 1. CLAHE (Adaptive Histogram Equalization)

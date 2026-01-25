@@ -12,6 +12,7 @@
     "@xyflow/react": "^12.10.0",
     "filepond": "^4.32.11",
     "filepond-plugin-image-preview": "^4.6.12",
+    "lucide-react": "^0.563.0",
     "next": "16.1.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
