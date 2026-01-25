@@ -163,7 +163,23 @@ export default function NodeEditor() {
 
                     if (result.status === 'success' && result.result) {
                         currentImage = result.result; // Update current image for next node
-                        updateNodeStatus(currentNode.id, 'success');
+                        // Save result and params to the node
+                        setNodes((nds) =>
+                            nds.map((node) => {
+                                if (node.id === currentNode.id) {
+                                    return {
+                                        ...node,
+                                        data: {
+                                            ...node.data,
+                                            executionStatus: 'success',
+                                            result: currentImage,
+                                            resultParams: params,
+                                        },
+                                    };
+                                }
+                                return node;
+                            })
+                        );
                     } else {
                         throw new Error(result.message || "Unknown error during processing");
                     }
@@ -317,6 +333,7 @@ export default function NodeEditor() {
                     setFiles={setFiles}
                     onRun={handleRunWorkflow}
                     resultImage={resultImage}
+                    nodes={nodes}
                 />
             </div>
         </div>

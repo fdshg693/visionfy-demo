@@ -14,6 +14,8 @@ interface NodeInspectorProps {
     onRun: () => void;
     // Props for End Node
     resultImage: string | null;
+    // All nodes for execution history
+    nodes: Node[];
 }
 
 export function NodeInspector({
@@ -22,7 +24,8 @@ export function NodeInspector({
     files,
     setFiles,
     onRun,
-    resultImage
+    resultImage,
+    nodes
 }: NodeInspectorProps) {
 
     if (!selectedNode) {
@@ -53,6 +56,7 @@ export function NodeInspector({
                 <EndNodeInspector
                     resultImage={resultImage}
                     files={files}
+                    nodes={nodes}
                 />
             )}
 
