@@ -1,4 +1,4 @@
-import { nodeProcessingService } from "@/services/nodeProcessingService";
+import { backendApiService } from "@/services/backendApiService";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const result = await nodeProcessingService.execute(functionName, params, inputData);
+        const result = await backendApiService.processNode(functionName, params, inputData);
 
         return NextResponse.json(result);
     } catch (error) {

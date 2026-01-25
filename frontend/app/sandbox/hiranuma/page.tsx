@@ -249,8 +249,8 @@ export default function NodeEditor() {
             position: { x: Math.random() * 400, y: Math.random() * 400 },
             data: {
                 label: 'New Node',
-                functionName: 'cv2.GaussianBlur',
-                params: DEFAULT_NODE_PARAMS['cv2.GaussianBlur'],
+                functionName: 'gaussianblur',
+                params: DEFAULT_NODE_PARAMS['gaussianblur'],
                 executionStatus: 'idle',
             } as NodeData,
         };

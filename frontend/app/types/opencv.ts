@@ -14,7 +14,7 @@ export interface OpencvFunctionConfig {
 }
 
 export const OPENCV_FUNCTIONS_CONFIG: Record<string, OpencvFunctionConfig> = {
-    'cv2.cvtColor': {
+    'cvtcolor': {
         description: '色空間をRGBからグレースケールに変換します。',
         params: [
             {
@@ -27,14 +27,14 @@ export const OPENCV_FUNCTIONS_CONFIG: Record<string, OpencvFunctionConfig> = {
             }
         ]
     },
-    'cv2.createCLAHE': {
+    'createclahe': {
         description: 'コントラスト制限付き適応的ヒストグラム平坦化（CLAHE）を作成します。',
         params: [
             { name: 'clipLimit', type: 'number', defaultValue: 40.0 },
             { name: 'tileGridSize', type: 'tuple', defaultValue: [8, 8], label: 'tileGridSize (x, y)' }
         ]
     },
-    'cv2.GaussianBlur': {
+    'gaussianblur': {
         description: 'ガウシアンフィルタを用いて画像をぼかします。',
         params: [
             { name: 'ksize', type: 'tuple', defaultValue: [5, 5], label: 'ksize (width, height)' },
