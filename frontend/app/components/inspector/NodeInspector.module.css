@@ -162,3 +162,124 @@
     color: #6b7280;
     margin: 0;
 }
+
+/* Tab Styles */
+.tabHeader {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #374151;
+    margin-bottom: 16px;
+}
+
+.tabButton {
+    flex: 1;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.tabButton:hover {
+    color: #fff;
+}
+
+.tabButtonActive {
+    color: #fff;
+    border-bottom: 2px solid #3b82f6;
+}
+
+/* History Styles */
+.historyContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.historyItem {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid #374151;
+    overflow: hidden;
+}
+
+.historyHeader {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    transition: background-color 0.2s;
+}
+
+.historyHeader:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.historyHeaderLeft {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.historyIndex {
+    background: #3b82f6;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.historyFunctionName {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.historyContent {
+    padding: 12px;
+    border-top: 1px solid #374151;
+}
+
+.historyImageBox {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #111827;
+    border-radius: 4px;
+    border: 1px solid #374151;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.historyParams {
+    font-size: 11px;
+    color: #d1d5db;
+}
+
+.historyParams pre {
+    margin: 0;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px;
+    border-radius: 4px;
+    overflow-x: auto;
+    color: #e5e7eb;
+}
+
+.inspectorContent {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}

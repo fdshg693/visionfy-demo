@@ -41,6 +41,18 @@ const initialNodes: Node[] = [
         data: { label: 'Start' }
     },
     {
+        id: 'clahe-demo',
+        type: 'processNode',
+        position: { x: 250, y: 150 },
+        data: {
+            label: 'CLAHE',
+            functionName: 'createclahe',
+            params: { clipLimit: 40.0, tileGridSize: [8, 8] },
+            executionStatus: 'idle',
+            icon: 'histogram'
+        }
+    },
+    {
         id: 'end',
         type: 'endNode',
         position: { x: 500, y: 150 },
@@ -151,7 +163,23 @@ export default function NodeEditor() {
 
                     if (result.status === 'success' && result.result) {
                         currentImage = result.result; // Update current image for next node
-                        updateNodeStatus(currentNode.id, 'success');
+                        // Save result and params to the node
+                        setNodes((nds) =>
+                            nds.map((node) => {
+                                if (node.id === currentNode.id) {
+                                    return {
+                                        ...node,
+                                        data: {
+                                            ...node.data,
+                                            executionStatus: 'success',
+                                            result: currentImage,
+                                            resultParams: params,
+                                        },
+                                    };
+                                }
+                                return node;
+                            })
+                        );
                     } else {
                         throw new Error(result.message || "Unknown error during processing");
                     }
@@ -249,9 +277,10 @@ export default function NodeEditor() {
             position: { x: Math.random() * 400, y: Math.random() * 400 },
             data: {
                 label: 'New Node',
-                functionName: 'gaussianblur',
-                params: DEFAULT_NODE_PARAMS['gaussianblur'],
+                functionName: 'createclahe',
+                params: DEFAULT_NODE_PARAMS['createclahe'],
                 executionStatus: 'idle',
+                icon: 'histogram',
             } as NodeData,
         };
         setNodes((nds) => nds.concat(newNode));
@@ -304,6 +333,7 @@ export default function NodeEditor() {
                     setFiles={setFiles}
                     onRun={handleRunWorkflow}
                     resultImage={resultImage}
+                    nodes={nodes}
                 />
             </div>
         </div>

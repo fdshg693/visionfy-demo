@@ -4,6 +4,9 @@ export type ExecutionStatus = 'idle' | 'running' | 'success' | 'error';
 export interface BaseProcessNodeData extends Record<string, unknown> {
     label: string;
     executionStatus?: ExecutionStatus;
+    icon?: string;
+    result?: string; // base64 image of the execution result
+    resultParams?: Record<string, unknown>; // params used to generate the result
 }
 
 // 1. CLAHE (Adaptive Histogram Equalization)

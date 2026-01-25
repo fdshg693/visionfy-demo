@@ -58,6 +58,23 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
                     className={styles.input}
                 />
             </div>
+            {/* Execution Result */}
+            <div className={styles.section}>
+                <label className={styles.sectionLabel}>
+                    Execution Result
+                </label>
+                <div className={styles.imageBox}>
+                    {(selectedNode.data as NodeData).result ? (
+                        <img
+                            src={(selectedNode.data as NodeData).result}
+                            alt="Result"
+                            className={styles.resultImage}
+                        />
+                    ) : (
+                        <div className={styles.emptyResult}>No result</div>
+                    )}
+                </div>
+            </div>
 
             {/* Function Selection */}
             <div className={styles.field}>
@@ -101,6 +118,8 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
                     </div>
                 </div>
             )}
+
+
         </div>
     );
 }
