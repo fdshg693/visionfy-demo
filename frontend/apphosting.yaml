@@ -1,26 +1,13 @@
 # Settings for Backend (on Cloud Run).
-# See https://firebase.google.com/docs/app-hosting/configure#cloud-run
 runConfig:
   minInstances: 0
-  # maxInstances: 100
-  # concurrency: 80
-  # cpu: 1
-  # memoryMiB: 512
+  # cpu, memory などの設定...
 
-  # Environment variables and secrets.
-  # env:
-  # Configure environment variables.
-  # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
-  # - variable: MESSAGE
-  #   value: Hello world!
-  #   availability:
-  #     - BUILD
-  #     - RUNTIME
-
-  # Grant access to secrets in Cloud Secret Manager.
-  # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
-  # - variable: MY_SECRET
-  #   secret: mySecretRef
-  env:
-    - variable: API_BASE_URL # アプリ内での変数名
-      secret: visionfy-api-base-url # Secret Managerでの名前
+# env はここ（トップレベル）に書くのがおすすめ
+env:
+  - variable: API_BASE_URL
+    secret: visionfy-api-base-url
+    # どちらで必要か明示するとより確実
+    availability:
+      - BUILD
+      - RUNTIME
