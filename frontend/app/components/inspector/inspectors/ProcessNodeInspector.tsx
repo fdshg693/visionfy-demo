@@ -3,6 +3,7 @@ import { DEFAULT_NODE_PARAMS, NodeData } from '@/app/types/node';
 import { OPENCV_FUNCTIONS_CONFIG } from '@/app/types/opencv';
 import { Node } from '@xyflow/react';
 import { useEffect, useState } from 'react';
+import { ExecutionResultItem } from '../ExecutionResultItem';
 import styles from '../NodeInspector.module.css';
 
 interface ProcessNodeInspectorProps {
@@ -101,6 +102,19 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
                     </div>
                 </div>
             )}
+
+            {/* Execution Result */}
+            <div className={styles.section}>
+                <label className={styles.sectionLabel}>
+                    Execution Result
+                </label>
+                <ExecutionResultItem
+                    functionName={functionName}
+                    status={(selectedNode.data as NodeData).executionStatus || 'idle'}
+                    resultImage={(selectedNode.data as NodeData).result}
+                    params={(selectedNode.data as NodeData).resultParams}
+                />
+            </div>
         </div>
     );
 }
