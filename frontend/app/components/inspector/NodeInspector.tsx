@@ -52,6 +52,7 @@ export function NodeInspector({
             {type === 'endNode' && (
                 <EndNodeInspector
                     resultImage={resultImage}
+                    files={files}
                 />
             )}
 

@@ -2,21 +2,21 @@ export class NodeProcessingService {
     async execute(functionName: string, params: any, inputData?: any) {
         console.log(`[MockService] Executing function: ${functionName}`);
         console.log(`[MockService] Params:`, params);
-        console.log(`[MockService] Input Data:`, inputData);
+        // console.log(`[MockService] Input Data:`, inputData);
 
         // Simulate processing delay
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Mock logic based on function name
-        let result = "default_mock_result";
+        // FIXME: For now, we simply pass through the input image (base64) so the frontend doesn't crash with invalid image data.
+        let result = inputData;
 
+        // In a real mock with pre-loaded assets, we could switch on functionName:
+        /*
         if (functionName === "cv2.cvtColor") {
-            result = "image_data_grayscale_mock";
-        } else if (functionName === "cv2.GaussianBlur") {
-            result = "image_data_blurred_mock";
-        } else if (functionName === "cv2.createCLAHE") {
-            result = "image_data_clahe_mock";
+            // result = "some_grayscale_base64_string";
         }
+        */
 
         return {
             status: "success",

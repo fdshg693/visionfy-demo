@@ -3,12 +3,13 @@
     height: 100vh;
     display: flex;
     overflow: hidden;
+    background: #f9fafb;
 }
 
 .leftPanel {
     width: 300px;
-    background: #111827;
-    border-right: 1px solid #374151;
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -20,7 +21,7 @@
 .flowArea {
     flex: 1;
     position: relative;
-    background: #1a1a2e;
+    background: #f3f4f6;
 }
 
 .toolbar {
@@ -33,23 +34,28 @@
 }
 
 .addBtn {
-    padding: 10px 20px;
-    background: #3b82f6;
-    color: white;
-    border: none;
+    padding: 8px 16px;
+    background: #ffff;
+    color: #374151;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
     cursor: pointer;
-    font-weight: bold;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    font-weight: 600;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
 }
 
 .addBtn:hover {
-    background: #2563eb;
+    background: #f9fafb;
+    border-color: #d1d5db;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .sidebar {
-    width: 300px;
-    background: #111827;
-    border-left: 1px solid #374151;
+    width: 320px;
+    background: #ffffff;
+    border-left: 1px solid #e5e7eb;
     overflow-y: auto;
+    box-shadow: -4px 0 15px -3px rgba(0, 0, 0, 0.05);
+    /* Subtle shadow from right */
 }

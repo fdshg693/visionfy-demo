@@ -54,20 +54,142 @@ export default function NodeEditor() {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     // Image Upload & Result State
     const [files, setFiles] = useState<any[]>([]);
     const [resultImage, setResultImage] = useState<string | null>(null);
 
-    const handleRunWorkflow = useCallback(() => {
-        if (files.length > 0) {
-            // Mock Implementation: Just display the uploaded image as result for now
-            const fileItem = files[0];
-            const file = fileItem.file;
-            const imageUrl = URL.createObjectURL(file);
-            setResultImage(imageUrl);
+    // Helper to convert file to base64
+    const fileToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = error => reject(error);
+        });
+    };
+
+    const updateNodeStatus = (nodeId: string, status: 'idle' | 'running' | 'success' | 'error') => {
+        setNodes((nds) =>
+            nds.map((node) => {
+                if (node.id === nodeId) {
+                    return {
+                        ...node,
+                        data: {
+                            ...node.data,
+                            executionStatus: status,
+                        },
+                    };
+                }
+                return node;
+            })
+        );
+    };
+
+    const executeWorkflow = async () => {
+        if (files.length === 0) {
+            alert("No image uploaded.");
+            return;
         }
-    }, [files]);
+
+        setIsProcessing(true);
+        setResultImage(null);
+
+        // Reset all nodes to idle
+        setNodes((nds) =>
+            nds.map((node) => ({
+                ...node,
+                data: { ...node.data, executionStatus: 'idle' }
+            }))
+        );
+
+        try {
+            // 1. Get Initial Image
+            let currentImage = await fileToBase64(files[0].file);
+
+            // 2. Find Start Node
+            const startNode = nodes.find(n => n.type === 'startNode');
+            if (!startNode) throw new Error("Start node not found");
+
+            let currentNodeId: string | null = startNode.id;
+
+            // 3. Traverse and Execute
+            const visited = new Set<string>();
+            while (currentNodeId) {
+                const currentNode = nodes.find(n => n.id === currentNodeId);
+                if (!currentNode) break;
+
+                // Move to next node(s) logic
+                // For this sequential implementation, we find the edge starting from currentNodeId
+
+                // If Custom/Process Node, Execute it
+                if (currentNode.type === 'processNode' || currentNode.type === 'custom') {
+                    updateNodeStatus(currentNode.id, 'running');
+
+                    const functionName = currentNode.data.functionName;
+                    const params = currentNode.data.params;
+
+                    // API Call
+                    const response = await fetch('/api/process-node', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            functionName,
+                            params,
+                            inputData: currentImage
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Node processing failed: ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+
+                    if (result.status === 'success' && result.result) {
+                        currentImage = result.result; // Update current image for next node
+                        updateNodeStatus(currentNode.id, 'success');
+                    } else {
+                        throw new Error(result.message || "Unknown error during processing");
+                    }
+                }
+
+                // If End Node, Set Result and Finish
+                if (currentNode.type === 'endNode') {
+                    setResultImage(currentImage);
+                    break; // End of workflow
+                }
+
+                // Find next node
+                const edge = edges.find(e => e.source === currentNodeId);
+                if (edge) {
+                    currentNodeId = edge.target;
+                } else {
+                    currentNodeId = null; // No outgoing connection
+                }
+
+                // Safety break for infinite loops if circular (simple check)
+
+                if (visited.has(currentNodeId || '')) break;
+                if (currentNodeId) visited.add(currentNodeId);
+            }
+
+        } catch (error) {
+            console.error("Workflow Execution Error:", error);
+            alert("Workflow failed. Check console.");
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handleRunWorkflow = useCallback(() => {
+        executeWorkflow();
+    }, [files, nodes, edges]);
+
+    // Filter edges to check connection constraints
 
     // Filter edges to check connection constraints
     const getEdgesConnectedToSource = (sourceId: string) => edges.filter(e => e.source === sourceId);
@@ -127,8 +249,8 @@ export default function NodeEditor() {
             position: { x: Math.random() * 400, y: Math.random() * 400 },
             data: {
                 label: 'New Node',
-                functionName: 'cv2.GaussianBlur',
-                params: DEFAULT_NODE_PARAMS['cv2.GaussianBlur'],
+                functionName: 'gaussianblur',
+                params: DEFAULT_NODE_PARAMS['gaussianblur'],
                 executionStatus: 'idle',
             } as NodeData,
         };
@@ -151,11 +273,15 @@ export default function NodeEditor() {
                     onPaneClick={onPaneClick}
                     nodeTypes={nodeTypes}
                     fitView
-                    colorMode="dark"
+                    colorMode="light"
+                    defaultEdgeOptions={{
+                        style: { stroke: '#b1b1b7', strokeWidth: 2 },
+                        animated: true,
+                    }}
                 >
                     <Controls />
                     <MiniMap />
-                    <Background color="#333" gap={20} />
+                    <Background color="#e5e7eb" gap={20} size={1} />
                 </ReactFlow>
 
                 {/* Toolbar */}

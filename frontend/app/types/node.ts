@@ -12,7 +12,7 @@ export interface CLAHEParams {
     tileGridSize: [number, number];
 }
 export interface CLAHEData extends BaseProcessNodeData {
-    functionName: 'cv2.createCLAHE';
+    functionName: 'createclahe';
     params: CLAHEParams;
 }
 
@@ -23,7 +23,7 @@ export interface GaussianBlurParams {
     sigmaY: number;
 }
 export interface GaussianBlurData extends BaseProcessNodeData {
-    functionName: 'cv2.GaussianBlur';
+    functionName: 'gaussianblur';
     params: GaussianBlurParams;
 }
 
@@ -32,7 +32,7 @@ export interface CvtColorParams {
     code: number; // Fixed to 7 (cv2.COLOR_RGB2GRAY)
 }
 export interface CvtColorData extends BaseProcessNodeData {
-    functionName: 'cv2.cvtColor';
+    functionName: 'cvtcolor';
     params: CvtColorParams;
 }
 
@@ -44,8 +44,8 @@ export type ProcessNodeData = CLAHEData | GaussianBlurData | CvtColorData;
 export type NodeData = ProcessNodeData;
 
 export const DEFAULT_NODE_PARAMS: Record<ProcessNodeData['functionName'], any> = {
-    'cv2.createCLAHE': { clipLimit: 40.0, tileGridSize: [8, 8] },
-    'cv2.GaussianBlur': { ksize: [5, 5], sigmaX: 0, sigmaY: 0 },
-    'cv2.cvtColor': { code: 7 }
+    'createclahe': { clipLimit: 40.0, tileGridSize: [8, 8] },
+    'gaussianblur': { ksize: [5, 5], sigmaX: 0, sigmaY: 0 },
+    'cvtcolor': { code: 7 }
 };
 
