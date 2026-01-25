@@ -46,11 +46,63 @@ export function ProcessNode({ id, data }: NodeProps<Node>) {
     const renderParamInputs = () => {
         if (!params) return null;
 
+        // Special handling for grayscale: enableThreshold + threshold
+        if (nodeData.functionName === 'grayscale') {
+            const p = params as any;
+            const enableThreshold = p.enableThreshold as boolean;
+            const threshold = p.threshold as number;
+            return (
+                <>
+                    <div key="enableThreshold" className={styles.paramRow}>
+                        <label>threshold</label>
+                        <input
+                            type="checkbox"
+                            checked={enableThreshold}
+                            onChange={(e) => handleParamChange('enableThreshold', e.target.checked)}
+                            className="nodrag"
+                        />
+                    </div>
+                    {enableThreshold && (
+                        <div key="threshold" className={styles.paramRow}>
+                            <label>value</label>
+                            <input
+                                type="number"
+                                value={isNaN(threshold) ? '' : threshold}
+                                min={0}
+                                max={255}
+                                onChange={(e) => {
+                                    const parsed = parseInt(e.target.value);
+                                    handleParamChange('threshold', isNaN(parsed) ? 0 : Math.min(255, Math.max(0, parsed)));
+                                }}
+                                className="nodrag"
+                            />
+                        </div>
+                    )}
+                </>
+            );
+        }
+
         return Object.entries(params).map(([key, value]) => {
+            const isBoolean = typeof value === 'boolean';
             const isNumber = typeof value === 'number';
             const isArray = Array.isArray(value);
 
-            // Simple handling for numbers and arrays of numbers (e.g., [5, 5])
+            // Handle boolean as checkbox
+            if (isBoolean) {
+                return (
+                    <div key={key} className={styles.paramRow}>
+                        <label>{key}</label>
+                        <input
+                            type="checkbox"
+                            checked={value}
+                            onChange={(e) => handleParamChange(key, e.target.checked)}
+                            className="nodrag"
+                        />
+                    </div>
+                );
+            }
+
+            // Simple handling for numbers
             if (isNumber) {
                 return (
                     <div key={key} className={styles.paramRow}>
