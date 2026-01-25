@@ -77,4 +77,47 @@ document.addEventListener('DOMContentLoaded', () => {
         UI.showResponse('res-createclane', res);
         UI.setLoading('btn-createclane', false);
     });
+
+    // Grayscale
+    document.getElementById('btn-grayscale').addEventListener('click', async () => {
+        const fileInput = document.getElementById('file-grayscale');
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            alert('Please select an image file.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        UI.setLoading('btn-grayscale', true);
+        const res = await api.postGrayscale(formData);
+        UI.showResponse('res-grayscale', res);
+        UI.setLoading('btn-grayscale', false);
+    });
+
+    // Gaussian Blur
+    document.getElementById('btn-gaussian').addEventListener('click', async () => {
+        const fileInput = document.getElementById('file-gaussian');
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            alert('Please select an image file.');
+            return;
+        }
+
+        const ksize = UI.getInputValue('gaussian-ksize');
+        const sigma = UI.getInputValue('gaussian-sigma');
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('ksize', ksize);
+        formData.append('sigma', sigma);
+
+        UI.setLoading('btn-gaussian', true);
+        const res = await api.postGaussianBlur(formData);
+        UI.showResponse('res-gaussian', res);
+        UI.setLoading('btn-gaussian', false);
+    });
 });

@@ -1,20 +1,22 @@
-from flask import Flask, request, jsonify, redirect, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 import os
 
 # Import function modules
 # api package is assumed to be in the same directory
 from api.createclane import main as createclane
+from api.grayscale import main as grayscale
+from api.gaussian_blur import main as gaussian_blur
 
 
 from flask_cors import CORS
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="", static_folder="static")
 CORS(app)
 
 
 @app.route("/")
 def index():
-    return redirect("/health")
+    return app.send_static_file("index.html")
 
 
 @app.route("/favicon.ico")
@@ -40,6 +42,24 @@ def route_createclane():
     createclane/main.py の change_image1 を呼び出すラッパー
     """
     return createclane.change_image1(request)
+
+    return createclane.change_image1(request)
+
+
+@app.route("/api/grayscale", methods=["POST"])
+def route_grayscale():
+    """
+    grayscale/main.py の transform_grayscale を呼び出すラッパー
+    """
+    return grayscale.transform_grayscale(request)
+
+
+@app.route("/api/gaussian_blur", methods=["POST"])
+def route_gaussian_blur():
+    """
+    gaussian_blur/main.py の apply_gaussian_blur を呼び出すラッパー
+    """
+    return gaussian_blur.apply_gaussian_blur(request)
 
 
 if __name__ == "__main__":

@@ -105,6 +105,14 @@ class ApiClient {
     async createClane(data) {
         return this.request('/api/createclane', 'POST', data);
     }
+
+    async postGrayscale(data) {
+        return this.request('/api/grayscale', 'POST', data);
+    }
+
+    async postGaussianBlur(data) {
+        return this.request('/api/gaussian_blur', 'POST', data);
+    }
 }
 
 export const api = new ApiClient(config.baseURL);

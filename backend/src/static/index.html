@@ -32,22 +32,26 @@
           <div class="card-body">
             <p class="description">Set the API Base URL.</p>
             <div class="input-group">
-                <style>
-                    /* Inline style for the flex layout of this specific input group */
-                    .url-input-container {
-                        display: flex;
-                        gap: 10px;
-                        align-items: center;
-                    }
-                    .url-input-container input {
-                        flex-grow: 1;
-                    }
-                </style>
-                <label for="api-url">API URL</label>
-                <div class="url-input-container">
-                    <input type="text" id="api-url" placeholder="http://localhost:8000" />
-                    <button id="btn-save-url" class="btn secondary">Save</button>
-                </div>
+              <style>
+                /* Inline style for the flex layout of this specific input group */
+                .url-input-container {
+                  display: flex;
+                  gap: 10px;
+                  align-items: center;
+                }
+                .url-input-container input {
+                  flex-grow: 1;
+                }
+              </style>
+              <label for="api-url">API URL</label>
+              <div class="url-input-container">
+                <input
+                  type="text"
+                  id="api-url"
+                  placeholder="http://localhost:8000"
+                />
+                <button id="btn-save-url" class="btn secondary">Save</button>
+              </div>
             </div>
           </div>
         </section>
@@ -63,12 +67,12 @@
             <button id="btn-health" class="btn primary">Check Health</button>
             <div id="res-health" class="response-area hidden">
               <div class="result-section">
-                  <h4 class="section-title">Request</h4>
-                  <pre><code class="req-content"></code></pre>
+                <h4 class="section-title">Request</h4>
+                <pre><code class="req-content"></code></pre>
               </div>
               <div class="result-section">
-                  <h4 class="section-title">Response</h4>
-                  <pre><code class="res-content"></code></pre>
+                <h4 class="section-title">Response</h4>
+                <pre><code class="res-content"></code></pre>
               </div>
             </div>
           </div>
@@ -82,20 +86,20 @@
           </div>
           <div class="card-body">
             <p class="description">Upload an image to apply CLAHE.</p>
-            
+
             <div class="input-group">
-                <label for="file-createclane">Image File</label>
-                <input type="file" id="file-createclane" accept="image/*" />
+              <label for="file-createclane">Image File</label>
+              <input type="file" id="file-createclane" accept="image/*" />
             </div>
 
             <div class="input-group">
-                <label for="clip-limit">Clip Limit</label>
-                <input type="number" id="clip-limit" value="2.0" step="0.1" />
+              <label for="clip-limit">Clip Limit</label>
+              <input type="number" id="clip-limit" value="2.0" step="0.1" />
             </div>
 
             <div class="input-group">
-                <label for="grid-size">Grid Size</label>
-                <input type="number" id="grid-size" value="8" step="1" />
+              <label for="grid-size">Grid Size</label>
+              <input type="number" id="grid-size" value="8" step="1" />
             </div>
 
             <button id="btn-createclane" class="btn primary">
@@ -103,12 +107,88 @@
             </button>
             <div id="res-createclane" class="response-area hidden">
               <div class="result-section">
-                  <h4 class="section-title">Request</h4>
-                  <pre><code class="req-content"></code></pre>
+                <h4 class="section-title">Request</h4>
+                <pre><code class="req-content"></code></pre>
               </div>
               <div class="result-section">
-                  <h4 class="section-title">Response</h4>
-                  <pre><code class="res-content"></code></pre>
+                <h4 class="section-title">Response</h4>
+                <pre><code class="res-content"></code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Grayscale API Section -->
+        <section class="card">
+          <div class="card-header">
+            <h2>Grayscale</h2>
+            <span class="badge post">POST</span>
+          </div>
+          <div class="card-body">
+            <p class="description">Upload an image to convert to Grayscale.</p>
+
+            <div class="input-group">
+              <label for="file-grayscale">Image File</label>
+              <input type="file" id="file-grayscale" accept="image/*" />
+            </div>
+
+            <button id="btn-grayscale" class="btn primary">
+              Upload & Process
+            </button>
+            <div id="res-grayscale" class="response-area hidden">
+              <div class="result-section">
+                <h4 class="section-title">Request</h4>
+                <pre><code class="req-content"></code></pre>
+              </div>
+              <div class="result-section">
+                <h4 class="section-title">Response</h4>
+                <pre><code class="res-content"></code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Gaussian Blur API Section -->
+        <section class="card">
+          <div class="card-header">
+            <h2>Gaussian Blur</h2>
+            <span class="badge post">POST</span>
+          </div>
+          <div class="card-body">
+            <p class="description">Upload an image to apply Gaussian Blur.</p>
+
+            <div class="input-group">
+              <label for="file-gaussian">Image File</label>
+              <input type="file" id="file-gaussian" accept="image/*" />
+            </div>
+
+            <div class="input-group">
+              <label for="gaussian-ksize">Kernel Size (ksize)</label>
+              <input
+                type="number"
+                id="gaussian-ksize"
+                value="0"
+                step="1"
+                placeholder="Odd number (e.g., 3, 5). 0 to Auto"
+              />
+            </div>
+
+            <div class="input-group">
+              <label for="gaussian-sigma">Sigma</label>
+              <input type="number" id="gaussian-sigma" value="0" step="0.1" />
+            </div>
+
+            <button id="btn-gaussian" class="btn primary">
+              Upload & Process
+            </button>
+            <div id="res-gaussian" class="response-area hidden">
+              <div class="result-section">
+                <h4 class="section-title">Request</h4>
+                <pre><code class="req-content"></code></pre>
+              </div>
+              <div class="result-section">
+                <h4 class="section-title">Response</h4>
+                <pre><code class="res-content"></code></pre>
               </div>
             </div>
           </div>
