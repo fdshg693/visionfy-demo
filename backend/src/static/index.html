@@ -132,6 +132,17 @@
               <input type="file" id="file-grayscale" accept="image/*" />
             </div>
 
+            <div class="input-group">
+              <label for="grayscale-threshold">Threshold (0-255)</label>
+              <input 
+                type="number" 
+                id="grayscale-threshold" 
+                placeholder="Optional. e.g. 127" 
+                min="0" 
+                max="255" 
+              />
+            </div>
+
             <button id="btn-grayscale" class="btn primary">
               Upload & Process
             </button>

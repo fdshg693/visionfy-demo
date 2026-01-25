@@ -19,10 +19,16 @@ def apply_gaussian_blur(request):
 
     try:
         # Parse optional parameters
+        ksize = 0
+        sigma = 0
+
         try:
             # Gaussian Blur parameters
-            ksize = int(request.form.get("ksize", 0))
-            sigma = float(request.form.get("sigma", 0))
+            if request.form.get("ksize"):
+                ksize = int(request.form.get("ksize"))
+
+            if request.form.get("sigma"):
+                sigma = float(request.form.get("sigma"))
 
         except ValueError:
             return (

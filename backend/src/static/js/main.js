@@ -90,6 +90,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const formData = new FormData();
         formData.append('file', file);
+        
+        const threshold = UI.getInputValue('grayscale-threshold');
+        if (threshold) {
+             formData.append('threshold', threshold);
+        }
 
         UI.setLoading('btn-grayscale', true);
         const res = await api.postGrayscale(formData);

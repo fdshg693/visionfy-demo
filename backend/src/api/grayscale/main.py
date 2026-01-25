@@ -18,6 +18,9 @@ def transform_grayscale(request):
         return "No selected file", 400
 
     try:
+        # Parse optional parameters
+        threshold = request.form.get("threshold")
+
         # Read image
         file_bytes = np.frombuffer(file.read(), np.uint8)
         img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
@@ -27,6 +30,14 @@ def transform_grayscale(request):
 
         # Apply Grayscale
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+        # Apply Threshold if provided
+        if threshold:
+            try:
+                thresh_val = float(threshold)
+                _, img = cv2.threshold(img, thresh_val, 255, cv2.THRESH_BINARY)
+            except ValueError:
+                return "Invalid threshold value", 400
 
         # Encode back to format (JPG)
         ret, buffer = cv2.imencode(".jpg", img)
