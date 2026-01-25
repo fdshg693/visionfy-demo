@@ -39,8 +39,17 @@ export interface CvtColorData extends BaseProcessNodeData {
     params: CvtColorParams;
 }
 
+// 4. Grayscale
+export interface GrayscaleParams {
+    threshold: number;
+}
+export interface GrayscaleData extends BaseProcessNodeData {
+    functionName: 'grayscale';
+    params: GrayscaleParams;
+}
+
 // Discriminated Union
-export type ProcessNodeData = CLAHEData | GaussianBlurData | CvtColorData;
+export type ProcessNodeData = CLAHEData | GaussianBlurData | CvtColorData | GrayscaleData;
 
 // For backward compatibility or general usage where strict narrowing isn't immediately possible
 // We can use ProcessNodeData as the main type.
@@ -49,6 +58,7 @@ export type NodeData = ProcessNodeData;
 export const DEFAULT_NODE_PARAMS: Record<ProcessNodeData['functionName'], any> = {
     'createclahe': { clipLimit: 40.0, tileGridSize: [8, 8] },
     'gaussianblur': { ksize: [5, 5], sigmaX: 0, sigmaY: 0 },
-    'cvtcolor': { code: 7 }
+    'cvtcolor': { code: 7 },
+    'grayscale': { threshold: 128 },
 };
 

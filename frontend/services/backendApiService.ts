@@ -40,6 +40,40 @@ export class BackendApiService {
                     method: "POST",
                     body: formData,
                 });
+            } else if (functionName === 'grayscale') {
+                const formData = new FormData();
+
+                // Convert base64 inputData to Blob
+                const blob = this.base64ToBlob(inputData);
+                formData.append('file', blob, 'image.jpg');
+
+                // Append threshold param
+                formData.append('threshold', String(params.threshold));
+
+                response = await fetch(url, {
+                    method: "POST",
+                    body: formData,
+                });
+            } else if (functionName === 'gaussianblur') {
+                // Backend uses 'gaussian_blur' route name
+                const apiUrl = `${this.baseUrl}/api/gaussian_blur`;
+
+                const formData = new FormData();
+
+                // Convert base64 inputData to Blob
+                const blob = this.base64ToBlob(inputData);
+                formData.append('file', blob, 'image.jpg');
+
+                // Append ksize and sigma params
+                if (params.ksize) {
+                    formData.append('ksize', String(params.ksize[0]));
+                }
+                formData.append('sigma', String(params.sigmaX));
+
+                response = await fetch(apiUrl, {
+                    method: "POST",
+                    body: formData,
+                });
             } else {
                 response = await fetch(url, {
                     method: "POST",
