@@ -8,6 +8,7 @@ import { useCallback, useState } from 'react';
 import type { ExecutionStatus, ProcessNodeParams } from '@/types/node';
 import { isProcessNodeData } from '@/types/typeGuards';
 import type { WorkflowFile } from '@/types/workflow';
+import { ValidationError, ProcessingError, categorizeError } from '@/lib/errors';
 
 type UseWorkflowExecutionParams = {
   nodes: Node[];
@@ -16,6 +17,7 @@ type UseWorkflowExecutionParams = {
   resetNodeExecutionStatuses: () => void;
   updateNodeExecutionStatus: (nodeId: string, status: ExecutionStatus) => void;
   updateNodeExecutionResult: (nodeId: string, result: string, params: ProcessNodeParams) => void;
+  onError?: (error: unknown) => void;
 };
 
 export const useWorkflowExecution = ({
@@ -25,6 +27,7 @@ export const useWorkflowExecution = ({
   resetNodeExecutionStatuses,
   updateNodeExecutionStatus,
   updateNodeExecutionResult,
+  onError,
 }: UseWorkflowExecutionParams) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [resultImage, setResultImage] = useState<string | null>(null);
@@ -39,8 +42,13 @@ export const useWorkflowExecution = ({
   }, []);
 
   const executeWorkflow = useCallback(async () => {
+    // バリデーション: 画像がアップロードされているか
     if (files.length === 0) {
-      alert('No image uploaded.');
+      const error = new ValidationError(
+        'No image uploaded',
+        '画像がアップロードされていません。'
+      );
+      if (onError) onError(error);
       return;
     }
 
@@ -57,7 +65,12 @@ export const useWorkflowExecution = ({
 
       // 2. Find Start Node
       const startNode = nodes.find(n => n.type === 'startNode');
-      if (!startNode) throw new Error('Start node not found');
+      if (!startNode) {
+        throw new ValidationError(
+          'Start node not found',
+          'スタートノードが見つかりません。ワークフローを確認してください。'
+        );
+      }
 
       currentNodeId = startNode.id;
 
@@ -71,7 +84,11 @@ export const useWorkflowExecution = ({
         if (currentNode.type === 'processNode') {
           // Type-safe validation of node data
           if (!isProcessNodeData(currentNode.data)) {
-            throw new Error(`Invalid process node data for node ${currentNode.id}`);
+            throw new ValidationError(
+              `Invalid process node data for node ${currentNode.id}`,
+              'ノードの設定が正しくありません。',
+              `Node ID: ${currentNode.id}`
+            );
           }
 
           updateNodeExecutionStatus(currentNode.id, 'running');
@@ -92,7 +109,13 @@ export const useWorkflowExecution = ({
           });
 
           if (!response.ok) {
-            throw new Error(`Node processing failed: ${response.statusText}`);
+            const errorText = await response.text();
+            throw new ProcessingError(
+              `Node processing failed: ${response.statusText}`,
+              `ノード処理に失敗しました (${functionName})`,
+              errorText,
+              currentNode.id
+            );
           }
 
           const result = await response.json();
@@ -102,7 +125,12 @@ export const useWorkflowExecution = ({
             // Save result and params to the node
             updateNodeExecutionResult(currentNode.id, currentImage, params);
           } else {
-            throw new Error(result.message || 'Unknown error during processing');
+            throw new ProcessingError(
+              result.message || 'Unknown error during processing',
+              `処理中にエラーが発生しました (${functionName})`,
+              result.message,
+              currentNode.id
+            );
           }
         }
 
@@ -125,11 +153,27 @@ export const useWorkflowExecution = ({
         if (currentNodeId) visited.add(currentNodeId);
       }
     } catch (error) {
-      console.error('Workflow Execution Error:', error);
+      // エラーを分類してハンドリング
+      const appError = categorizeError(error);
+
+      // ノードのステータスを更新
       if (currentNodeId) {
         updateNodeExecutionStatus(currentNodeId, 'error');
       }
-      alert('Workflow failed. Check console.');
+
+      // エラーコールバックを呼び出し
+      if (onError) {
+        onError(appError);
+      }
+
+      // 技術的な詳細をコンソールに出力
+      console.error('[useWorkflowExecution] Workflow execution failed:', {
+        error: appError,
+        nodeId: currentNodeId,
+        category: appError.category,
+        message: appError.message,
+        technicalDetails: appError.technicalDetails,
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -141,6 +185,7 @@ export const useWorkflowExecution = ({
     resetNodeExecutionStatuses,
     updateNodeExecutionResult,
     updateNodeExecutionStatus,
+    onError,
   ]);
 
   return {

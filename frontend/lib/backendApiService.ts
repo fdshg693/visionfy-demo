@@ -9,6 +9,7 @@ import {
     type RequestAdapter,
 } from "./backendApiAdapters";
 import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
+import { NetworkError, ProcessingError, createErrorFromStatus } from './errors';
 
 export class BackendApiService {
     private baseUrl: string;
@@ -48,7 +49,11 @@ export class BackendApiService {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`API call failed with status ${response.status}: ${errorText}`);
+                throw createErrorFromStatus(
+                    response.status,
+                    response.statusText,
+                    errorText
+                );
             }
 
             const contentType = response.headers.get("content-type");
@@ -66,6 +71,13 @@ export class BackendApiService {
             // Normalize response if it follows the "ok: true, data: { url: ... }" pattern
             if (data.ok && data.data?.url && typeof data.data.url === 'string') {
                 const imageResponse = await fetch(data.data.url);
+                if (!imageResponse.ok) {
+                    throw new NetworkError(
+                        'Failed to fetch image from URL',
+                        imageResponse.status,
+                        `URL: ${data.data.url}`
+                    );
+                }
                 const imageBlob = await imageResponse.blob();
                 const base64Result = await this.blobToBase64(imageBlob);
 
@@ -77,8 +89,26 @@ export class BackendApiService {
 
             return data;
         } catch (error) {
-            console.error(`[BackendApiService] Error calling ${functionName}:`, error);
-            throw error;
+            // エラーの種類に応じて適切にラップ
+            if (error instanceof NetworkError || error instanceof ProcessingError) {
+                throw error;
+            }
+
+            // Fetch関連のエラー（ネットワーク切断など）
+            if (error instanceof TypeError && error.message.includes('fetch')) {
+                throw new NetworkError(
+                    `Failed to connect to backend: ${functionName}`,
+                    undefined,
+                    error.message
+                );
+            }
+
+            // その他のエラー
+            throw new ProcessingError(
+                `Error processing ${functionName}`,
+                `画像処理中にエラーが発生しました (${functionName})`,
+                error instanceof Error ? error.message : String(error)
+            );
         }
     }
 

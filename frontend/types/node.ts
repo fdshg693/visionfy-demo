@@ -61,9 +61,7 @@ export type ProcessNodeParamsMap = {
     grayscale: GrayscaleParams;
 };
 
-export type ProcessNodeParams =
-    ProcessNodeParamsMap[ProcessNodeFunctionName] &
-    Record<string, OpencvParamValue>;
+export type ProcessNodeParams = ProcessNodeParamsMap[ProcessNodeFunctionName];
 
 export const DEFAULT_NODE_PARAMS: ProcessNodeParamsMap = {
     createclahe: { clipLimit: 40.0, tileGridSize: [8, 8] },

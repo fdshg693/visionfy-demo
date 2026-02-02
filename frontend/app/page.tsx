@@ -28,6 +28,9 @@ import {
 import '@xyflow/react/dist/style.css';
 import { useCallback, useMemo, useState } from 'react';
 import { InspectorProvider } from '@/contexts/InspectorContext';
+import { ToastProvider, useToast } from '@/contexts/ToastContext';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { categorizeError, ValidationError, type AppError } from '@/lib/errors';
 
 import styles from './page.module.css';
 
@@ -53,6 +56,13 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [historyEntries, setHistoryEntries] = useState<FlowHistoryEntry[]>(() => initialHistoryEntries);
   const [activeInspectorTab, setActiveInspectorTab] = useState<'inspector' | 'snapshot'>('inspector');
+  const { showError, showWarning, showInfo } = useToast();
+
+  // エラーハンドラ
+  const handleExecutionError = useCallback((error: unknown) => {
+    const appError = categorizeError(error);
+    showError(appError);
+  }, [showError]);
 
   // Image Upload & Result State
   const [files, setFiles] = useState<WorkflowFile[]>([]);
@@ -63,6 +73,7 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     resetNodeExecutionStatuses,
     updateNodeExecutionStatus,
     updateNodeExecutionResult,
+    onError: handleExecutionError,
   });
 
   // ========== Snapshot Handlers ==========
@@ -145,12 +156,12 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     (params: Connection) => {
       const error = getConnectionConstraintError(params, edges);
       if (error) {
-        alert(error);
+        showWarning('接続エラー', error);
         return;
       }
       setEdges((eds) => addEdge({ ...params, animated: true }, eds));
     },
-    [edges, setEdges]
+    [edges, setEdges, showWarning]
   );
   
   const onPaneClick = useCallback(() => {
@@ -205,12 +216,16 @@ export default function Home() {
   const initialEdgesState = latestSnapshot?.edges ?? initialEdges;
 
   return (
-    <FlowStoreProvider
-      initialNodes={initialNodesState}
-      initialEdges={initialEdgesState}
-      initialViewport={latestSnapshot?.viewport}
-    >
-      <WorkflowContent initialHistoryEntries={initialHistoryEntries} />
-    </FlowStoreProvider>
+    <ErrorBoundary>
+      <ToastProvider>
+        <FlowStoreProvider
+          initialNodes={initialNodesState}
+          initialEdges={initialEdgesState}
+          initialViewport={latestSnapshot?.viewport}
+        >
+          <WorkflowContent initialHistoryEntries={initialHistoryEntries} />
+        </FlowStoreProvider>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 }
