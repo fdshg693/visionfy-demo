@@ -1,4 +1,6 @@
-import { NodeData } from '@/app/types/node';
+// 役割: 選択ノードの種類に応じてStart/Process/Endの各Inspectorへ切り替える。
+// 依存: Start/Process/Endの各Inspectorコンポーネント。
+import type { NodeDataUpdate } from '@/types/node';
 import { Node } from '@xyflow/react';
 import styles from './NodeInspector.module.css';
 import { EndNodeInspector } from './inspectors/EndNodeInspector';
@@ -7,25 +9,12 @@ import { StartNodeInspector } from './inspectors/StartNodeInspector';
 
 interface NodeInspectorProps {
     selectedNode: Node | null;
-    onUpdateNode: (nodeId: string, newData: Partial<NodeData>) => void;
-    // Props for Start Node
-    files: any[];
-    setFiles: (files: any[]) => void;
-    onRun: () => void;
-    // Props for End Node
-    resultImage: string | null;
-    // All nodes for execution history
-    nodes: Node[];
+    onUpdateNode: (nodeId: string, newData: NodeDataUpdate) => void;
 }
 
 export function NodeInspector({
     selectedNode,
     onUpdateNode,
-    files,
-    setFiles,
-    onRun,
-    resultImage,
-    nodes
 }: NodeInspectorProps) {
 
     if (!selectedNode) {
@@ -45,30 +34,14 @@ export function NodeInspector({
             </h3>
 
             {type === 'startNode' && (
-                <StartNodeInspector
-                    files={files}
-                    setFiles={setFiles}
-                    onRun={onRun}
-                />
+                <StartNodeInspector />
             )}
 
             {type === 'endNode' && (
-                <EndNodeInspector
-                    resultImage={resultImage}
-                    files={files}
-                    nodes={nodes}
-                />
+                <EndNodeInspector />
             )}
 
             {type === 'processNode' && (
-                <ProcessNodeInspector
-                    selectedNode={selectedNode}
-                    onUpdateNode={onUpdateNode}
-                />
-            )}
-
-            {/* Fallback for unknown types or custom backward compatibility */}
-            {type === 'custom' && (
                 <ProcessNodeInspector
                     selectedNode={selectedNode}
                     onUpdateNode={onUpdateNode}

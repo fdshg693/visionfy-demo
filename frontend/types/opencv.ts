@@ -1,10 +1,12 @@
 export const CV2_COLOR_RGB2GRAY = 7;
 
+export type OpencvParamValue = number | string | boolean | [number, number];
+
 export interface OpencvParamDefinition {
     name: string;
-    type: 'number' | 'text' | 'select' | 'tuple';
-    options?: { label: string; value: number | string }[];
-    defaultValue?: any;
+    type: 'number' | 'text' | 'select' | 'tuple' | 'boolean';
+    options?: { label: string; value: number | string | boolean }[];
+    defaultValue?: OpencvParamValue;
     label?: string; // Display label (uses name if omitted)
 }
 
@@ -19,12 +21,8 @@ export const OPENCV_FUNCTIONS_CONFIG: Record<string, OpencvFunctionConfig> = {
         params: [
             {
                 name: 'enableThreshold',
-                type: 'select',
-                options: [
-                    { label: 'OFF', value: 0 },
-                    { label: 'ON', value: 1 }
-                ],
-                defaultValue: 0,
+                type: 'boolean',
+                defaultValue: false,
                 label: 'Threshold'
             },
             {

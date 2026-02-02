@@ -1,6 +1,11 @@
+import type { OpencvParamValue } from './opencv';
+
 export type ExecutionStatus = 'idle' | 'running' | 'success' | 'error';
 
-// Base interface for all process nodes
+/**
+ * 全てのNodeで共通する基本データ構造 
+ * 各Nodeは、functionNameとparamsで特定の処理内容を定義する  
+*/
 export interface BaseProcessNodeData extends Record<string, unknown> {
     label: string;
     executionStatus?: ExecutionStatus;
@@ -40,22 +45,35 @@ export interface GrayscaleData extends BaseProcessNodeData {
     params: GrayscaleParams;
 }
 
-// Discriminated Union
+/** Nodeの種類・パラメータを表す型 */
 export type ProcessNodeData = CLAHEData | GaussianBlurData | GrayscaleData;
 
-// For backward compatibility or general usage where strict narrowing isn't immediately possible
-// We can use ProcessNodeData as the main type.
-export type NodeData = ProcessNodeData;
+export type ProcessNodeFunctionName = ProcessNodeData['functionName'];
 
-export const DEFAULT_NODE_PARAMS: Record<ProcessNodeData['functionName'], any> = {
-    'createclahe': { clipLimit: 40.0, tileGridSize: [8, 8] },
-    'gaussianblur': { ksize: [5, 5], sigmaX: 0, sigmaY: 0 },
-    'grayscale': { enableThreshold: false, threshold: 128 },
+export type NodeDataUpdate = Partial<BaseProcessNodeData> & {
+    functionName?: ProcessNodeFunctionName;
+    params?: ProcessNodeParams;
+};
+
+export type ProcessNodeParamsMap = {
+    createclahe: CLAHEParams;
+    gaussianblur: GaussianBlurParams;
+    grayscale: GrayscaleParams;
+};
+
+export type ProcessNodeParams =
+    ProcessNodeParamsMap[ProcessNodeFunctionName] &
+    Record<string, OpencvParamValue>;
+
+export const DEFAULT_NODE_PARAMS: ProcessNodeParamsMap = {
+    createclahe: { clipLimit: 40.0, tileGridSize: [8, 8] },
+    gaussianblur: { ksize: [5, 5], sigmaX: 0, sigmaY: 0 },
+    grayscale: { enableThreshold: false, threshold: 128 },
 };
 
 // Icon mapping for each function
-export const DEFAULT_NODE_ICONS: Record<ProcessNodeData['functionName'], string> = {
-    'createclahe': 'histogram',
-    'gaussianblur': 'brush',
-    'grayscale': 'palette',
+export const DEFAULT_NODE_ICONS: Record<ProcessNodeFunctionName, string> = {
+    createclahe: 'histogram',
+    gaussianblur: 'brush',
+    grayscale: 'palette',
 };

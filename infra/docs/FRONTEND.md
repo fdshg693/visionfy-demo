@@ -1,3 +1,5 @@
+# 🚀 Deployment
+
 Firebase App Hostingを利用している
 Firebase上での実行時: next start もしくは node .next/standalone/server.js
 

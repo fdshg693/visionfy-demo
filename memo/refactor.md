@@ -1,0 +1,110 @@
+---
+
+Frontend リファクタリング提案
+
+優先度: 高
+
+2. 型安全性の向上  
+
+
+場所: ProcessNodeInspector.tsx:24, flowStore.tsx:76
+
+data as unknown as NodeData のような危険なキャストが多い。
+
+提案: React Flow の Generic 型を活用  
+ // 現状  
+ const data = selectedNode.data as unknown as NodeData;
+
+// 改善案: カスタム型ガードを作成  
+ function (data: unknown): data is ProcessNodeData {  
+ return typeof data === 'object' && data !== null && 'functionName' in data;  
+ }
+
+3. エラーハンドリングの改善  
+
+
+場所: useWorkflowExecution.ts:117-122
+
+現状は alert() と console.error() のみ。
+
+提案:
+
+- Error Boundary の追加
+- ユーザーフレンドリーなエラーメッセージ
+- エラー種別の分類（ネットワーク/バリデーション/処理失敗）  
+
+
+---
+
+優先度: 中
+
+4. マジック文字列の定数化
+
+場所: 各所に散在
+
+// 現状  
+ executionStatus: 'idle' | 'running' | 'success' | 'error'
+
+// 提案: 定数オブジェクト化  
+ export const EXECUTION_STATUS = {  
+ IDLE: 'idle',  
+ RUNNING: 'running',  
+ SUCCESS: 'success',  
+ ERROR: 'error',  
+ } as const;
+
+5. バリデーションの追加
+
+場所: types/opencv.ts, ProcessNodeParamInputs.tsx
+
+パラメータの範囲チェックがない（例: threshold 0-255、ksize は奇数のみ）。
+
+提案: OpencvParamDefinition に validation ルールを追加  
+ interface OpencvParamDefinition {  
+ // 既存フィールド...  
+ validation?: {  
+ min?: number;  
+ max?: number;  
+ isOdd?: boolean;  
+ };  
+ }
+
+6. 循環参照検出の改善
+
+場所: useWorkflowExecution.ts:113-115
+
+現状の visited Set は不完全。ノード追加後にループ検出される。
+
+提案: 実行前にトポロジカルソートでDAG検証
+
+---
+
+優先度: 低
+
+7. コンポーネント分割
+
+- page.tsx (215行) → スナップショット操作を別hookに
+- ProcessNodeInspector.tsx → フォーム部分を分離
+
+8. 未使用コードの削除
+
+- types/opencv.ts の CV2_COLOR_RGB2GRAY 定数（未使用）
+
+9. 命名の統一
+
+- バックエンドの createclane タイポを修正するか、フロントエンドで明示的にマッピング
+
+---
+
+ファイル構成サマリー（追加したコメント）  
+ ┌───────────────────────────────┬───────────────────────────────────────┐  
+ │ ファイル │ 役割 │  
+ ├───────────────────────────────┼───────────────────────────────────────┤  
+ │ hooks/useWorkflowExecution.ts │ ノードグラフ走査・API実行 │  
+ ├───────────────────────────────┼───────────────────────────────────────┤  
+ │ workflow/flowStore.tsx │ ノード/エッジ/実行状態の一元管理 │  
+ ├───────────────────────────────┼───────────────────────────────────────┤  
+ │ lib/backendApiService.ts │ Flaskバックエンドへのリクエスト抽象化 │  
+ ├───────────────────────────────┼───────────────────────────────────────┤  
+ │ lib/backendApiAdapters.ts │ エンドポイント別リクエスト形式変換 │  
+ └───────────────────────────────┴───────────────────────────────────────┘

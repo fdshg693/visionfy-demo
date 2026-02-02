@@ -1,19 +1,17 @@
-import { Node } from '@xyflow/react';
+// 役割: Endノードの結果表示UI。Before/Afterと実行履歴をタブで切替表示する。
+// 依存: nodesから履歴を抽出し、CollapsibleHistoryItemで展開表示。
+import type { Node } from '@xyflow/react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
+import type { ProcessNodeData, ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
 import styles from '../NodeInspector.module.css';
+import { useInspector } from '@/contexts/InspectorContext';
 
 interface ExecutionHistoryItem {
     nodeId: string;
-    functionName: string;
-    params: Record<string, unknown>;
+    functionName: ProcessNodeFunctionName;
+    params: ProcessNodeParams;
     resultImage: string;
-}
-
-interface EndNodeInspectorProps {
-    resultImage: string | null;
-    files: any[];
-    nodes: Node[];
 }
 
 // Collapsible history item component
@@ -36,6 +34,7 @@ function CollapsibleHistoryItem({ item, index }: { item: ExecutionHistoryItem; i
             {isOpen && (
                 <div className={styles.historyContent}>
                     <div className={styles.historyImageBox}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={item.resultImage} alt={`Step ${index + 1}`} className={styles.resultImage} />
                     </div>
                     <div className={styles.historyParams}>
@@ -47,21 +46,26 @@ function CollapsibleHistoryItem({ item, index }: { item: ExecutionHistoryItem; i
     );
 }
 
-export function EndNodeInspector({ resultImage, files, nodes }: EndNodeInspectorProps) {
+export function EndNodeInspector() {
+    const { resultImage, files, nodes } = useInspector();
     const [activeTab, setActiveTab] = useState<'result' | 'history'>('result');
 
     const originalImage = files.length > 0 ? (URL.createObjectURL(files[0].file) as string) : null;
 
     // Extract execution history from process nodes
-    const executionHistory: ExecutionHistoryItem[] = nodes
-        .filter(n => n.type === 'processNode' || n.type === 'custom')
-        .filter(n => n.data.result) // Only nodes with results
-        .map(n => ({
-            nodeId: n.id,
-            functionName: n.data.functionName as string,
-            params: n.data.resultParams as Record<string, unknown> || {},
-            resultImage: n.data.result as string,
-        }));
+    const executionHistory = nodes
+        .filter((node) => node.type === 'processNode')
+        .map((node) => {
+            const data = node.data as ProcessNodeData;
+            if (!data.result) return null;
+            return {
+                nodeId: node.id,
+                functionName: data.functionName,
+                params: (data.resultParams as ProcessNodeParams) || data.params,
+                resultImage: data.result as string,
+            };
+        })
+        .filter((item): item is ExecutionHistoryItem => item !== null);
 
     return (
         <div className={styles.inspectorContent}>
@@ -90,7 +94,10 @@ export function EndNodeInspector({ resultImage, files, nodes }: EndNodeInspector
                             <span className={styles.imageLabel}>Before</span>
                             <div className={styles.imageBox}>
                                 {originalImage ? (
-                                    <img src={originalImage} alt="Original" className={styles.resultImage} />
+                                    <>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={originalImage} alt="Original" className={styles.resultImage} />
+                                    </>
                                 ) : (
                                     <div className={styles.emptyResult}>None</div>
                                 )}
@@ -101,7 +108,10 @@ export function EndNodeInspector({ resultImage, files, nodes }: EndNodeInspector
                             <span className={styles.imageLabel}>After</span>
                             <div className={styles.imageBox}>
                                 {resultImage ? (
-                                    <img src={resultImage} alt="Result" className={styles.resultImage} />
+                                    <>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={resultImage} alt="Result" className={styles.resultImage} />
+                                    </>
                                 ) : (
                                     <div className={styles.emptyResult}>No result</div>
                                 )}

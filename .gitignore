@@ -1,2 +1,2 @@
 *.log
-DEPLOY*
+.DS_Store

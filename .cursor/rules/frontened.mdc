@@ -1,3 +1,7 @@
+---
+globs: frontend/**/*.*
+alwaysApply: false
+---
 # Visionfy Demo フロントエンド概要
 
 ## 機能の列挙

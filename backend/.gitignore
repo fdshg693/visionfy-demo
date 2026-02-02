@@ -3,3 +3,6 @@ memo/
 *.jpeg
 *.webp
 *.pyc
+
+__pycache__/
+

@@ -1,19 +1,18 @@
 
+// 役割: Startノード用の入力UI。画像アップロードと実行ボタンを提供する。
+// 依存: FilePondで画像プレビュー/アップロード制御。
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 import 'filepond/dist/filepond.min.css';
 import { FilePond, registerPlugin } from 'react-filepond';
+import type { WorkflowFile } from '@/types/workflow';
 import styles from '../NodeInspector.module.css';
+import { useInspector } from '@/contexts/InspectorContext';
 
 registerPlugin(FilePondPluginImagePreview);
 
-interface StartNodeInspectorProps {
-    files: any[];
-    setFiles: (files: any[]) => void;
-    onRun: () => void;
-}
-
-export function StartNodeInspector({ files, setFiles, onRun }: StartNodeInspectorProps) {
+export function StartNodeInspector() {
+    const { files, setFiles, executeWorkflow } = useInspector();
     return (
         <div className={styles.inspectorContent}>
             <div className={styles.field}>
@@ -21,7 +20,7 @@ export function StartNodeInspector({ files, setFiles, onRun }: StartNodeInspecto
                 <div className={styles.uploadArea}>
                     <FilePond
                         files={files}
-                        onupdatefiles={setFiles}
+                        onupdatefiles={(nextFiles) => setFiles(nextFiles as WorkflowFile[])}
                         allowMultiple={false}
                         maxFiles={1}
                         name="files"
@@ -34,7 +33,7 @@ export function StartNodeInspector({ files, setFiles, onRun }: StartNodeInspecto
             <div className={styles.field}>
                 <button
                     className={styles.runBtn}
-                    onClick={onRun}
+                    onClick={executeWorkflow}
                     disabled={files.length === 0}
                 >
                     Run Workflow

@@ -1,9 +1,36 @@
-from flask import make_response
+from dataclasses import dataclass
+from typing import Tuple, Union
+
+from flask import Request, Response, make_response
 import cv2
 import numpy as np
 
 
-def change_image1(request):
+@dataclass(frozen=True)
+class CreateClaneParams:
+    clip_limit: float = 2.0
+    tile_grid_x: int = 8
+    tile_grid_y: int = 8
+
+
+def _parse_params(request: Request) -> CreateClaneParams:
+    try:
+        clip_limit = float(request.form.get("clipLimit", 2.0))
+        tile_grid_x = int(request.form.get("tileGridSizeX", 8))
+        tile_grid_y = int(request.form.get("tileGridSizeY", 8))
+    except ValueError as exc:
+        raise ValueError(
+            "Invalid parameters: clipLimit must be float, tileGridSize must be int"
+        ) from exc
+
+    return CreateClaneParams(
+        clip_limit=clip_limit,
+        tile_grid_x=tile_grid_x,
+        tile_grid_y=tile_grid_y,
+    )
+
+
+def change_image1(request: Request) -> Union[Response, Tuple[str, int]]:
     """
     画像を受け取り、CLAHE変換を適用して返す
     reference: infra/reference/simple.py
@@ -23,14 +50,9 @@ def change_image1(request):
     try:
         # Parse optional parameters
         try:
-            clip_limit = float(request.form.get("clipLimit", 2.0))
-            tile_grid_x = int(request.form.get("tileGridSizeX", 8))
-            tile_grid_y = int(request.form.get("tileGridSizeY", 8))
-        except ValueError:
-            return (
-                "Invalid parameters: clipLimit must be float, tileGridSize must be int",
-                400,
-            )
+            params = _parse_params(request)
+        except ValueError as exc:
+            return (str(exc), 400)
 
         # Read image
         file_bytes = np.frombuffer(file.read(), np.uint8)
@@ -42,7 +64,8 @@ def change_image1(request):
 
         # create a CLAHE object (Arguments are optional).
         clahe = cv2.createCLAHE(
-            clipLimit=clip_limit, tileGridSize=(tile_grid_x, tile_grid_y)
+            clipLimit=params.clip_limit,
+            tileGridSize=(params.tile_grid_x, params.tile_grid_y),
         )
         cl1 = clahe.apply(img)
 
