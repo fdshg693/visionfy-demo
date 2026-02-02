@@ -8,21 +8,6 @@ Frontend リファクタリング提案
 
 優先度: 中
 
-4. マジック文字列の定数化
-
-場所: 各所に散在
-
-// 現状  
- executionStatus: 'idle' | 'running' | 'success' | 'error'
-
-// 提案: 定数オブジェクト化  
- export const EXECUTION_STATUS = {  
- IDLE: 'idle',  
- RUNNING: 'running',  
- SUCCESS: 'success',  
- ERROR: 'error',  
- } as const;
-
 5. バリデーションの追加
 
 場所: types/opencv.ts, ProcessNodeParamInputs.tsx

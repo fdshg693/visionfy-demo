@@ -1,6 +1,7 @@
 import type { OpencvParamValue } from './opencv';
+import type { ExecutionStatusValue } from '@/constants';
 
-export type ExecutionStatus = 'idle' | 'running' | 'success' | 'error';
+export type ExecutionStatus = ExecutionStatusValue;
 
 /**
  * 全てのNodeで共通する基本データ構造 

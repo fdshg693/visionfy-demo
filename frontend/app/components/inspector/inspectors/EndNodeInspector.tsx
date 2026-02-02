@@ -66,7 +66,7 @@ export function EndNodeInspector() {
             return {
                 nodeId: node.id,
                 functionName: data.functionName,
-                params: (data.resultParams as ProcessNodeParams) || data.params,
+                params: (data.resultParams ?? data.params) as ProcessNodeParams,
                 resultImage: data.result,
             };
         })

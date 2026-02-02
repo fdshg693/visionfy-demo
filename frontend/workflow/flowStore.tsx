@@ -10,6 +10,7 @@ import type {
   ProcessNodeParams,
   BaseProcessNodeData,
 } from '@/types/node';
+import { EXECUTION_STATUS } from '@/constants';
 import { isBaseProcessNodeData } from '@/types/typeGuards';
 import {
   applyEdgeChanges,
@@ -106,7 +107,7 @@ export function FlowStoreProvider({
           ...node,
           data: {
             ...node.data,
-            executionStatus: 'idle' as ExecutionStatus,
+            executionStatus: EXECUTION_STATUS.IDLE as ExecutionStatus,
           },
         };
       })
@@ -123,9 +124,9 @@ export function FlowStoreProvider({
   const updateNodeExecutionResult = useCallback(
     (nodeId: string, result: string, params: ProcessNodeParams) => {
       updateNodeData(nodeId, {
-        executionStatus: 'success',
+        executionStatus: EXECUTION_STATUS.SUCCESS,
         result,
-        resultParams: params,
+        resultParams: params as unknown as Record<string, unknown>,
       });
     },
     [updateNodeData]

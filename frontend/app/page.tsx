@@ -6,6 +6,7 @@ import { FlowCanvas } from '@/app/components/workflow/FlowCanvas';
 import { InspectorPanel } from '@/app/components/workflow/InspectorPanel';
 import { useWorkflowExecution } from '@/hooks/useWorkflowExecution';
 import { DEFAULT_NODE_PARAMS, type ProcessNodeData, type NodeDataUpdate } from '@/types/node';
+import { NODE_TYPE, EXECUTION_STATUS } from '@/constants';
 import type { WorkflowFile } from '@/types/workflow';
 import { FlowStoreProvider, useFlowStore } from '@/workflow/flowStore';
 import { initialEdges, initialNodes, nodeTypes } from '@/workflow/flowConfig';
@@ -127,13 +128,13 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
   const handleAddNode = useCallback(() => {
     const newNode: Node<ProcessNodeData> = {
       id: `node-${Date.now()}`,
-      type: 'processNode',
+      type: NODE_TYPE.PROCESS,
       position: { x: Math.random() * 400, y: Math.random() * 400 },
       data: {
         label: 'New Node',
         functionName: 'createclahe',
         params: DEFAULT_NODE_PARAMS['createclahe'],
-        executionStatus: 'idle',
+        executionStatus: EXECUTION_STATUS.IDLE,
         icon: 'histogram',
       },
     };

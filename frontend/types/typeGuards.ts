@@ -4,6 +4,7 @@
  */
 
 import type { Node } from '@xyflow/react';
+import { NODE_TYPE } from '@/constants';
 import type {
   ProcessNodeData,
   CLAHEData,
@@ -89,7 +90,7 @@ export function isGrayscaleData(data: unknown): data is GrayscaleData {
  * Checks if the given node is a process node with ProcessNodeData
  */
 export function isProcessNode(node: Node): node is Node<ProcessNodeData> {
-  return node.type === 'processNode' && isProcessNodeData(node.data);
+  return node.type === NODE_TYPE.PROCESS && isProcessNodeData(node.data);
 }
 
 /**

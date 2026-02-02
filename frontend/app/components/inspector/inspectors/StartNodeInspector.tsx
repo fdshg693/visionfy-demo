@@ -19,8 +19,8 @@ export function StartNodeInspector() {
                 <label className={styles.label}>Input Image</label>
                 <div className={styles.uploadArea}>
                     <FilePond
-                        files={files}
-                        onupdatefiles={(nextFiles) => setFiles(nextFiles as WorkflowFile[])}
+                        files={files as any}
+                        onupdatefiles={(nextFiles) => setFiles(nextFiles as unknown as WorkflowFile[])}
                         allowMultiple={false}
                         maxFiles={1}
                         name="files"

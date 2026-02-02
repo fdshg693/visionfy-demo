@@ -161,7 +161,7 @@ export function ProcessNodeParamInputs({ functionName, params, onParamChange, cl
                 <ParamField
                     key={param.name}
                     config={param}
-                    value={(params as Record<string, OpencvParamValue>)[param.name]}
+                    value={(params as unknown as Record<string, OpencvParamValue>)[param.name]}
                     onChange={(value) => onParamChange(param.name, value)}
                     classNames={classNames}
                 />

@@ -6,6 +6,7 @@
 import type { Node, Edge } from '@xyflow/react';
 import { useCallback, useState } from 'react';
 import type { ExecutionStatus, ProcessNodeParams } from '@/types/node';
+import { EXECUTION_STATUS, NODE_TYPE } from '@/constants';
 import { isProcessNodeData } from '@/types/typeGuards';
 import type { WorkflowFile } from '@/types/workflow';
 import { ValidationError, ProcessingError, categorizeError } from '@/lib/errors';
@@ -64,7 +65,7 @@ export const useWorkflowExecution = ({
       let currentImage = await fileToBase64(files[0].file);
 
       // 2. Find Start Node
-      const startNode = nodes.find(n => n.type === 'startNode');
+      const startNode = nodes.find(n => n.type === NODE_TYPE.START);
       if (!startNode) {
         throw new ValidationError(
           'Start node not found',
@@ -81,7 +82,7 @@ export const useWorkflowExecution = ({
         if (!currentNode) break;
 
         // If Process Node, Execute it
-        if (currentNode.type === 'processNode') {
+        if (currentNode.type === NODE_TYPE.PROCESS) {
           // Type-safe validation of node data
           if (!isProcessNodeData(currentNode.data)) {
             throw new ValidationError(
@@ -91,7 +92,7 @@ export const useWorkflowExecution = ({
             );
           }
 
-          updateNodeExecutionStatus(currentNode.id, 'running');
+          updateNodeExecutionStatus(currentNode.id, EXECUTION_STATUS.RUNNING);
 
           const { functionName, params } = currentNode.data;
 
@@ -135,7 +136,7 @@ export const useWorkflowExecution = ({
         }
 
         // If End Node, Set Result and Finish
-        if (currentNode.type === 'endNode') {
+        if (currentNode.type === NODE_TYPE.END) {
           setResultImage(currentImage);
           break; // End of workflow
         }
@@ -158,7 +159,7 @@ export const useWorkflowExecution = ({
 
       // ノードのステータスを更新
       if (currentNodeId) {
-        updateNodeExecutionStatus(currentNodeId, 'error');
+        updateNodeExecutionStatus(currentNodeId, EXECUTION_STATUS.ERROR);
       }
 
       // エラーコールバックを呼び出し
