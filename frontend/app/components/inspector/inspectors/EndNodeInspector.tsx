@@ -4,6 +4,7 @@ import type { Node } from '@xyflow/react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import type { ProcessNodeData, ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
+import { isProcessNodeData } from '@/types/typeGuards';
 import styles from '../NodeInspector.module.css';
 import { useInspector } from '@/contexts/InspectorContext';
 
@@ -52,17 +53,21 @@ export function EndNodeInspector() {
 
     const originalImage = files.length > 0 ? (URL.createObjectURL(files[0].file) as string) : null;
 
-    // Extract execution history from process nodes
+    // Extract execution history from process nodes with type-safe validation
     const executionHistory = nodes
         .filter((node) => node.type === 'processNode')
         .map((node) => {
-            const data = node.data as ProcessNodeData;
+            // Validate node data structure
+            if (!isProcessNodeData(node.data)) return null;
+
+            const data = node.data;
             if (!data.result) return null;
+
             return {
                 nodeId: node.id,
                 functionName: data.functionName,
                 params: (data.resultParams as ProcessNodeParams) || data.params,
-                resultImage: data.result as string,
+                resultImage: data.result,
             };
         })
         .filter((item): item is ExecutionHistoryItem => item !== null);

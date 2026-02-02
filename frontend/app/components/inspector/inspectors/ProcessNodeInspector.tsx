@@ -10,6 +10,7 @@ import {
     type ProcessNodeFunctionName,
     type ProcessNodeParams,
 } from '@/types/node';
+import { isProcessNodeData } from '@/types/typeGuards';
 import type { OpencvParamValue } from '@/types/opencv';
 import { OPENCV_FUNCTIONS_CONFIG } from '@/types/opencv';
 import { Node } from '@xyflow/react';
@@ -21,7 +22,18 @@ interface ProcessNodeInspectorProps {
 }
 
 export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNodeInspectorProps) {
-    const data = selectedNode.data as unknown as ProcessNodeData;
+    // Type-safe data extraction with runtime validation
+    if (!isProcessNodeData(selectedNode.data)) {
+        return (
+            <div className={styles.inspectorContent}>
+                <div className={styles.field}>
+                    <p>Invalid node data structure</p>
+                </div>
+            </div>
+        );
+    }
+
+    const data = selectedNode.data;
     const functionName = data.functionName || '';
     const label = data.label || '';
     const resolvedFunctionName =
@@ -74,11 +86,11 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
                     Execution Result
                 </label>
                 <div className={styles.imageBox}>
-                    {(selectedNode.data as ProcessNodeData).result ? (
+                    {data.result ? (
                         <>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
-                                src={(selectedNode.data as ProcessNodeData).result}
+                                src={data.result}
                                 alt="Result"
                                 className={styles.resultImage}
                             />

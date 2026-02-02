@@ -3,6 +3,7 @@
 import type { OpencvParamValue } from '@/types/opencv';
 import { useFlowStore } from '@/workflow/flowStore';
 import { type ProcessNodeData, type ProcessNodeParams } from '@/types/node';
+import { isProcessNodeData } from '@/types/typeGuards';
 import { Handle, Node, NodeProps, Position } from '@xyflow/react';
 import { useCallback } from 'react';
 import { ProcessNodeParamInputs } from './ProcessNodeParamInputs';
@@ -11,13 +12,24 @@ import { PROCESS_NODE_ICON_MAP } from './processNodeIcons';
 
 export function ProcessNode({ id, data }: NodeProps<Node>) {
     const { updateNodeData } = useFlowStore();
-    // Cast data to our NodeData type
-    const nodeData = data as unknown as ProcessNodeData;
+
+    // Type-safe data validation
+    if (!isProcessNodeData(data)) {
+        return (
+            <div className={styles.node}>
+                <div className={styles.header}>
+                    <span className={styles.title}>Invalid Node Data</span>
+                </div>
+            </div>
+        );
+    }
+
+    const nodeData = data;
     const status = nodeData.executionStatus || 'idle';
-    const params = (nodeData.params || {}) as ProcessNodeParams;
+    const params = nodeData.params;
 
     const handleParamChange = useCallback((key: string, value: OpencvParamValue) => {
-        const currentParams = (nodeData.params || {}) as Record<string, unknown>;
+        const currentParams = nodeData.params || ({} as Record<string, unknown>);
         updateNodeData(id, {
             params: {
                 ...currentParams,

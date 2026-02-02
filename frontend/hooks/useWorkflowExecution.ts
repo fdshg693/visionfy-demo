@@ -6,6 +6,7 @@
 import type { Node, Edge } from '@xyflow/react';
 import { useCallback, useState } from 'react';
 import type { ExecutionStatus, ProcessNodeParams } from '@/types/node';
+import { isProcessNodeData } from '@/types/typeGuards';
 import type { WorkflowFile } from '@/types/workflow';
 
 type UseWorkflowExecutionParams = {
@@ -68,10 +69,14 @@ export const useWorkflowExecution = ({
 
         // If Process Node, Execute it
         if (currentNode.type === 'processNode') {
+          // Type-safe validation of node data
+          if (!isProcessNodeData(currentNode.data)) {
+            throw new Error(`Invalid process node data for node ${currentNode.id}`);
+          }
+
           updateNodeExecutionStatus(currentNode.id, 'running');
 
-          const functionName = currentNode.data.functionName;
-          const params = currentNode.data.params;
+          const { functionName, params } = currentNode.data;
 
           // API Call
           const response = await fetch('/api/process-node', {
@@ -95,7 +100,7 @@ export const useWorkflowExecution = ({
           if (result.status === 'success' && result.result) {
             currentImage = result.result; // Update current image for next node
             // Save result and params to the node
-            updateNodeExecutionResult(currentNode.id, currentImage, params as ProcessNodeParams);
+            updateNodeExecutionResult(currentNode.id, currentImage, params);
           } else {
             throw new Error(result.message || 'Unknown error during processing');
           }

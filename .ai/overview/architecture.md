@@ -18,11 +18,63 @@
 - `hooks/useWorkflowExecution.ts` - Workflow execution logic (traversal + API calls)
 - `lib/backendApiService.ts` - Backend API client with adapter pattern
 - `types/node.ts` - Type definitions for process nodes and parameters
+- `types/typeGuards.ts` - Runtime type validation functions
 
 **Node Types**:
 - `startNode` - Entry point, holds uploaded image
 - `processNode` - Image transformation (CLAHE, GaussianBlur, Grayscale)
 - `endNode` - Workflow termination, displays result
+
+## Type Safety & Code Organization
+
+### Type System Architecture
+
+**Type Definitions** (`types/node.ts`):
+- Core type definitions for all node data structures
+- Union types for ProcessNodeData variants (CLAHE, GaussianBlur, Grayscale)
+- Parameter type mappings and default values
+
+**Type Guards** (`types/typeGuards.ts`):
+- Runtime type validation functions
+- Centralized type checking logic to avoid duplication
+- Used across components, hooks, and serialization
+
+### Workflow Persistence Layers
+
+**Serialization** (`workflow/flowSerializer.ts`):
+- **責務**: Transform runtime node data to persistable format
+- Strips execution-specific data (status, results, icons)
+- Preserves only essential node configuration
+- **依存**: Uses type guards from `types/typeGuards.ts`
+
+**Persistence** (`workflow/flowPersistence.ts`):
+- **責務**: Handle localStorage operations and versioning
+- Manages snapshot history (save, load, delete)
+- Validates persisted data structure
+- **依存**: Uses FlowSnapshot type from `flowSerializer.ts`
+
+**State Management** (`workflow/flowStore.tsx`):
+- **責務**: Manage runtime workflow state in React Context
+- Handles node/edge updates with type-safe validation
+- Provides execution status updates
+- **依存**: Uses type guards for runtime validation
+
+### Separation of Concerns
+
+```
+Type Validation Flow:
+types/typeGuards.ts → (型検証ロジック)
+    ↓
+workflow/flowSerializer.ts → (シリアライゼーション)
+    ↓
+workflow/flowPersistence.ts → (永続化)
+```
+
+**Why this separation?**
+1. **Single Responsibility**: Each file has one clear purpose
+2. **Reusability**: Type guards are used across multiple modules
+3. **Maintainability**: Type validation logic is centralized, not duplicated
+4. **Type Safety**: Runtime validation prevents invalid data from propagating
 
 ## Backend Endpoints
 

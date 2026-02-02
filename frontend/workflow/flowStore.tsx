@@ -8,7 +8,9 @@ import type {
   ProcessNodeData,
   NodeDataUpdate,
   ProcessNodeParams,
+  BaseProcessNodeData,
 } from '@/types/node';
+import { isBaseProcessNodeData } from '@/types/typeGuards';
 import {
   applyEdgeChanges,
   applyNodeChanges,
@@ -75,12 +77,19 @@ export function FlowStoreProvider({
     setNodes((current) =>
       current.map((node) => {
         if (node.id !== nodeId) return node;
+
+        // Type-safe data merging with runtime validation
+        if (!isBaseProcessNodeData(node.data)) {
+          console.warn(`Node ${nodeId} has invalid data structure`);
+          return node;
+        }
+
         return {
           ...node,
           data: {
-            ...(node.data as ProcessNodeData),
-            ...(newData as ProcessNodeData),
-          },
+            ...node.data,
+            ...newData,
+          } as BaseProcessNodeData,
         };
       })
     );
@@ -88,13 +97,19 @@ export function FlowStoreProvider({
 
   const resetNodeExecutionStatuses = useCallback(() => {
     setNodes((current) =>
-      current.map((node) => ({
-        ...node,
-        data: {
-          ...(node.data as ProcessNodeData),
-          executionStatus: 'idle',
-        },
-      }))
+      current.map((node) => {
+        if (!isBaseProcessNodeData(node.data)) {
+          return node;
+        }
+
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            executionStatus: 'idle' as ExecutionStatus,
+          },
+        };
+      })
     );
   }, []);
 

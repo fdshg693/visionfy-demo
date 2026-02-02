@@ -1,7 +1,12 @@
-// Nodeの接続データを除去してスナップショット用に整形するユーティリティ関数群
+/**
+ * フローのシリアライゼーション
+ * 役割: ノードの実行時データを除去し、永続化可能な形式に変換
+ * 依存: 型ガードは @/types/typeGuards から import
+ */
 
 import type { Edge, Node, Viewport } from '@xyflow/react';
 import type { ProcessNodeData } from '@/types/node';
+import { isProcessNodeData } from '@/types/typeGuards';
 
 export type FlowSnapshot = {
   nodes: Node[];
@@ -9,20 +14,12 @@ export type FlowSnapshot = {
   viewport: Viewport;
 };
 
-const isProcessNodeData = (data: Record<string, unknown>): data is ProcessNodeData => {
-  return typeof data.functionName === 'string' && data.functionName.length > 0;
-};
-
 /**
- * プロセスノードの実行時データを除去
+ * プロセスノードの実行時データを除去し、永続化用のデータのみを抽出
  */
-const pickProcessNodeData = (data: ProcessNodeData): ProcessNodeData => {
-  const rest = { ...data } as Partial<ProcessNodeData>;
-  delete rest.executionStatus;
-  delete rest.result;
-  delete rest.resultParams;
-  delete rest.icon;
-  return rest;
+const pickProcessNodeData = (data: ProcessNodeData): Partial<ProcessNodeData> => {
+  const { executionStatus, result, resultParams, icon, ...persistentData } = data;
+  return persistentData;
 };
 
 /**
@@ -35,15 +32,23 @@ const pickBasicNodeData = (data: Record<string, unknown>): Record<string, unknow
   return {};
 };
 
+/**
+ * ノードから実行時データを除去し、永続化可能なノードを返す
+ */
 export const stripRuntimeNodeData = (node: Node): Node => {
-  const rawData = (node.data ?? {}) as Record<string, unknown>;
-  const sanitizedData = isProcessNodeData(rawData)
-    ? pickProcessNodeData(rawData)
-    : pickBasicNodeData(rawData);
+  // Type-safe data extraction
+  if (isProcessNodeData(node.data)) {
+    return {
+      ...node,
+      data: pickProcessNodeData(node.data),
+    };
+  }
 
+  // For non-process nodes, preserve basic data
+  const basicData = pickBasicNodeData(node.data as Record<string, unknown>);
   return {
     ...node,
-    data: sanitizedData,
+    data: basicData,
   };
 };
 

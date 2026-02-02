@@ -114,7 +114,7 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
   }, [updateNodeData]);
 
   const handleAddNode = useCallback(() => {
-    const newNode: Node = {
+    const newNode: Node<ProcessNodeData> = {
       id: `node-${Date.now()}`,
       type: 'processNode',
       position: { x: Math.random() * 400, y: Math.random() * 400 },
@@ -124,7 +124,7 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
         params: DEFAULT_NODE_PARAMS['createclahe'],
         executionStatus: 'idle',
         icon: 'histogram',
-      } as ProcessNodeData,
+      },
     };
     setNodes((nds) => nds.concat(newNode));
   }, [setNodes]);

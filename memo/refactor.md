@@ -4,22 +4,6 @@ Frontend リファクタリング提案
 
 優先度: 高
 
-2. 型安全性の向上  
-
-
-場所: ProcessNodeInspector.tsx:24, flowStore.tsx:76
-
-data as unknown as NodeData のような危険なキャストが多い。
-
-提案: React Flow の Generic 型を活用  
- // 現状  
- const data = selectedNode.data as unknown as NodeData;
-
-// 改善案: カスタム型ガードを作成  
- function (data: unknown): data is ProcessNodeData {  
- return typeof data === 'object' && data !== null && 'functionName' in data;  
- }
-
 3. エラーハンドリングの改善  
 
 
