@@ -7,6 +7,10 @@ export type StorageService = {
 const canUseStorage = () =>
   typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 
+/**
+ * ローカルストレージを使用した永続化サービス
+ * シンプルな、同期的なキー・バリュー型ストレージインターフェースを提供
+ */
 export const storageService: StorageService = {
   getItem: (key) => {
     if (!canUseStorage()) return null;

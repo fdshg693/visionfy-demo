@@ -41,48 +41,38 @@ type ParamFieldProps = {
     classNames?: Props['classNames'];
 };
 
-function ParamField({ config, value, onChange, classNames }: ParamFieldProps) {
-    const currentValue = value ?? config.defaultValue;
-    const fieldLabel = config.label || config.name;
+type ParamFieldRenderArgs = {
+    config: OpencvParamDefinition;
+    currentValue: OpencvParamValue | undefined;
+    onChange: (value: OpencvParamValue) => void;
+    classNames?: Props['classNames'];
+};
 
-    const renderField = (content: React.ReactNode) => {
-        if (classNames) {
-            return (
-                <div className={classNames.field}>
-                    <label className={classNames.label}>{fieldLabel}</label>
-                    {content}
-                </div>
-            );
-        }
-        return <ParamRow label={fieldLabel}>{content}</ParamRow>;
-    };
+type ParamFieldRenderer = (args: ParamFieldRenderArgs) => React.ReactNode;
 
-    if (config.type === 'select') {
-        return (
-            <>
-                {renderField(
-                <select
-                    value={String(currentValue ?? '')}
-                    onChange={(e) => {
-                        const selected = config.options?.find(
-                            (option) => String(option.value) === e.target.value
-                        );
-                        onChange((selected?.value ?? e.target.value) as OpencvParamValue);
-                    }}
-                    className={classNames?.select ?? 'nodrag'}
-                >
-                    {config.options?.map((opt) => (
-                        <option key={String(opt.value)} value={String(opt.value)}>
-                            {opt.label}
-                        </option>
-                    ))}
-                </select>
-                )}
-            </>
-        );
-    }
-
-    if (config.type === 'tuple') {
+/**
+ * 各パラメータタイプに応じた入力フィールドレンダラーのマッピング。
+ */
+const PARAM_FIELD_RENDERERS: Record<OpencvParamDefinition['type'], ParamFieldRenderer> = {
+    select: ({ config, currentValue, onChange, classNames }) => (
+        <select
+            value={String(currentValue ?? '')}
+            onChange={(e) => {
+                const selected = config.options?.find(
+                    (option) => String(option.value) === e.target.value
+                );
+                onChange((selected?.value ?? e.target.value) as OpencvParamValue);
+            }}
+            className={classNames?.select ?? 'nodrag'}
+        >
+            {config.options?.map((opt) => (
+                <option key={String(opt.value)} value={String(opt.value)}>
+                    {opt.label}
+                </option>
+            ))}
+        </select>
+    ),
+    tuple: ({ currentValue, onChange, classNames }) => {
         const tupleVal = Array.isArray(currentValue) ? currentValue : [0, 0];
         const handleTupleChange = (index: number, val: string) => {
             const parsed = Number.parseFloat(val);
@@ -94,7 +84,7 @@ function ParamField({ config, value, onChange, classNames }: ParamFieldProps) {
             onChange(newTuple);
         };
 
-        return renderField(
+        return (
             <div className={classNames?.tupleInput} style={!classNames ? { display: 'flex', gap: '4px' } : undefined}>
                 <input
                     type="number"
@@ -112,44 +102,63 @@ function ParamField({ config, value, onChange, classNames }: ParamFieldProps) {
                 />
             </div>
         );
-    }
+    },
+    boolean: ({ currentValue, onChange, classNames }) => (
+        <input
+            type="checkbox"
+            checked={Boolean(currentValue)}
+            onChange={(e) => onChange(e.target.checked)}
+            className={classNames ? undefined : 'nodrag'}
+        />
+    ),
+    number: ({ currentValue, onChange, classNames }) => (
+        <input
+            type="number"
+            value={Number(currentValue ?? 0)}
+            onChange={(e) => onChange(Number(e.target.value))}
+            className={classNames?.input ?? 'nodrag'}
+        />
+    ),
+    text: ({ currentValue, onChange, classNames }) => (
+        <input
+            type="text"
+            value={String(currentValue ?? '')}
+            onChange={(e) => onChange(e.target.value)}
+            className={classNames?.input ?? 'nodrag'}
+        />
+    ),
+};
 
-    if (config.type === 'boolean') {
-        return renderField(
-            <input
-                type="checkbox"
-                checked={Boolean(currentValue)}
-                onChange={(e) => onChange(e.target.checked)}
-                className={classNames ? undefined : 'nodrag'}
-            />
-        );
-    }
+/**
+ * config.typeに応じた動的なパラメータ入力フィールド生成コンポーネント。
+ * 親要素のProcessNodeParamInputsから呼び出される。
+ */
+function ParamField({ config, value, onChange, classNames }: ParamFieldProps) {
+    const currentValue = value ?? config.defaultValue;
+    const fieldLabel = config.label || config.name;
 
-    if (config.type === 'number') {
-        return renderField(
-            <input
-                type="number"
-                value={Number(currentValue ?? 0)}
-                onChange={(e) => onChange(Number(e.target.value))}
-                className={classNames?.input ?? 'nodrag'}
-            />
-        );
-    }
+    const renderField = (content: React.ReactNode) => {
+        // classNamesを指定することで、動的にスタイルを適用可能にする
+        if (classNames) {
+            return (
+                <div className={classNames.field}>
+                    <label className={classNames.label}>{fieldLabel}</label>
+                    {content}
+                </div>
+            );
+        }
+        return <ParamRow label={fieldLabel}>{content}</ParamRow>;
+    };
 
-    return (
-        <>
-            {renderField(
-                <input
-                    type="text"
-                    value={String(currentValue ?? '')}
-                    onChange={(e) => onChange(e.target.value)}
-                    className={classNames?.input ?? 'nodrag'}
-                />
-            )}
-        </>
-    );
+    const render = PARAM_FIELD_RENDERERS[config.type];
+
+    return <>{renderField(render({ config, currentValue, onChange, classNames }))}</>;
 }
 
+/**
+ * 処理ノードのパラメータ入力群コンポーネント。
+ * 指定されたfunctionNameに基づき、対応する一連のパラメータ入力フィールドを生成する。
+ */
 export function ProcessNodeParamInputs({ functionName, params, onParamChange, classNames }: Props) {
     if (!functionName) return null;
     const config = OPENCV_FUNCTIONS_CONFIG[functionName];

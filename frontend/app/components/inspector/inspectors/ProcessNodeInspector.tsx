@@ -5,7 +5,6 @@ import { ProcessNodeParamInputs } from '@/app/components/nodes/ProcessNodeParamI
 import {
     DEFAULT_NODE_ICONS,
     DEFAULT_NODE_PARAMS,
-    type ProcessNodeData,
     type NodeDataUpdate,
     type ProcessNodeFunctionName,
     type ProcessNodeParams,

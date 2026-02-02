@@ -2,7 +2,6 @@
 // 依存: ProcessNodeParamInputsとアイコン定義(processNodeIcons)。
 import type { OpencvParamValue } from '@/types/opencv';
 import { useFlowStore } from '@/workflow/flowStore';
-import { type ProcessNodeData, type ProcessNodeParams } from '@/types/node';
 import { isProcessNodeData } from '@/types/typeGuards';
 import { Handle, Node, NodeProps, Position } from '@xyflow/react';
 import { useCallback } from 'react';
@@ -10,11 +9,29 @@ import { ProcessNodeParamInputs } from './ProcessNodeParamInputs';
 import styles from './ProcessNode.module.css';
 import { PROCESS_NODE_ICON_MAP } from './processNodeIcons';
 
+/**
+ * 処理ノードコンポーネント。
+ * 処理する関数のタイプおよび、それに応じたパラメータ入力UIを表示する。
+ */
 export function ProcessNode({ id, data }: NodeProps<Node>) {
     const { updateNodeData } = useFlowStore();
+    const isValid = isProcessNodeData(data);
+
+    const handleParamChange = useCallback((key: string, value: OpencvParamValue) => {
+        if (!isValid) {
+            return;
+        }
+        const currentParams = data.params || ({} as Record<string, unknown>);
+        updateNodeData(id, {
+            params: {
+                ...currentParams,
+                [key]: value,
+            },
+        });
+    }, [data, id, isValid, updateNodeData]);
 
     // Type-safe data validation
-    if (!isProcessNodeData(data)) {
+    if (!isValid) {
         return (
             <div className={styles.node}>
                 <div className={styles.header}>
@@ -27,16 +44,6 @@ export function ProcessNode({ id, data }: NodeProps<Node>) {
     const nodeData = data;
     const status = nodeData.executionStatus || 'idle';
     const params = nodeData.params;
-
-    const handleParamChange = useCallback((key: string, value: OpencvParamValue) => {
-        const currentParams = nodeData.params || ({} as Record<string, unknown>);
-        updateNodeData(id, {
-            params: {
-                ...currentParams,
-                [key]: value,
-            },
-        });
-    }, [id, nodeData.params, updateNodeData]);
 
     const IconComponent = nodeData.icon ? PROCESS_NODE_ICON_MAP[nodeData.icon] : null;
 

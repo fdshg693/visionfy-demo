@@ -11,6 +11,10 @@ import { useInspector } from '@/contexts/InspectorContext';
 
 registerPlugin(FilePondPluginImagePreview);
 
+/**
+ * ワークフローの開始ノード用インスペクターコンポーネント。
+ * ファイルアップロードとワークフロー実行ボタンを提供する。
+ */
 export function StartNodeInspector() {
     const { files, setFiles, executeWorkflow } = useInspector();
     return (

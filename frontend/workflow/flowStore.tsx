@@ -4,12 +4,11 @@
  * 依存: @xyflow/reactのNode/Edge型定義
  */
 import type {
-  ExecutionStatus,
-  ProcessNodeData,
   NodeDataUpdate,
   ProcessNodeParams,
   BaseProcessNodeData,
 } from '@/types/node';
+import type { ExecutionStatusValue } from '@/constants';
 import { EXECUTION_STATUS } from '@/constants';
 import { isBaseProcessNodeData } from '@/types/typeGuards';
 import {
@@ -41,7 +40,7 @@ type FlowStoreValue = {
   onEdgesChange: (changes: EdgeChange[]) => void;
   updateNodeData: (nodeId: string, newData: NodeDataUpdate) => void;
   resetNodeExecutionStatuses: () => void;
-  updateNodeExecutionStatus: (nodeId: string, status: ExecutionStatus) => void;
+  updateNodeExecutionStatus: (nodeId: string, status: ExecutionStatusValue) => void;
   updateNodeExecutionResult: (nodeId: string, result: string, params: ProcessNodeParams) => void;
 };
 
@@ -107,7 +106,7 @@ export function FlowStoreProvider({
           ...node,
           data: {
             ...node.data,
-            executionStatus: EXECUTION_STATUS.IDLE as ExecutionStatus,
+            executionStatus: EXECUTION_STATUS.IDLE as ExecutionStatusValue,
           },
         };
       })
@@ -115,7 +114,7 @@ export function FlowStoreProvider({
   }, []);
 
   const updateNodeExecutionStatus = useCallback(
-    (nodeId: string, status: ExecutionStatus) => {
+    (nodeId: string, status: ExecutionStatusValue) => {
       updateNodeData(nodeId, { executionStatus: status });
     },
     [updateNodeData]

@@ -1,12 +1,14 @@
+// ワークフローのスナップショット保存・復元機能
 import type { FlowSnapshot } from '@/workflow/flowSerializer';
 import { formatSnapshotDate } from '@/workflow/formatDate';
 import { storageService } from '@/workflow/storageService';
 
-const FLOW_STORAGE_KEY = 'visionfy.flow';
 const FLOW_HISTORY_STORAGE_KEY = 'visionfy.flow.history';
-const FLOW_STORAGE_VERSION = 2;
 const MAX_HISTORY_ENTRIES = 20;
 
+/**
+ * ワークフロー履歴エントリの型定義
+ */
 export type FlowHistoryEntry = {
   id: string;
   createdAt: string;
@@ -14,8 +16,11 @@ export type FlowHistoryEntry = {
   snapshot: FlowSnapshot;
 };
 
+/** 
+ * ワークフロー履歴全体の型定義 
+ * この値がLocalStorageに保存される内容に対応する 
+*/
 type PersistedFlowHistory = {
-  version: number;
   entries: FlowHistoryEntry[];
 };
 
@@ -30,6 +35,7 @@ const isValidSnapshot = (value: unknown): value is FlowSnapshot => {
   );
 };
 
+/** スナップショット名のデフォルト生成 */
 const createDefaultName = (createdAt: string) => {
   return `スナップショット ${formatSnapshotDate(createdAt)}`;
 };
@@ -42,6 +48,8 @@ const normalizeSnapshot = (snapshot: FlowSnapshot): FlowSnapshot => {
     ),
   };
 };
+
+// ====================== 単一スナップショットの保存・読み込み・削除 ======================
 
 export const saveFlowSnapshot = (snapshot: FlowSnapshot, name?: string) => {
   const normalizedSnapshot = normalizeSnapshot(snapshot);
@@ -64,13 +72,13 @@ export const loadFlowSnapshot = (): FlowSnapshot | null => {
 };
 
 export const clearFlowSnapshot = () => {
-  storageService.removeItem(FLOW_STORAGE_KEY);
   storageService.removeItem(FLOW_HISTORY_STORAGE_KEY);
 };
 
+// ====================== 履歴全体の保存・読み込み ======================
+
 export const saveFlowHistory = (entries: FlowHistoryEntry[]) => {
   const payload: PersistedFlowHistory = {
-    version: FLOW_STORAGE_VERSION,
     entries,
   };
   storageService.setItem(FLOW_HISTORY_STORAGE_KEY, JSON.stringify(payload));
@@ -81,7 +89,6 @@ export const loadFlowHistory = (): FlowHistoryEntry[] => {
   if (rawHistory) {
     try {
       const parsed = JSON.parse(rawHistory) as PersistedFlowHistory;
-      if (parsed.version !== FLOW_STORAGE_VERSION) return [];
       if (!Array.isArray(parsed.entries)) return [];
       return parsed.entries
         .filter(
@@ -101,21 +108,5 @@ export const loadFlowHistory = (): FlowHistoryEntry[] => {
       return [];
     }
   }
-
-  const rawLegacy = storageService.getItem(FLOW_STORAGE_KEY);
-  if (!rawLegacy) return [];
-  try {
-    const parsed = JSON.parse(rawLegacy) as { version?: number; snapshot?: FlowSnapshot };
-    if (!parsed.snapshot || !isValidSnapshot(parsed.snapshot)) return [];
-    return [
-      {
-        id: 'snapshot-legacy',
-        createdAt: new Date().toISOString(),
-        name: 'スナップショット',
-        snapshot: normalizeSnapshot(parsed.snapshot),
-      },
-    ];
-  } catch {
-    return [];
-  }
+  return [];
 };

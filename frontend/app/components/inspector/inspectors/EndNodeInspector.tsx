@@ -1,13 +1,15 @@
 // 役割: Endノードの結果表示UI。Before/Afterと実行履歴をタブで切替表示する。
 // 依存: nodesから履歴を抽出し、CollapsibleHistoryItemで展開表示。
-import type { Node } from '@xyflow/react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
-import type { ProcessNodeData, ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
+import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
 import { isProcessNodeData } from '@/types/typeGuards';
 import styles from '../NodeInspector.module.css';
 import { useInspector } from '@/contexts/InspectorContext';
 
+/**
+ * ワークフローの各プロセスノードの実行結果を表す
+ */
 interface ExecutionHistoryItem {
     nodeId: string;
     functionName: ProcessNodeFunctionName;
@@ -15,7 +17,9 @@ interface ExecutionHistoryItem {
     resultImage: string;
 }
 
-// Collapsible history item component
+/**
+ * 折りたたみ可能な実行履歴アイテムコンポーネント。
+ */
 function CollapsibleHistoryItem({ item, index }: { item: ExecutionHistoryItem; index: number }) {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -47,6 +51,12 @@ function CollapsibleHistoryItem({ item, index }: { item: ExecutionHistoryItem; i
     );
 }
 
+/**
+ * ワークフローの終了ノード用インスペクターコンポーネント。
+ * Before/Afterと実行履歴をタブで切替表示する。
+ * - resultタブ：元画像と結果画像の比較表示
+ * - historyタブ：各プロセスノードの実行履歴を展開表示
+ */
 export function EndNodeInspector() {
     const { resultImage, files, nodes } = useInspector();
     const [activeTab, setActiveTab] = useState<'result' | 'history'>('result');

@@ -5,7 +5,8 @@
  */
 import type { Node, Edge } from '@xyflow/react';
 import { useCallback, useState } from 'react';
-import type { ExecutionStatus, ProcessNodeParams } from '@/types/node';
+import type { ProcessNodeParams } from '@/types/node';
+import type { ExecutionStatusValue } from '@/constants';
 import { EXECUTION_STATUS, NODE_TYPE } from '@/constants';
 import { isProcessNodeData } from '@/types/typeGuards';
 import type { WorkflowFile } from '@/types/workflow';
@@ -16,7 +17,7 @@ type UseWorkflowExecutionParams = {
   edges: Edge[];
   files: WorkflowFile[];
   resetNodeExecutionStatuses: () => void;
-  updateNodeExecutionStatus: (nodeId: string, status: ExecutionStatus) => void;
+  updateNodeExecutionStatus: (nodeId: string, status: ExecutionStatusValue) => void;
   updateNodeExecutionResult: (nodeId: string, result: string, params: ProcessNodeParams) => void;
   onError?: (error: unknown) => void;
 };
