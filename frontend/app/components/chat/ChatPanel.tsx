@@ -1,16 +1,16 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { MessageCircle, Send } from 'lucide-react';
+import { MessageCircle, Send, Trash2 } from 'lucide-react';
 
 import styles from '@/app/page.module.css';
 import type { ChatMessage } from '@/lib/chatService';
-import { buildWorkflowContext } from '@/lib/chatPrompts';
 import { useFlowStore } from '@/workflow/flowStore';
 
 /**
  * GEMINIとのチャットパネルコンポーネント
  * NEXTのAPIルートを介してメッセージを送受信します。
+ * AIはツールを使用してワークフローコンテキストを動的に取得します。
  */
 export function ChatPanel() {
   const { nodes, edges } = useFlowStore();
@@ -42,7 +42,8 @@ export function ChatPanel() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [...messages, userMessage],
-          workflowContext: buildWorkflowContext(nodes, edges),
+          nodes,
+          edges,
         }),
       });
 
@@ -95,11 +96,26 @@ export function ChatPanel() {
     [handleSend]
   );
 
+  const handleClear = useCallback(() => {
+    setMessages([]);
+    setInput('');
+  }, []);
+
   return (
     <div className={styles.chatPanel}>
       <div className={styles.chatHeader}>
         <MessageCircle size={16} />
         <span>AI チャット</span>
+        <button
+          type="button"
+          className={styles.chatClearBtn}
+          onClick={handleClear}
+          disabled={messages.length === 0}
+          aria-label="チャットをクリア"
+          title="チャットをクリア"
+        >
+          <Trash2 size={14} />
+        </button>
       </div>
 
       <div className={styles.chatMessages}>

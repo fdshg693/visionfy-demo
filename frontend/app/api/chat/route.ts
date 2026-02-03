@@ -1,23 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ChatService, type ChatMessage } from "@/lib/chatService";
 import { createLogger, logEnvVar } from "@/lib/logger";
+import type { Node, Edge } from '@xyflow/react';
 
 const logger = createLogger('ChatAPI');
 
 /**
  * Gemini APIを使用してチャットメッセージに応答するエンドポイント
  * ストリーミングレスポンスを提供します。
- * @param req - 会話履歴を含むPOSTリクエスト
+ * AIツールを使用してワークフローコンテキストを動的に取得します。
+ * @param req - 会話履歴とワークフロー情報を含むPOSTリクエスト
  */
 export async function POST(req: NextRequest) {
   try {
-    const { messages, workflowContext } = (await req.json()) as {
+    const { messages, nodes, edges } = (await req.json()) as {
       messages: ChatMessage[];
-      workflowContext?: string;
+      nodes?: Node[];
+      edges?: Edge[];
     };
 
-    logger.info({ messageCount: messages.length, hasWorkflowContext: !!workflowContext }, 'Chat request received');
-    logger.debug({ messages, workflowContext }, 'Chat request details');
+    logger.info({ 
+      messageCount: messages.length, 
+      hasNodes: !!nodes, 
+      hasEdges: !!edges 
+    }, 'Chat request received');
+    logger.debug({ 
+      messages, 
+      nodeCount: nodes?.length ?? 0, 
+      edgeCount: edges?.length ?? 0 
+    }, 'Chat request details');
 
     if (!process.env.GEMINI_API_KEY) {
       logEnvVar(logger, 'GEMINI_API_KEY', process.env.GEMINI_API_KEY, true);
@@ -29,15 +40,46 @@ export async function POST(req: NextRequest) {
     logger.debug('GEMINI_API_KEY is configured');
 
     const chatService = new ChatService(process.env.GEMINI_API_KEY);
-    logger.info('Starting AI stream');
-    const stream = await chatService.stream(messages, workflowContext);
+    
+    // ツールコンテキストの構築
+    const toolContext = nodes && edges ? {
+      nodes: JSON.stringify(nodes),
+      edges: JSON.stringify(edges),
+    } : undefined;
+    
+    logger.info({ hasToolContext: !!toolContext }, 'Starting AI stream');
+    const eventStream = await chatService.stream(messages, toolContext);
 
     const readableStream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
         try {
-          for await (const chunk of stream) {
-            controller.enqueue(encoder.encode(String(chunk.content)));
+          // streamEventsから返されるイベントを処理
+          for await (const event of eventStream) {
+            // LLMからのトークンストリーム
+            if (event.event === 'on_chat_model_stream') {
+              const content = event.data?.chunk?.content;
+              if (content) {
+                logger.debug({ content: String(content).substring(0, 50) }, 'Streaming token');
+                controller.enqueue(encoder.encode(String(content)));
+              }
+            }
+            // ツール実行開始
+            else if (event.event === 'on_tool_start') {
+              logger.info({ 
+                tool: event.name, 
+                input: event.data?.input 
+              }, 'Tool execution started');
+              // オプション: ツール実行中のメッセージをクライアントに送信
+              // controller.enqueue(encoder.encode(`\n[${event.name}を実行中...]\n`));
+            }
+            // ツール実行終了
+            else if (event.event === 'on_tool_end') {
+              logger.info({ 
+                tool: event.name, 
+                output: event.data?.output 
+              }, 'Tool execution completed');
+            }
           }
           logger.info('AI stream completed successfully');
         } catch (err) {
