@@ -2,6 +2,7 @@
 
 // 役割: ワークフロー画面のルート。FlowCanvasとInspectorPanelを束ねて状態と実行を管理する。
 // 依存: useWorkflowExecutionで実行、flowConfigで初期ノード/エッジ定義。
+import { ChatPanel } from '@/app/components/chat/ChatPanel';
 import { FlowCanvas } from '@/app/components/workflow/FlowCanvas';
 import { InspectorPanel } from '@/app/components/workflow/InspectorPanel';
 import { useWorkflowExecution } from '@/hooks/useWorkflowExecution';
@@ -40,9 +41,10 @@ type WorkflowContentProps = {
 };
 
 /**
- * ページは以下の二つの要素で構成されている
+ * ページは以下の三つの要素で構成されている
  * - FlowCanvas: ノードとエッジの表示と編集を担当
  * - InspectorPanel: 選択ノードの設定編集とスナップショット管理を担当
+ * - ChatPanel: AIチャットインターフェースを担当
  */
 function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
   const {
@@ -192,6 +194,8 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
       }}
     >
       <div className={styles.container}>
+        <ChatPanel />
+
         <FlowCanvas
           nodes={nodes}
           edges={edges}

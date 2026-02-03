@@ -45,6 +45,15 @@
 - `base64ToBlob` and `blobToBase64` each have dual code paths: `Buffer`-based for Node.js, `atob`/`FileReader`-based for browser — because the service class is used on the server side
 - Response normalization in `BackendApiService` handles two patterns: (1) direct binary image response, (2) JSON with `{ ok: true, data: { url } }` where a second fetch retrieves the actual image
 
+## Chat API & Streaming
+
+- `POST /api/chat` accepts `{ messages: ChatMessage[] }` — full conversation history on every request; no server-side session state
+- `GEMINI_API_KEY` is read from `process.env` server-side only — never exposed to the client
+- `ChatService` wraps LangChain's `ChatGoogleGenerativeAI` (`gemini-2.5-pro`); system prompt is prepended server-side from `chatPrompts.ts`, not sent by the client
+- Response is a raw `text/plain` stream, not SSE — `ChatPanel` reads it directly via `ReadableStream` reader and incrementally updates the last assistant message in state
+- Mid-stream errors are caught inside the `ReadableStream` `start()` and appended as plain text into the same stream; the HTTP status remains 200, so the client cannot distinguish a mid-stream failure from a successful response
+- `ChatMessage` type is exported from `chatService.ts` and imported via `import type` in `ChatPanel.tsx` — `import type` erases at compile time, so LangChain dependencies in `chatService.ts` are not pulled into the client bundle
+
 ## Execution Error — Node Status Attribution
 
 - `executeWorkflow` sets `currentNodeId = startNode.id`, then delegates to `traverseAndExecuteNodes`
@@ -68,7 +77,7 @@
 
 ## Memory Concerns
 
-- `EndNodeInspector` calls `URL.createObjectURL(files[0].file)` on every render for the "Before" image — no `URL.revokeObjectURL` cleanup, so blob URLs accumulate until page unload
+- `EndNodeInspector` creates a blob URL for the "Before" image inside a `useEffect` keyed on `files`; the cleanup function calls `URL.revokeObjectURL` so the URL is revoked when `files` changes or the component unmounts
 - Execution results (`result` field) are base64-encoded full images stored directly in React node state — large images inflate the size of every FlowStore context value and every snapshot
 
 ## Type System Decisions

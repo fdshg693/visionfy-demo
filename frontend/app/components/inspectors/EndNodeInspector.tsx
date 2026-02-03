@@ -1,7 +1,7 @@
 // 役割: Endノードの結果表示UI。Before/Afterと実行履歴をタブで切替表示する。
 // 依存: nodesから履歴を抽出し、CollapsibleHistoryItemで展開表示。
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
 import { isProcessNodeData } from '@/types/typeGuards';
 import styles from '../NodeInspector.module.css';
@@ -60,8 +60,16 @@ function CollapsibleHistoryItem({ item, index }: { item: ExecutionHistoryItem; i
 export function EndNodeInspector() {
     const { resultImage, files, nodes } = useInspector();
     const [activeTab, setActiveTab] = useState<'result' | 'history'>('result');
+    const originalImage = useMemo(() => {
+        if (files.length === 0) return null;
+        return URL.createObjectURL(files[0].file);
+    }, [files]);
 
-    const originalImage = files.length > 0 ? (URL.createObjectURL(files[0].file) as string) : null;
+    useEffect(() => {
+        return () => {
+            if (originalImage) URL.revokeObjectURL(originalImage);
+        };
+    }, [originalImage]);
 
     // Extract execution history from process nodes with type-safe validation
     const executionHistory = nodes

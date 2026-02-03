@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@langchain/core": "^1.1.18",
+    "@langchain/google-genai": "^2.1.14",
     "@xyflow/react": "^12.10.0",
     "filepond": "^4.32.11",
     "filepond-plugin-image-preview": "^4.6.12",
