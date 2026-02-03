@@ -11,6 +11,7 @@ import { EXECUTION_STATUS, NODE_TYPE } from '@/constants/index';
 import { isProcessNodeData } from '@/types/typeGuards';
 import type { WorkflowFile } from '@/types/workflow';
 import { ValidationError, ProcessingError, categorizeError } from '@/lib/errors';
+import { buildNodeChain } from '@/workflow/workflowChain';
 
 type UseWorkflowExecutionParams = {
   nodes: Node[];
@@ -42,24 +43,6 @@ export const useWorkflowExecution = ({
       reader.onerror = error => reject(error);
     });
   }, []);
-
-  /** スタートノードを探す */
-  const findStartNode = useCallback((): Node => {
-    const startNode = nodes.find(n => n.type === NODE_TYPE.START);
-    if (!startNode) {
-      throw new ValidationError(
-        'Start node not found',
-        'スタートノードが見つかりません。ワークフローを確認してください。'
-      );
-    }
-    return startNode;
-  }, [nodes]);
-
-  /** 次のノードIDを探す */
-  const findNextNodeId = useCallback((currentNodeId: string): string | null => {
-    const edge = edges.find(e => e.source === currentNodeId);
-    return edge ? edge.target : null;
-  }, [edges]);
 
   /** プロセスノードを実行 */
   const executeProcessNode = useCallback(async (
@@ -118,47 +101,6 @@ export const useWorkflowExecution = ({
     return result.result;
   }, [updateNodeExecutionStatus, updateNodeExecutionResult]);
 
-  /** ノードグラフをトラバースして実行 */
-  const traverseAndExecuteNodes = useCallback(async (
-    startNodeId: string,
-    initialImage: string
-  ): Promise<string> => {
-    let currentNodeId: string | null = startNodeId;
-    let currentImage = initialImage;
-
-    // 無限ループ防止用に実行したノードIDを記録
-    const visitedIds = new Set<string>();
-
-    while (currentNodeId) {
-      // 無限ループ防止
-      if (visitedIds.has(currentNodeId)) {
-        break;
-      }
-      visitedIds.add(currentNodeId);
-
-      // ノードを取得
-      const currentNode = nodes.find(n => n.id === currentNodeId);
-      if (!currentNode) {
-        break;
-      }
-
-      // エンドノードならワークフロー完了
-      if (currentNode.type === NODE_TYPE.END) {
-        return currentImage;
-      }
-
-      // プロセスノードなら実行
-      if (currentNode.type === NODE_TYPE.PROCESS) {
-        currentImage = await executeProcessNode(currentNode, currentImage);
-      }
-
-      // 次のノードへ
-      currentNodeId = findNextNodeId(currentNodeId);
-    }
-
-    return currentImage;
-  }, [nodes, executeProcessNode, findNextNodeId]);
-
   /** ワークフローを実行 */
   const executeWorkflow = useCallback(async () => {
     // 早期return: 画像未アップロード
@@ -181,15 +123,26 @@ export const useWorkflowExecution = ({
       // 初期画像を取得
       const initialImage = await fileToBase64(files[0].file);
 
-      // スタートノードを探す
-      const startNode = findStartNode();
-      currentNodeId = startNode.id;
+      // 実行フローを事前に確定する
+      const chain = buildNodeChain(nodes, edges);
+      if (chain.length === 0 || chain[0].type !== NODE_TYPE.START) {
+        throw new ValidationError(
+          'Start node not found',
+          'スタートノードが見つかりません。ワークフローを確認してください。'
+        );
+      }
 
-      // ノードを順次実行
-      const finalImage = await traverseAndExecuteNodes(startNode.id, initialImage);
+      // 確定した順序で実行していく
+      let currentImage = initialImage;
+      for (const node of chain) {
+        currentNodeId = node.id;
+        if (node.type === NODE_TYPE.PROCESS) {
+          currentImage = await executeProcessNode(node, currentImage);
+        }
+      }
 
       // 最終結果を設定
-      setResultImage(finalImage);
+      setResultImage(currentImage);
 
     } catch (error) {
       // エラーを分類してハンドリング
@@ -222,8 +175,9 @@ export const useWorkflowExecution = ({
   }, [
     files,
     fileToBase64,
-    findStartNode,
-    traverseAndExecuteNodes,
+    nodes,
+    edges,
+    executeProcessNode,
     resetNodeExecutionStatuses,
     updateNodeExecutionStatus,
     onError,

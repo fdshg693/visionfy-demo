@@ -5,12 +5,15 @@ import { MessageCircle, Send } from 'lucide-react';
 
 import styles from '@/app/page.module.css';
 import type { ChatMessage } from '@/lib/chatService';
+import { buildWorkflowContext } from '@/lib/chatPrompts';
+import { useFlowStore } from '@/workflow/flowStore';
 
 /**
  * GEMINIとのチャットパネルコンポーネント
  * NEXTのAPIルートを介してメッセージを送受信します。
  */
 export function ChatPanel() {
+  const { nodes, edges } = useFlowStore();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -37,7 +40,10 @@ export function ChatPanel() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({
+          messages: [...messages, userMessage],
+          workflowContext: buildWorkflowContext(nodes, edges),
+        }),
       });
 
       if (!response.ok) {
@@ -77,7 +83,7 @@ export function ChatPanel() {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, messages]);
+  }, [input, isLoading, messages, nodes, edges]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

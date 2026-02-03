@@ -28,10 +28,15 @@ export class ChatService {
 
   /**
    * 会話履歴からLangchainメッセージ配列を構築し、ストリーマブルレスポンスを返す
+   * workflowContext が渡された場合はシステムプロンプトに付与する
    */
-  async stream(messages: ChatMessage[]) {
+  async stream(messages: ChatMessage[], workflowContext?: string) {
+    const systemContent = workflowContext
+      ? `${SYSTEM_PROMPT}\n\n${workflowContext}`
+      : SYSTEM_PROMPT;
+
     const langchainMessages = [
-      new SystemMessage(SYSTEM_PROMPT),
+      new SystemMessage(systemContent),
       ...messages.map((msg) =>
         msg.role === "user"
           ? new HumanMessage(msg.content)

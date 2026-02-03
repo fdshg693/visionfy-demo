@@ -8,7 +8,10 @@ import { ChatService, type ChatMessage } from "@/lib/chatService";
  */
 export async function POST(req: NextRequest) {
   try {
-    const { messages } = (await req.json()) as { messages: ChatMessage[] };
+    const { messages, workflowContext } = (await req.json()) as {
+      messages: ChatMessage[];
+      workflowContext?: string;
+    };
 
     if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
@@ -18,7 +21,7 @@ export async function POST(req: NextRequest) {
     }
 
     const chatService = new ChatService(process.env.GEMINI_API_KEY);
-    const stream = await chatService.stream(messages);
+    const stream = await chatService.stream(messages, workflowContext);
 
     const readableStream = new ReadableStream({
       async start(controller) {
