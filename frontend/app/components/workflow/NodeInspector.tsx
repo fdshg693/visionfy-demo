@@ -3,15 +3,22 @@
 import type { NodeDataUpdate } from '@/types/node';
 import { Node } from '@xyflow/react';
 import styles from './NodeInspector.module.css';
-import { EndNodeInspector } from './inspectors/EndNodeInspector';
-import { ProcessNodeInspector } from './inspectors/ProcessNodeInspector';
-import { StartNodeInspector } from './inspectors/StartNodeInspector';
+import { EndNodeInspector } from '../inspectors/EndNodeInspector';
+import { ProcessNodeInspector } from '../inspectors/ProcessNodeInspector';
+import { StartNodeInspector } from '../inspectors/StartNodeInspector';
 
 interface NodeInspectorProps {
     selectedNode: Node | null;
     onUpdateNode: (nodeId: string, newData: NodeDataUpdate) => void;
 }
 
+/**
+ * ノードインスペクターコンポーネント
+ * 選択されたノードの種類に応じて、対応するインスペクターを表示します。
+ * @param selectedNode - 現在選択されているノード。選択されていない場合はnull。
+ * @param selectedNode.type - ノードの種類 ('startNode' | 'processNode' | 'endNode')。
+ * @param onUpdateNode - ノードデータを更新するためのコールバック関数。
+ */
 export function NodeInspector({
     selectedNode,
     onUpdateNode,

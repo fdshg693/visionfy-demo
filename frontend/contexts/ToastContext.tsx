@@ -5,7 +5,7 @@
  * 役割: アプリケーション全体でトースト通知を管理
  */
 import { createContext, useContext, useState, useCallback } from 'react';
-import { ToastContainer, errorToToast, type Toast, type ToastType } from '@/components/ui/Toast';
+import { ToastContainer, errorToToast, type Toast } from '@/components/ui/Toast';
 import type { AppError } from '@/lib/errors';
 
 interface ToastContextType {

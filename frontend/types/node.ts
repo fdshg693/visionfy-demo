@@ -1,4 +1,4 @@
-import type { ExecutionStatusValue } from '@/constants';
+import type { ExecutionStatusValue } from '@/constants/index';
 
 /**
  * 全てのNodeで共通する基本データ構造 

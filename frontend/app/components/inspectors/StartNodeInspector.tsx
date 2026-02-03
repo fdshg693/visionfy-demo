@@ -5,7 +5,7 @@ import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 import 'filepond/dist/filepond.min.css';
 import { FilePond, registerPlugin } from 'react-filepond';
-import type { WorkflowFile } from '@/types/workflow';
+import type { WorkflowFile } from '@/workflow/type';
 import styles from '../NodeInspector.module.css';
 import { useInspector } from '@/contexts/InspectorContext';
 

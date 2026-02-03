@@ -2,7 +2,7 @@
 // 依存: WorkflowFileやNodeの型定義。
 'use client';
 
-import type { WorkflowFile } from '@/types/workflow';
+import type { WorkflowFile } from '@/workflow/type';
 import type { Node } from '@xyflow/react';
 import { createContext, useContext, type ReactNode } from 'react';
 

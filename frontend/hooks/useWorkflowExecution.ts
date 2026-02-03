@@ -6,10 +6,10 @@
 import type { Node, Edge } from '@xyflow/react';
 import { useCallback, useState } from 'react';
 import type { ProcessNodeParams } from '@/types/node';
-import type { ExecutionStatusValue } from '@/constants';
-import { EXECUTION_STATUS, NODE_TYPE } from '@/constants';
+import type { ExecutionStatusValue } from '@/constants/index';
+import { EXECUTION_STATUS, NODE_TYPE } from '@/constants/index';
 import { isProcessNodeData } from '@/types/typeGuards';
-import type { WorkflowFile } from '@/types/workflow';
+import type { WorkflowFile } from '@/workflow/type';
 import { ValidationError, ProcessingError, categorizeError } from '@/lib/errors';
 
 type UseWorkflowExecutionParams = {
@@ -43,8 +43,125 @@ export const useWorkflowExecution = ({
     });
   }, []);
 
+  /** スタートノードを探す */
+  const findStartNode = useCallback((): Node => {
+    const startNode = nodes.find(n => n.type === NODE_TYPE.START);
+    if (!startNode) {
+      throw new ValidationError(
+        'Start node not found',
+        'スタートノードが見つかりません。ワークフローを確認してください。'
+      );
+    }
+    return startNode;
+  }, [nodes]);
+
+  /** 次のノードIDを探す */
+  const findNextNodeId = useCallback((currentNodeId: string): string | null => {
+    const edge = edges.find(e => e.source === currentNodeId);
+    return edge ? edge.target : null;
+  }, [edges]);
+
+  /** プロセスノードを実行 */
+  const executeProcessNode = useCallback(async (
+    node: Node,
+    currentImage: string
+  ): Promise<string> => {
+    // データ検証
+    if (!isProcessNodeData(node.data)) {
+      throw new ValidationError(
+        `Invalid process node data for node ${node.id}`,
+        'ノードの設定が正しくありません。',
+        `Node ID: ${node.id}`
+      );
+    }
+
+    updateNodeExecutionStatus(node.id, EXECUTION_STATUS.RUNNING);
+
+    const { functionName, params } = node.data;
+
+    // API呼び出し
+    const response = await fetch('/api/process-node', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        functionName,
+        params,
+        inputData: currentImage,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new ProcessingError(
+        `Node processing failed: ${response.statusText}`,
+        `ノード処理に失敗しました (${functionName})`,
+        errorText,
+        node.id
+      );
+    }
+
+    const result = await response.json();
+
+    if (result.status !== 'success' || !result.result) {
+      throw new ProcessingError(
+        result.message || 'Unknown error during processing',
+        `処理中にエラーが発生しました (${functionName})`,
+        result.message,
+        node.id
+      );
+    }
+
+    // 結果を保存
+    updateNodeExecutionResult(node.id, result.result, params);
+    return result.result;
+  }, [updateNodeExecutionStatus, updateNodeExecutionResult]);
+
+  /** ノードグラフをトラバースして実行 */
+  const traverseAndExecuteNodes = useCallback(async (
+    startNodeId: string,
+    initialImage: string
+  ): Promise<string> => {
+    let currentNodeId: string | null = startNodeId;
+    let currentImage = initialImage;
+
+    // 無限ループ防止用に実行したノードIDを記録
+    const visitedIds = new Set<string>();
+
+    while (currentNodeId) {
+      // 無限ループ防止
+      if (visitedIds.has(currentNodeId)) {
+        break;
+      }
+      visitedIds.add(currentNodeId);
+
+      // ノードを取得
+      const currentNode = nodes.find(n => n.id === currentNodeId);
+      if (!currentNode) {
+        break;
+      }
+
+      // エンドノードならワークフロー完了
+      if (currentNode.type === NODE_TYPE.END) {
+        return currentImage;
+      }
+
+      // プロセスノードなら実行
+      if (currentNode.type === NODE_TYPE.PROCESS) {
+        currentImage = await executeProcessNode(currentNode, currentImage);
+      }
+
+      // 次のノードへ
+      currentNodeId = findNextNodeId(currentNodeId);
+    }
+
+    return currentImage;
+  }, [nodes, executeProcessNode, findNextNodeId]);
+
+  /** ワークフローを実行 */
   const executeWorkflow = useCallback(async () => {
-    // バリデーション: 画像がアップロードされているか
+    // 早期return: 画像未アップロード
     if (files.length === 0) {
       const error = new ValidationError(
         'No image uploaded',
@@ -56,104 +173,24 @@ export const useWorkflowExecution = ({
 
     setIsProcessing(true);
     setResultImage(null);
-    let currentNodeId: string | null = null;
-
-    // Reset all nodes to idle
     resetNodeExecutionStatuses();
 
+    let currentNodeId: string | null = null;
+
     try {
-      // 1. Get Initial Image
-      let currentImage = await fileToBase64(files[0].file);
+      // 初期画像を取得
+      const initialImage = await fileToBase64(files[0].file);
 
-      // 2. Find Start Node
-      const startNode = nodes.find(n => n.type === NODE_TYPE.START);
-      if (!startNode) {
-        throw new ValidationError(
-          'Start node not found',
-          'スタートノードが見つかりません。ワークフローを確認してください。'
-        );
-      }
-
+      // スタートノードを探す
+      const startNode = findStartNode();
       currentNodeId = startNode.id;
 
-      // 3. Traverse and Execute
-      const visited = new Set<string>();
-      while (currentNodeId) {
-        const currentNode = nodes.find(n => n.id === currentNodeId);
-        if (!currentNode) break;
+      // ノードを順次実行
+      const finalImage = await traverseAndExecuteNodes(startNode.id, initialImage);
 
-        // If Process Node, Execute it
-        if (currentNode.type === NODE_TYPE.PROCESS) {
-          // Type-safe validation of node data
-          if (!isProcessNodeData(currentNode.data)) {
-            throw new ValidationError(
-              `Invalid process node data for node ${currentNode.id}`,
-              'ノードの設定が正しくありません。',
-              `Node ID: ${currentNode.id}`
-            );
-          }
+      // 最終結果を設定
+      setResultImage(finalImage);
 
-          updateNodeExecutionStatus(currentNode.id, EXECUTION_STATUS.RUNNING);
-
-          const { functionName, params } = currentNode.data;
-
-          // API Call
-          const response = await fetch('/api/process-node', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              functionName,
-              params,
-              inputData: currentImage,
-            }),
-          });
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new ProcessingError(
-              `Node processing failed: ${response.statusText}`,
-              `ノード処理に失敗しました (${functionName})`,
-              errorText,
-              currentNode.id
-            );
-          }
-
-          const result = await response.json();
-
-          if (result.status === 'success' && result.result) {
-            currentImage = result.result; // Update current image for next node
-            // Save result and params to the node
-            updateNodeExecutionResult(currentNode.id, currentImage, params);
-          } else {
-            throw new ProcessingError(
-              result.message || 'Unknown error during processing',
-              `処理中にエラーが発生しました (${functionName})`,
-              result.message,
-              currentNode.id
-            );
-          }
-        }
-
-        // If End Node, Set Result and Finish
-        if (currentNode.type === NODE_TYPE.END) {
-          setResultImage(currentImage);
-          break; // End of workflow
-        }
-
-        // Find next node
-        const edge = edges.find(e => e.source === currentNodeId);
-        if (edge) {
-          currentNodeId = edge.target;
-        } else {
-          currentNodeId = null; // No outgoing connection
-        }
-
-        // Safety break for infinite loops if circular (simple check)
-        if (visited.has(currentNodeId || '')) break;
-        if (currentNodeId) visited.add(currentNodeId);
-      }
     } catch (error) {
       // エラーを分類してハンドリング
       const appError = categorizeError(error);
@@ -180,12 +217,11 @@ export const useWorkflowExecution = ({
       setIsProcessing(false);
     }
   }, [
-    edges,
-    fileToBase64,
     files,
-    nodes,
+    fileToBase64,
+    findStartNode,
+    traverseAndExecuteNodes,
     resetNodeExecutionStatuses,
-    updateNodeExecutionResult,
     updateNodeExecutionStatus,
     onError,
   ]);

@@ -7,30 +7,46 @@ import { Handle, Node, NodeProps, Position } from '@xyflow/react';
 import { useCallback } from 'react';
 import { ProcessNodeParamInputs } from './ProcessNodeParamInputs';
 import styles from './ProcessNode.module.css';
-import { PROCESS_NODE_ICON_MAP } from './processNodeIcons';
+
+
+import { ChartNoAxesColumn, CheckCircle, Image as ImageIcon, Paintbrush, Palette, Play, Settings } from 'lucide-react';
+import type { FC } from 'react';
+
+type ProcessNodeIcon = FC<{ size?: number; className?: string }>;
+
+const PROCESS_NODE_ICON_MAP: Record<string, ProcessNodeIcon> = {
+    'histogram': ChartNoAxesColumn,
+    'settings': Settings,
+    'image': ImageIcon,
+    'check': CheckCircle,
+    'play': Play,
+    'brush': Paintbrush,
+    'palette': Palette,
+};
 
 /**
  * 処理ノードコンポーネント。
  * 処理する関数のタイプおよび、それに応じたパラメータ入力UIを表示する。
  */
-export function ProcessNode({ id, data }: NodeProps<Node>) {
+export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
     const { updateNodeData } = useFlowStore();
-    const isValid = isProcessNodeData(data);
+    const isValid = isProcessNodeData(nodeData);
 
+    // ユーザーのパラメータ入力変更に応じて、ノードデータを更新するハンドラー
     const handleParamChange = useCallback((key: string, value: OpencvParamValue) => {
         if (!isValid) {
             return;
         }
-        const currentParams = data.params || ({} as Record<string, unknown>);
+        const currentParams = nodeData.params || ({} as Record<string, unknown>);
         updateNodeData(id, {
             params: {
                 ...currentParams,
                 [key]: value,
             },
         });
-    }, [data, id, isValid, updateNodeData]);
+    }, [nodeData, id, isValid, updateNodeData]);
 
-    // Type-safe data validation
+    // 念の為、不正なNodeDataの場合のフォールバック表示
     if (!isValid) {
         return (
             <div className={styles.node}>
@@ -41,7 +57,6 @@ export function ProcessNode({ id, data }: NodeProps<Node>) {
         );
     }
 
-    const nodeData = data;
     const status = nodeData.executionStatus || 'idle';
     const params = nodeData.params;
 

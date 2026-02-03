@@ -1,7 +1,7 @@
 // ワークフローのスナップショット保存・復元機能
 import type { FlowSnapshot } from '@/workflow/flowSerializer';
 import { formatSnapshotDate } from '@/workflow/formatDate';
-import { storageService } from '@/workflow/storageService';
+import { storageService } from '@/lib/storageService';
 
 const FLOW_HISTORY_STORAGE_KEY = 'visionfy.flow.history';
 const MAX_HISTORY_ENTRIES = 20;

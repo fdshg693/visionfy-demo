@@ -27,6 +27,10 @@ type FlowCanvasProps = {
   onAddNode: () => void;
 };
 
+/**
+ * フローカンバスコンポーネント
+ * ノードとエッジの表示および操作UIを提供します。
+ */
 export function FlowCanvas({
   nodes,
   edges,

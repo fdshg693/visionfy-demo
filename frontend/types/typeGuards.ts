@@ -4,7 +4,7 @@
  */
 
 import type { Node } from '@xyflow/react';
-import { NODE_TYPE } from '@/constants';
+import { NODE_TYPE } from '@/constants/index';
 import type {
   ProcessNodeData,
   CLAHEData,

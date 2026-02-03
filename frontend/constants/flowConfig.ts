@@ -1,7 +1,7 @@
 import { EndNode } from '@/app/components/nodes/EndNode';
 import { ProcessNode } from '@/app/components/nodes/ProcessNode';
 import { StartNode } from '@/app/components/nodes/StartNode';
-import { NODE_TYPE, EXECUTION_STATUS } from '@/constants';
+import { NODE_TYPE, EXECUTION_STATUS } from '@/constants/index';
 import type { NodeTypes, Edge, Node } from '@xyflow/react';
 
 // Define node types
@@ -11,7 +11,9 @@ export const nodeTypes: NodeTypes = {
   [NODE_TYPE.END]: EndNode,
 };
 
-// Initial Nodes with new data structure
+/**
+ * 初期ノードの定義
+ */
 export const initialNodes: Node[] = [
   {
     id: 'start',
@@ -39,4 +41,5 @@ export const initialNodes: Node[] = [
   },
 ];
 
+/** 初期のエッジ。何も接続されていない状態 */
 export const initialEdges: Edge[] = [];

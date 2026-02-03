@@ -1,6 +1,6 @@
 // 役割: 右側インスペクタの枠。選択ノードの詳細UIをNodeInspectorへ集約して渡す。
 // 依存: NodeInspectorに実行/画像/ノード情報を橋渡しする。
-import { NodeInspector } from '@/app/components/inspector/NodeInspector';
+import { NodeInspector } from '@/app/components/workflow/NodeInspector';
 import type { FlowHistoryEntry } from '@/workflow/flowPersistence';
 import type { NodeDataUpdate } from '@/types/node';
 import type { Node } from '@xyflow/react';
@@ -20,6 +20,12 @@ type InspectorPanelProps = {
   onChangeTab: (tab: 'inspector' | 'snapshot') => void;
 };
 
+/**
+ * インスペクタパネルコンポーネント
+ * ノードの詳細設定とスナップショット管理のタブを提供します。
+ * - SnapshotPanel: スナップショットの保存/復元/管理UIを提供
+ * - NodeInspector: 選択ノードの詳細設定UIを提供
+ */
 export function InspectorPanel({
   selectedNode,
   onUpdateNode,

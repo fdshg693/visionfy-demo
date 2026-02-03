@@ -6,10 +6,10 @@ import { FlowCanvas } from '@/app/components/workflow/FlowCanvas';
 import { InspectorPanel } from '@/app/components/workflow/InspectorPanel';
 import { useWorkflowExecution } from '@/hooks/useWorkflowExecution';
 import { DEFAULT_NODE_PARAMS, type ProcessNodeData, type NodeDataUpdate } from '@/types/node';
-import { NODE_TYPE, EXECUTION_STATUS } from '@/constants';
-import type { WorkflowFile } from '@/types/workflow';
+import { NODE_TYPE, EXECUTION_STATUS } from '@/constants/index';
+import type { WorkflowFile } from '@/workflow/type';
 import { FlowStoreProvider, useFlowStore } from '@/workflow/flowStore';
-import { initialEdges, initialNodes, nodeTypes } from '@/workflow/flowConfig';
+import { initialEdges, initialNodes, nodeTypes } from '@/constants/flowConfig';
 import { toFlowSnapshot } from '@/workflow/flowSerializer';
 import { getConnectionConstraintError } from '@/workflow/connectionConstraints';
 import {
@@ -31,7 +31,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { InspectorProvider } from '@/contexts/InspectorContext';
 import { ToastProvider, useToast } from '@/contexts/ToastContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { categorizeError, ValidationError, type AppError } from '@/lib/errors';
+import { categorizeError } from '@/lib/errors';
 
 import styles from './page.module.css';
 
@@ -39,6 +39,11 @@ type WorkflowContentProps = {
   initialHistoryEntries: FlowHistoryEntry[];
 };
 
+/**
+ * ページは以下の二つの要素で構成されている
+ * - FlowCanvas: ノードとエッジの表示と編集を担当
+ * - InspectorPanel: 選択ノードの設定編集とスナップショット管理を担当
+ */
 function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
   const {
     nodes,
@@ -57,7 +62,7 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [historyEntries, setHistoryEntries] = useState<FlowHistoryEntry[]>(() => initialHistoryEntries);
   const [activeInspectorTab, setActiveInspectorTab] = useState<'inspector' | 'snapshot'>('inspector');
-  const { showError, showWarning, showInfo } = useToast();
+  const { showError, showWarning } = useToast();
 
   // エラーハンドラ
   const handleExecutionError = useCallback((error: unknown) => {
