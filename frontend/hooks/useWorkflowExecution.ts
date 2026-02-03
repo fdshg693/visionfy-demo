@@ -9,7 +9,7 @@ import type { ProcessNodeParams } from '@/types/node';
 import type { ExecutionStatusValue } from '@/constants/index';
 import { EXECUTION_STATUS, NODE_TYPE } from '@/constants/index';
 import { isProcessNodeData } from '@/types/typeGuards';
-import type { WorkflowFile } from '@/workflow/type';
+import type { WorkflowFile } from '@/types/workflow';
 import { ValidationError, ProcessingError, categorizeError } from '@/lib/errors';
 
 type UseWorkflowExecutionParams = {

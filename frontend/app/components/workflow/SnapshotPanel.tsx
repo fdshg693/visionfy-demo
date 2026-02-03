@@ -1,5 +1,5 @@
 import type { FlowHistoryEntry } from '@/workflow/flowPersistence';
-import { formatSnapshotDate } from '@/workflow/formatDate';
+import { formatSnapshotDate } from '@/lib/formatDate';
 import { useState } from 'react';
 
 import styles from '@/app/page.module.css';

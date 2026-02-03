@@ -255,3 +255,39 @@
     border: 1px solid #e5e7eb;
     font-size: 12px;
 }
+
+/* ===== コンテキストメニュー ===== */
+
+.contextMenuOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+}
+
+.contextMenu {
+    position: absolute;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    z-index: 100;
+    min-width: 120px;
+    overflow: hidden;
+}
+
+.contextMenuItem {
+    display: block;
+    width: 100%;
+    padding: 8px 16px;
+    text-align: left;
+    border: none;
+    background: none;
+    color: #ef4444;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.contextMenuItem:hover {
+    background: #fee2e2;
+}

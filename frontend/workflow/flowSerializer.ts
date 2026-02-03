@@ -15,12 +15,13 @@ export type FlowSnapshot = {
 };
 
 /**
- * プロセスノードの実行時データを除去し、永続化用のデータのみを抽出
+ * プロセスノードから永続化する項目を明示的に抽出
  */
-const pickProcessNodeData = (data: ProcessNodeData): Partial<ProcessNodeData> => {
-  const { executionStatus, result, resultParams, icon, ...persistentData } = data;
-  return persistentData;
-};
+const pickProcessNodeData = (data: ProcessNodeData) => ({
+  label: data.label,
+  functionName: data.functionName,
+  params: data.params,
+});
 
 /**
  * プロセスノードではない、基本的なノードデータを抽出

@@ -2,7 +2,7 @@
 // 依存: Start/Process/Endの各Inspectorコンポーネント。
 import type { NodeDataUpdate } from '@/types/node';
 import { Node } from '@xyflow/react';
-import styles from './NodeInspector.module.css';
+import styles from '../NodeInspector.module.css';
 import { EndNodeInspector } from '../inspectors/EndNodeInspector';
 import { ProcessNodeInspector } from '../inspectors/ProcessNodeInspector';
 import { StartNodeInspector } from '../inspectors/StartNodeInspector';

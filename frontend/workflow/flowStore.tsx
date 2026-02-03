@@ -8,8 +8,8 @@ import type {
   ProcessNodeParams,
   BaseProcessNodeData,
 } from '@/types/node';
-import type { ExecutionStatusValue } from '@/constants';
-import { EXECUTION_STATUS } from '@/constants';
+import type { ExecutionStatusValue } from '@/constants/index';
+import { EXECUTION_STATUS } from '@/constants/index';
 import { isBaseProcessNodeData } from '@/types/typeGuards';
 import {
   applyEdgeChanges,

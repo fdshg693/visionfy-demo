@@ -1,6 +1,6 @@
 // ワークフローのスナップショット保存・復元機能
 import type { FlowSnapshot } from '@/workflow/flowSerializer';
-import { formatSnapshotDate } from '@/workflow/formatDate';
+import { formatSnapshotDate } from '@/lib/formatDate';
 import { storageService } from '@/lib/storageService';
 
 const FLOW_HISTORY_STORAGE_KEY = 'visionfy.flow.history';

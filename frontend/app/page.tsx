@@ -7,7 +7,7 @@ import { InspectorPanel } from '@/app/components/workflow/InspectorPanel';
 import { useWorkflowExecution } from '@/hooks/useWorkflowExecution';
 import { DEFAULT_NODE_PARAMS, type ProcessNodeData, type NodeDataUpdate } from '@/types/node';
 import { NODE_TYPE, EXECUTION_STATUS } from '@/constants/index';
-import type { WorkflowFile } from '@/workflow/type';
+import type { WorkflowFile } from '@/types/workflow';
 import { FlowStoreProvider, useFlowStore } from '@/workflow/flowStore';
 import { initialEdges, initialNodes, nodeTypes } from '@/constants/flowConfig';
 import { toFlowSnapshot } from '@/workflow/flowSerializer';
@@ -27,7 +27,7 @@ import {
   type Viewport,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { InspectorProvider } from '@/contexts/InspectorContext';
 import { ToastProvider, useToast } from '@/contexts/ToastContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -130,6 +130,13 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     updateNodeData(nodeId, newData);
   }, [updateNodeData]);
 
+  const handleResetCanvas = useCallback(() => {
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+    setSelectedNodeId(null);
+    setFiles([]);
+  }, [setNodes, setEdges]);
+
   const handleAddNode = useCallback(() => {
     const newNode: Node<ProcessNodeData> = {
       id: `node-${Date.now()}`,
@@ -197,6 +204,7 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
           onPaneClick={onPaneClick}
           onMoveEnd={handleMoveEnd}
           onAddNode={handleAddNode}
+          onResetCanvas={handleResetCanvas}
         />
 
         <InspectorPanel
@@ -216,7 +224,26 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
 }
 
 export default function Home() {
-  const initialHistoryEntries = useMemo(() => loadFlowHistory(), []);
+  // SSR では window が存在しないため空配列を返し、クライアントでは直接 localStorage から読む
+  const [initialHistoryEntries] = useState<FlowHistoryEntry[]>(() => {
+    if (typeof window === 'undefined') return [];
+    return loadFlowHistory();
+  });
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // ハイドレート後にのみ描画を開始する。
+  // SSR では window が存在しないため initialHistoryEntries は []になり、
+  // クライアントの初回レンダルと不整合になる。このガードで描画を遅延させる。
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsHydrated(true);
+  }, []);
+
+  // ハイドレート前はレンダルしない。
+  // これにより FlowStoreProvider と WorkflowContent の初回マウントが
+  // localStorage の読み込み後になり、useState の初期値が正しい値になる。
+  if (!isHydrated) return null;
+
   const latestSnapshot = initialHistoryEntries[0]?.snapshot ?? null;
   const initialNodesState = latestSnapshot?.nodes ?? initialNodes;
   const initialEdgesState = latestSnapshot?.edges ?? initialEdges;
