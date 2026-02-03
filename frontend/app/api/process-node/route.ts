@@ -1,6 +1,9 @@
 import { backendApiService } from "@/lib/backendApiService";
 import type { ProcessNodeFunctionName, ProcessNodeParams } from "@/types/node";
 import { NextRequest, NextResponse } from "next/server";
+import { createLogger } from "@/lib/logger";
+
+const logger = createLogger('ProcessNodeAPI');
 
 export async function POST(req: NextRequest) {
     try {
@@ -11,7 +14,11 @@ export async function POST(req: NextRequest) {
             inputData?: string;
         };
 
+        logger.info({ functionName, hasParams: !!params, hasInputData: !!inputData }, 'Process node request received');
+        logger.debug({ params }, 'Process node params');
+
         if (!functionName) {
+            logger.warn('Missing functionName in request');
             return NextResponse.json(
                 { status: "error", message: "functionName is required" },
                 { status: 400 }
@@ -24,9 +31,10 @@ export async function POST(req: NextRequest) {
             inputData
         );
 
+        logger.info({ functionName, status: result.status }, 'Process node completed');
         return NextResponse.json(result);
     } catch (error) {
-        console.error("Error processing node:", error);
+        logger.error({ error: error instanceof Error ? error.message : String(error), stack: error instanceof Error ? error.stack : undefined }, 'Error processing node');
         return NextResponse.json(
             { status: "error", message: "Internal Server Error" },
             { status: 500 }

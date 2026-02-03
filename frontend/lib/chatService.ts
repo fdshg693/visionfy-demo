@@ -10,6 +10,9 @@ import {
   SystemMessage,
 } from "@langchain/core/messages";
 import { SYSTEM_PROMPT } from "./chatPrompts";
+import { createLogger } from "./logger";
+
+const logger = createLogger('ChatService');
 
 export type ChatMessage = {
   role: "user" | "assistant";
@@ -20,10 +23,12 @@ export class ChatService {
   private model: ChatGoogleGenerativeAI;
 
   constructor(apiKey: string) {
+    logger.debug('Initializing ChatGoogleGenerativeAI model');
     this.model = new ChatGoogleGenerativeAI({
       model: "gemini-2.5-pro",
       apiKey,
     });
+    logger.info('ChatService initialized with model: gemini-2.5-pro');
   }
 
   /**
@@ -35,6 +40,15 @@ export class ChatService {
       ? `${SYSTEM_PROMPT}\n\n${workflowContext}`
       : SYSTEM_PROMPT;
 
+    logger.info({ messageCount: messages.length, hasWorkflowContext: !!workflowContext }, 'Building langchain messages');
+    logger.debug({ systemPromptLength: systemContent.length }, 'System prompt prepared');
+    
+    // AIに渡す内容をログ出力
+    logger.debug({ 
+      systemContent: systemContent.substring(0, 500) + (systemContent.length > 500 ? '...' : ''),
+      userMessages: messages.map(m => ({ role: m.role, contentPreview: m.content.substring(0, 100) }))
+    }, 'Content being sent to AI');
+
     const langchainMessages = [
       new SystemMessage(systemContent),
       ...messages.map((msg) =>
@@ -44,6 +58,7 @@ export class ChatService {
       ),
     ];
 
+    logger.info({ totalMessages: langchainMessages.length }, 'Starting stream to Gemini API');
     return this.model.stream(langchainMessages);
   }
 }

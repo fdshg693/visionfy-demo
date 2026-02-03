@@ -9,6 +9,9 @@ import {
 } from "./backendApiAdapters";
 import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
 import { NetworkError, ProcessingError, createErrorFromStatus } from './errors';
+import { createLogger, logEnvVar } from './logger';
+
+const logger = createLogger('BackendApiService');
 
 export class BackendApiService {
     private baseUrl: string;
@@ -16,11 +19,13 @@ export class BackendApiService {
 
     constructor() {
         const baseUrl = process.env.API_BASE_URL;
+        logEnvVar(logger, 'API_BASE_URL', baseUrl);
         if (!baseUrl) {
-            console.warn("API_BASE_URL is not defined in environment variables");
+            logger.warn("API_BASE_URL is not defined, using default: http://localhost:8080");
         }
         this.baseUrl = baseUrl || "http://localhost:8080";
         this.adapters = createBackendAdapters();
+        logger.info({ baseUrl: this.baseUrl }, 'BackendApiService initialized');
     }
 
     async processNode(functionName: ProcessNodeFunctionName, params: ProcessNodeParams, inputData?: string) {
@@ -39,13 +44,15 @@ export class BackendApiService {
             base64ToBlob: this.base64ToBlob.bind(this),
         });
 
-        console.log(`[BackendApiService] Calling ${url} with params:`, params);
+        logger.info({ functionName, params, url }, 'API request starting');
 
         try {
             const response = await fetch(url, init);
+            logger.debug({ status: response.status, statusText: response.statusText }, 'API response received');
 
             if (!response.ok) {
                 const errorText = await response.text();
+                logger.error({ status: response.status, statusText: response.statusText, errorText }, 'API request failed');
                 throw createErrorFromStatus(
                     response.status,
                     response.statusText,
@@ -57,6 +64,7 @@ export class BackendApiService {
             if (contentType && contentType.includes("image/")) {
                 const imageBlob = await response.blob();
                 const base64Result = await this.blobToBase64(imageBlob);
+                logger.info({ functionName, contentType }, 'Image response processed successfully');
                 return {
                     status: "success",
                     result: base64Result
@@ -67,8 +75,10 @@ export class BackendApiService {
 
             // Normalize response if it follows the "ok: true, data: { url: ... }" pattern
             if (data.ok && data.data?.url && typeof data.data.url === 'string') {
+                logger.debug({ url: data.data.url }, 'Fetching image from URL');
                 const imageResponse = await fetch(data.data.url);
                 if (!imageResponse.ok) {
+                    logger.error({ url: data.data.url, status: imageResponse.status }, 'Failed to fetch image from URL');
                     throw new NetworkError(
                         'Failed to fetch image from URL',
                         imageResponse.status,
@@ -77,22 +87,25 @@ export class BackendApiService {
                 }
                 const imageBlob = await imageResponse.blob();
                 const base64Result = await this.blobToBase64(imageBlob);
-
+                logger.info({ functionName }, 'Image fetched from URL successfully');
                 return {
                     status: "success",
                     result: base64Result
                 };
             }
 
+            logger.info({ functionName }, 'JSON response processed successfully');
             return data;
         } catch (error) {
             // エラーの種類に応じて適切にラップ
             if (error instanceof NetworkError || error instanceof ProcessingError) {
+                logger.error({ functionName, errorType: error.name, message: error.message }, 'Known error type');
                 throw error;
             }
 
             // Fetch関連のエラー（ネットワーク切断など）
             if (error instanceof TypeError && error.message.includes('fetch')) {
+                logger.error({ functionName, errorMessage: error.message }, 'Network connection error');
                 throw new NetworkError(
                     `Failed to connect to backend: ${functionName}`,
                     undefined,
@@ -101,6 +114,7 @@ export class BackendApiService {
             }
 
             // その他のエラー
+            logger.error({ functionName, error: error instanceof Error ? error.message : String(error) }, 'Unexpected error');
             throw new ProcessingError(
                 `Error processing ${functionName}`,
                 `画像処理中にエラーが発生しました (${functionName})`,
