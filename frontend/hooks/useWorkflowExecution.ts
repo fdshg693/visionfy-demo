@@ -195,9 +195,12 @@ export const useWorkflowExecution = ({
       // エラーを分類してハンドリング
       const appError = categorizeError(error);
 
-      // ノードのステータスを更新
-      if (currentNodeId) {
-        updateNodeExecutionStatus(currentNodeId, EXECUTION_STATUS.ERROR);
+      // ノードのステータスを更新（ProcessingErrorにnodeIdがある場合はそちらを優先）
+      const failedNodeId = appError instanceof ProcessingError && appError.nodeId
+        ? appError.nodeId
+        : currentNodeId;
+      if (failedNodeId) {
+        updateNodeExecutionStatus(failedNodeId, EXECUTION_STATUS.ERROR);
       }
 
       // エラーコールバックを呼び出し
@@ -208,7 +211,7 @@ export const useWorkflowExecution = ({
       // 技術的な詳細をコンソールに出力
       console.error('[useWorkflowExecution] Workflow execution failed:', {
         error: appError,
-        nodeId: currentNodeId,
+        nodeId: failedNodeId,
         category: appError.category,
         message: appError.message,
         technicalDetails: appError.technicalDetails,

@@ -8,23 +8,23 @@ import numpy as np
 
 @dataclass(frozen=True)
 class GaussianBlurParams:
-    ksize: int = 0
-    sigma: float = 0.0
+    ksize_x: int = 0
+    ksize_y: int = 0
+    sigma_x: float = 0.0
+    sigma_y: float = 0.0
 
 
 def _parse_params(request: Request) -> GaussianBlurParams:
-    ksize = 0
-    sigma = 0.0
     try:
-        if request.form.get("ksize"):
-            ksize = int(request.form.get("ksize"))
-        if request.form.get("sigma"):
-            sigma = float(request.form.get("sigma"))
+        ksize_x = int(request.form.get("ksizeX", 0))
+        ksize_y = int(request.form.get("ksizeY", 0))
+        sigma_x = float(request.form.get("sigmaX", 0.0))
+        sigma_y = float(request.form.get("sigmaY", 0.0))
     except ValueError as exc:
         raise ValueError(
-            "Invalid parameters: ksize uses int, sigma uses float"
+            "Invalid parameters: ksize must be int, sigma must be float"
         ) from exc
-    return GaussianBlurParams(ksize=ksize, sigma=sigma)
+    return GaussianBlurParams(ksize_x=ksize_x, ksize_y=ksize_y, sigma_x=sigma_x, sigma_y=sigma_y)
 
 
 def apply_gaussian_blur(request: Request) -> Union[Response, Tuple[str, int]]:
@@ -55,13 +55,12 @@ def apply_gaussian_blur(request: Request) -> Union[Response, Tuple[str, int]]:
             return "Could not decode image", 400
 
         # Apply Gaussian Blur
-        if params.ksize > 0 or params.sigma > 0:
-            # If ksize is provided and positive, ensure it is odd
-            ksize = params.ksize
-            if ksize > 0 and ksize % 2 == 0:
-                ksize += 1
+        if params.ksize_x > 0 or params.ksize_y > 0 or params.sigma_x > 0:
+            # Ensure ksize values are odd
+            ksize_x = params.ksize_x + (1 if params.ksize_x > 0 and params.ksize_x % 2 == 0 else 0)
+            ksize_y = params.ksize_y + (1 if params.ksize_y > 0 and params.ksize_y % 2 == 0 else 0)
 
-            img = cv2.GaussianBlur(img, (ksize, ksize), params.sigma)
+            img = cv2.GaussianBlur(img, (ksize_x, ksize_y), params.sigma_x, sigmaY=params.sigma_y)
 
         # Encode back to format (JPG)
         ret, buffer = cv2.imencode(".jpg", img)

@@ -7,13 +7,13 @@ import numpy as np
 
 
 @dataclass(frozen=True)
-class CreateClaneParams:
+class CreateClaheParams:
     clip_limit: float = 2.0
     tile_grid_x: int = 8
     tile_grid_y: int = 8
 
 
-def _parse_params(request: Request) -> CreateClaneParams:
+def _parse_params(request: Request) -> CreateClaheParams:
     try:
         clip_limit = float(request.form.get("clipLimit", 2.0))
         tile_grid_x = int(request.form.get("tileGridSizeX", 8))
@@ -23,17 +23,16 @@ def _parse_params(request: Request) -> CreateClaneParams:
             "Invalid parameters: clipLimit must be float, tileGridSize must be int"
         ) from exc
 
-    return CreateClaneParams(
+    return CreateClaheParams(
         clip_limit=clip_limit,
         tile_grid_x=tile_grid_x,
         tile_grid_y=tile_grid_y,
     )
 
 
-def change_image1(request: Request) -> Union[Response, Tuple[str, int]]:
+def apply_clahe(request: Request) -> Union[Response, Tuple[str, int]]:
     """
     画像を受け取り、CLAHE変換を適用して返す
-    reference: infra/reference/simple.py
     """
     if request.method != "POST":
         return "Method not allowed", 405

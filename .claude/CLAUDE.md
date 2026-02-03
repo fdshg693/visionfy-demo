@@ -11,4 +11,7 @@
 ## PROJECT
 
 @../.ai/overview/project.md
-å
+
+## frontend
+
+@../.ai/overview/frontend.md

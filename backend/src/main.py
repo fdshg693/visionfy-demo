@@ -3,7 +3,7 @@ import os
 
 # Import function modules
 # api package is assumed to be in the same directory
-from api.createclane import main as createclane
+from api.createclahe import main as createclahe
 from api.grayscale import main as grayscale
 from api.gaussian_blur import main as gaussian_blur
 
@@ -36,14 +36,12 @@ def health_check():
     return jsonify({"status": "healthy"}), 200
 
 
-@app.route("/api/createclane", methods=["GET", "POST", "PUT", "DELETE"])
-def route_createclane():
+@app.route("/api/createclahe", methods=["POST"])
+def route_createclahe():
     """
-    createclane/main.py の change_image1 を呼び出すラッパー
+    createclahe/main.py の apply_clahe を呼び出すラッパー
     """
-    return createclane.change_image1(request)
-
-    return createclane.change_image1(request)
+    return createclahe.apply_clahe(request)
 
 
 @app.route("/api/grayscale", methods=["POST"])

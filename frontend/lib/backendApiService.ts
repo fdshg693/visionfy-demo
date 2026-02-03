@@ -4,7 +4,6 @@
  * 依存: backendApiAdaptersでエンドポイントごとのリクエスト形式を変換
  */
 import {
-    buildDefaultAdapter,
     createBackendAdapters,
     type RequestAdapter,
 } from "./backendApiAdapters";
@@ -26,21 +25,19 @@ export class BackendApiService {
 
     async processNode(functionName: ProcessNodeFunctionName, params: ProcessNodeParams, inputData?: string) {
         const adapter = this.adapters[functionName];
-        const { url, init } = adapter
-            ? adapter({
-                baseUrl: this.baseUrl,
-                functionName,
-                params,
-                inputData,
-                base64ToBlob: this.base64ToBlob.bind(this),
-            })
-            : buildDefaultAdapter()({
-                baseUrl: this.baseUrl,
-                functionName,
-                params,
-                inputData,
-                base64ToBlob: this.base64ToBlob.bind(this),
-            });
+        if (!adapter) {
+            throw new ProcessingError(
+                `No adapter registered for function: ${functionName}`,
+                `未対応の処理関数です (${functionName})`,
+            );
+        }
+        const { url, init } = adapter({
+            baseUrl: this.baseUrl,
+            functionName,
+            params,
+            inputData,
+            base64ToBlob: this.base64ToBlob.bind(this),
+        });
 
         console.log(`[BackendApiService] Calling ${url} with params:`, params);
 
