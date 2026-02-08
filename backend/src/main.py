@@ -2,6 +2,18 @@ from flask import Flask, request, jsonify, send_from_directory
 import os
 import logging
 
+# Import function modules
+# api package is assumed to be in the same directory
+from api.createclahe import main as createclahe
+from api.grayscale import main as grayscale
+from api.gaussian_blur import main as gaussian_blur
+from api.remove_noise import main as remove_noise
+from api.restore_contrast import main as restore_contrast
+from api.restore_brightness import main as restore_brightness
+from api.gcs_check import main as gcs_check
+
+from flask_cors import CORS
+
 # ロギング設定
 log_level = os.environ.get(
     "LOG_LEVEL", "DEBUG" if os.environ.get("FLASK_DEBUG") else "INFO"
@@ -27,18 +39,6 @@ def log_env_vars():
         else:
             logger.warning(f"Environment variable {name} is not set")
 
-
-# Import function modules
-# api package is assumed to be in the same directory
-from api.createclahe import main as createclahe
-from api.grayscale import main as grayscale
-from api.gaussian_blur import main as gaussian_blur
-from api.remove_noise import main as remove_noise
-from api.restore_contrast import main as restore_contrast
-from api.restore_brightness import main as restore_brightness
-
-
-from flask_cors import CORS
 
 app = Flask(__name__, static_url_path="", static_folder="static")
 CORS(app)
@@ -165,6 +165,21 @@ def route_restore_brightness():
         return result
     except Exception as e:
         logger.error(f"[restore_brightness] Error: {str(e)}", exc_info=True)
+        raise
+
+
+@app.route("/api/gcs_check", methods=["GET"])
+def route_gcs_check():
+    """
+    GCSマウントの疎通確認エンドポイント
+    """
+    logger.info("[gcs_check] Request received")
+    try:
+        result = gcs_check.check_gcs_connectivity()
+        logger.info("[gcs_check] Check completed")
+        return result
+    except Exception as e:
+        logger.error(f"[gcs_check] Error: {str(e)}", exc_info=True)
         raise
 
 
