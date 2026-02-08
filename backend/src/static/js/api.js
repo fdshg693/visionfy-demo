@@ -113,6 +113,18 @@ class ApiClient {
     async postGaussianBlur(data) {
         return this.request('/api/gaussian_blur', 'POST', data);
     }
+
+    async postRemoveNoise(data) {
+        return this.request('/api/remove_noise', 'POST', data);
+    }
+
+    async postRestoreContrast(data) {
+        return this.request('/api/restore_contrast', 'POST', data);
+    }
+
+    async postRestoreBrightness(data) {
+        return this.request('/api/restore_brightness', 'POST', data);
+    }
 }
 
 export const api = new ApiClient(config.baseURL);

@@ -204,6 +204,105 @@
             </div>
           </div>
         </section>
+        <!-- Remove Noise API Section -->
+        <section class="card">
+          <div class="card-header">
+            <h2>Remove Noise</h2>
+            <span class="badge post">POST</span>
+          </div>
+          <div class="card-body">
+            <p class="description">Upload an image to remove noise (Median Filter).</p>
+
+            <div class="input-group">
+              <label for="file-remove-noise">Image File</label>
+              <input type="file" id="file-remove-noise" accept="image/*" />
+            </div>
+
+            <button id="btn-remove-noise" class="btn primary">
+              Upload & Process
+            </button>
+            <div id="res-remove-noise" class="response-area hidden">
+              <div class="result-section">
+                <h4 class="section-title">Request</h4>
+                <pre><code class="req-content"></code></pre>
+              </div>
+              <div class="result-section">
+                <h4 class="section-title">Response</h4>
+                <pre><code class="res-content"></code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Restore Contrast API Section -->
+        <section class="card">
+          <div class="card-header">
+            <h2>Restore Contrast</h2>
+            <span class="badge post">POST</span>
+          </div>
+          <div class="card-body">
+            <p class="description">Upload an image to restore contrast (Gamma Correction).</p>
+
+            <div class="input-group">
+              <label for="file-restore-contrast">Image File</label>
+              <input type="file" id="file-restore-contrast" accept="image/*" />
+            </div>
+
+            <div class="input-group">
+              <label for="restore-contrast-gamma">Gamma</label>
+              <input type="number" id="restore-contrast-gamma" value="1.7" step="0.1" />
+            </div>
+
+            <button id="btn-restore-contrast" class="btn primary">
+              Upload & Process
+            </button>
+            <div id="res-restore-contrast" class="response-area hidden">
+              <div class="result-section">
+                <h4 class="section-title">Request</h4>
+                <pre><code class="req-content"></code></pre>
+              </div>
+              <div class="result-section">
+                <h4 class="section-title">Response</h4>
+                <pre><code class="res-content"></code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Restore Brightness API Section -->
+        <section class="card">
+          <div class="card-header">
+            <h2>Restore Brightness</h2>
+            <span class="badge post">POST</span>
+          </div>
+          <div class="card-body">
+            <p class="description">Upload an image to adjust brightness.</p>
+
+            <div class="input-group">
+              <label for="file-restore-brightness">Image File</label>
+              <input type="file" id="file-restore-brightness" accept="image/*" />
+            </div>
+
+            <div class="input-group">
+              <label for="restore-brightness-value">Value</label>
+              <input type="number" id="restore-brightness-value" value="-30" step="1" />
+            </div>
+
+            <button id="btn-restore-brightness" class="btn primary">
+              Upload & Process
+            </button>
+            <div id="res-restore-brightness" class="response-area hidden">
+              <div class="result-section">
+                <h4 class="section-title">Request</h4>
+                <pre><code class="req-content"></code></pre>
+              </div>
+              <div class="result-section">
+                <h4 class="section-title">Response</h4>
+                <pre><code class="res-content"></code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
 

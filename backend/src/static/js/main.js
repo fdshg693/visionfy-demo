@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-gaussian').addEventListener('click', async () => {
         const fileInput = document.getElementById('file-gaussian');
         const file = fileInput.files[0];
-        
+
         if (!file) {
             alert('Please select an image file.');
             return;
@@ -124,5 +124,68 @@ document.addEventListener('DOMContentLoaded', () => {
         const res = await api.postGaussianBlur(formData);
         UI.showResponse('res-gaussian', res);
         UI.setLoading('btn-gaussian', false);
+    });
+
+    // Remove Noise
+    document.getElementById('btn-remove-noise').addEventListener('click', async () => {
+        const fileInput = document.getElementById('file-remove-noise');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert('Please select an image file.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        UI.setLoading('btn-remove-noise', true);
+        const res = await api.postRemoveNoise(formData);
+        UI.showResponse('res-remove-noise', res);
+        UI.setLoading('btn-remove-noise', false);
+    });
+
+    // Restore Contrast
+    document.getElementById('btn-restore-contrast').addEventListener('click', async () => {
+        const fileInput = document.getElementById('file-restore-contrast');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert('Please select an image file.');
+            return;
+        }
+
+        const gamma = UI.getInputValue('restore-contrast-gamma');
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('gamma', gamma);
+
+        UI.setLoading('btn-restore-contrast', true);
+        const res = await api.postRestoreContrast(formData);
+        UI.showResponse('res-restore-contrast', res);
+        UI.setLoading('btn-restore-contrast', false);
+    });
+
+    // Restore Brightness
+    document.getElementById('btn-restore-brightness').addEventListener('click', async () => {
+        const fileInput = document.getElementById('file-restore-brightness');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert('Please select an image file.');
+            return;
+        }
+
+        const value = UI.getInputValue('restore-brightness-value');
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('value', value);
+
+        UI.setLoading('btn-restore-brightness', true);
+        const res = await api.postRestoreBrightness(formData);
+        UI.showResponse('res-restore-brightness', res);
+        UI.setLoading('btn-restore-brightness', false);
     });
 });
