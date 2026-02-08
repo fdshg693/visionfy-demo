@@ -76,8 +76,7 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
                 {IconComponent && (
                     <IconComponent size={16} className={styles.icon} />
                 )}
-                {/* Use functionName as the main label */}
-                <span className={styles.title}>{nodeData.functionName || 'Process'}</span>
+                <span className={styles.title}>{nodeData.label || 'Process'}</span>
             </div>
 
             <div className={styles.body}>

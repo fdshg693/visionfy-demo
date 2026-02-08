@@ -45,6 +45,7 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
         const defaultIcon = DEFAULT_NODE_ICONS[newFunctionName] || 'settings';
 
         onUpdateNode(selectedNode.id, {
+            label: newFunctionName,
             functionName: newFunctionName,
             params: defaultParams,
             icon: defaultIcon,

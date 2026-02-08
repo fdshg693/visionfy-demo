@@ -106,7 +106,7 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
       type: NODE_TYPE.PROCESS,
       position: { x: Math.random() * 400, y: Math.random() * 400 },
       data: {
-        label: 'New Node',
+        label: 'createclahe',
         functionName: 'createclahe',
         params: DEFAULT_NODE_PARAMS['createclahe'],
         executionStatus: EXECUTION_STATUS.IDLE,

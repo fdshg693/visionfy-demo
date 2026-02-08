@@ -20,7 +20,6 @@ jobs:
       SERVICE_NAME: visionfy-api
       REGION: ${{ secrets.GCP_REGION }}
       PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-      IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/visionfy-backend
 
     steps:
       - name: Checkout
@@ -34,16 +33,10 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Configure Docker auth
-        run: gcloud auth configure-docker --quiet
-
-      - name: Build container image
-        run: gcloud builds submit backend --tag "$IMAGE_NAME"
-
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy "$SERVICE_NAME" \
-            --image "$IMAGE_NAME" \
+            --source backend \
             --region "$REGION" \
             --platform managed \
             --allow-unauthenticated
