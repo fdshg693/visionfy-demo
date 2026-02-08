@@ -6,15 +6,37 @@ import { MessageCircle, Send, Trash2 } from 'lucide-react';
 import styles from '@/app/page.module.css';
 import type { ChatMessage } from '@/lib/chatService';
 import { useWorkflowContext } from '@/hooks/useWorkflowContext';
+import { useChatThreads } from '@/hooks/useChatThreads';
+import { useResizablePanel } from '@/hooks/useResizablePanel';
+import { ChatMarkdown } from './ChatMarkdown';
+import { ThreadMenu } from './ThreadMenu';
 
 /**
  * GEMINIとのチャットパネルコンポーネント
  * NEXTのAPIルートを介してメッセージを送受信します。
  * AIはツールを使用してワークフローコンテキストを動的に取得します。
+ * マークダウン対応、リサイズ可能、スレッド管理機能付き。
  */
 export function ChatPanel() {
   const { nodes, edges } = useWorkflowContext();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const {
+    threads,
+    activeThreadId,
+    messages,
+    createNewThread,
+    selectThread,
+    deleteThreadById,
+    addMessage,
+    updateLastAssistantMessage,
+    saveCurrentThread,
+    clearMessages,
+  } = useChatThreads();
+  const { width, isResizing, handleMouseDown } = useResizablePanel({
+    initialWidth: 320,
+    minWidth: 240,
+    maxWidth: 600,
+    storageKey: 'visionfy-chat-panel-width',
+  });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -29,10 +51,8 @@ export function ChatPanel() {
     const trimmed = input.trim();
     if (!trimmed || isLoading) return;
 
-    // 新しいチャットを会話履歴に追加
-    // 入力欄はクリアし、ロード中状態に設定
     const userMessage: ChatMessage = { role: 'user', content: trimmed };
-    setMessages((prev) => [...prev, userMessage]);
+    addMessage(userMessage);
     setInput('');
     setIsLoading(true);
 
@@ -63,28 +83,24 @@ export function ChatPanel() {
       const decoder = new TextDecoder();
       let assistantContent = '';
 
-      setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
+      addMessage({ role: 'assistant', content: '' });
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         assistantContent += decoder.decode(value, { stream: true });
-        // 末尾のアシスタントメッセージを逐次更新
-        setMessages((prev) => [
-          ...prev.slice(0, -1),
-          { role: 'assistant', content: assistantContent },
-        ]);
+        updateLastAssistantMessage(assistantContent);
       }
+
+      // ストリーミング完了後にスレッドを保存
+      saveCurrentThread();
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'エラーが発生しました';
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: `エラー: ${msg}` },
-      ]);
+      addMessage({ role: 'assistant', content: `エラー: ${msg}` });
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, messages, nodes, edges]);
+  }, [input, isLoading, messages, nodes, edges, addMessage, updateLastAssistantMessage, saveCurrentThread]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -97,13 +113,23 @@ export function ChatPanel() {
   );
 
   const handleClear = useCallback(() => {
-    setMessages([]);
+    clearMessages();
     setInput('');
-  }, []);
+  }, [clearMessages]);
 
   return (
-    <div className={styles.chatPanel}>
+    <div
+      className={styles.chatPanel}
+      style={{ width, flexShrink: 0 }}
+    >
       <div className={styles.chatHeader}>
+        <ThreadMenu
+          threads={threads}
+          activeThreadId={activeThreadId}
+          onNewThread={createNewThread}
+          onSelectThread={selectThread}
+          onDeleteThread={deleteThreadById}
+        />
         <MessageCircle size={16} />
         <span>AI チャット</span>
         <button
@@ -133,7 +159,11 @@ export function ChatPanel() {
                 : styles.chatMessageAssistant
             }
           >
-            {msg.content}
+            {msg.role === 'assistant' ? (
+              <ChatMarkdown content={msg.content} />
+            ) : (
+              msg.content
+            )}
           </div>
         ))}
         <div ref={messagesEndRef} />
@@ -159,6 +189,16 @@ export function ChatPanel() {
           <Send size={16} />
         </button>
       </div>
+
+      {/* リサイズハンドル */}
+      <div
+        className={styles.chatResizeHandle}
+        onMouseDown={handleMouseDown}
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="チャットパネルのサイズ変更"
+        style={isResizing ? { backgroundColor: '#c7d2fe' } : undefined}
+      />
     </div>
   );
 }
