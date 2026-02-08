@@ -1,7 +1,7 @@
 // 役割: 処理ノードのパラメータ入力UIを関数定義に沿って表示する。
-// 依存: OPENCV_FUNCTIONS_CONFIGの定義に合わせて入力を生成する。
+// 依存: VISIONFY_FUNCTIONS_CONFIGの定義に合わせて入力を生成する。
 import type { OpencvParamDefinition, OpencvParamValue } from '@/types/opencv';
-import { OPENCV_FUNCTIONS_CONFIG } from '@/types/opencv';
+import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/opencv';
 import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
 import type { ReactNode } from 'react';
 import styles from './ProcessNode.module.css';
@@ -161,7 +161,7 @@ function ParamField({ config, value, onChange, classNames }: ParamFieldProps) {
  */
 export function ProcessNodeParamInputs({ functionName, params, onParamChange, classNames }: Props) {
     if (!functionName) return null;
-    const config = OPENCV_FUNCTIONS_CONFIG[functionName];
+    const config = VISIONFY_FUNCTIONS_CONFIG[functionName];
     if (!config) return null;
 
     return (

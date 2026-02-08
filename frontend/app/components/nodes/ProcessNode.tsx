@@ -1,6 +1,7 @@
 // 役割: 処理ノードの見た目とパラメータ入力UIを表示し、入力変更をReactFlow状態に反映する。
 // 依存: ProcessNodeParamInputsとアイコン定義(processNodeIcons)。
 import { useProcessNodeParams } from '@/hooks/useProcessNodeParams';
+import type { ProcessNodeParams } from '@/types/node';
 import type { OpencvParamValue } from '@/types/opencv';
 import { useFlowStore } from '@/workflow/flowStore';
 import { isProcessNodeData } from '@/types/typeGuards';
@@ -43,7 +44,7 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
             params: {
                 ...params,
                 [key]: value,
-            },
+            } as ProcessNodeParams,
         });
     }, [params, id, isValid, updateNodeData]);
 

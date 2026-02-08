@@ -3,12 +3,15 @@ import os
 import logging
 
 # ロギング設定
-log_level = os.environ.get("LOG_LEVEL", "DEBUG" if os.environ.get("FLASK_DEBUG") else "INFO")
+log_level = os.environ.get(
+    "LOG_LEVEL", "DEBUG" if os.environ.get("FLASK_DEBUG") else "INFO"
+)
 logging.basicConfig(
     level=getattr(logging, log_level.upper(), logging.INFO),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+
 
 # 起動時に環境変数をログ出力
 def log_env_vars():
@@ -24,11 +27,15 @@ def log_env_vars():
         else:
             logger.warning(f"Environment variable {name} is not set")
 
+
 # Import function modules
 # api package is assumed to be in the same directory
 from api.createclahe import main as createclahe
 from api.grayscale import main as grayscale
 from api.gaussian_blur import main as gaussian_blur
+from api.remove_noise import main as remove_noise
+from api.restore_contrast import main as restore_contrast
+from api.restore_brightness import main as restore_brightness
 
 
 from flask_cors import CORS
@@ -64,7 +71,9 @@ def route_createclahe():
     """
     createclahe/main.py の apply_clahe を呼び出すラッパー
     """
-    logger.info(f"[createclahe] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}")
+    logger.info(
+        f"[createclahe] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}"
+    )
     try:
         result = createclahe.apply_clahe(request)
         logger.info("[createclahe] Processing completed successfully")
@@ -79,7 +88,9 @@ def route_grayscale():
     """
     grayscale/main.py の transform_grayscale を呼び出すラッパー
     """
-    logger.info(f"[grayscale] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}")
+    logger.info(
+        f"[grayscale] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}"
+    )
     try:
         result = grayscale.transform_grayscale(request)
         logger.info("[grayscale] Processing completed successfully")
@@ -94,13 +105,66 @@ def route_gaussian_blur():
     """
     gaussian_blur/main.py の apply_gaussian_blur を呼び出すラッパー
     """
-    logger.info(f"[gaussian_blur] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}")
+    logger.info(
+        f"[gaussian_blur] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}"
+    )
     try:
         result = gaussian_blur.apply_gaussian_blur(request)
         logger.info("[gaussian_blur] Processing completed successfully")
         return result
     except Exception as e:
         logger.error(f"[gaussian_blur] Error: {str(e)}", exc_info=True)
+        raise
+
+
+@app.route("/api/remove_noise", methods=["POST"])
+def route_remove_noise():
+    """
+    remove_noise/main.py の remove_noise を呼び出すラッパー
+    """
+    logger.info(
+        f"[remove_noise] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}"
+    )
+    try:
+        result = remove_noise.remove_noise(request)
+        logger.info("[remove_noise] Processing completed successfully")
+        return result
+    except Exception as e:
+        logger.error(f"[remove_noise] Error: {str(e)}", exc_info=True)
+        raise
+
+
+@app.route("/api/restore_contrast", methods=["POST"])
+def route_restore_contrast():
+    """
+    restore_contrast/main.py の restore_contrast を呼び出すラッパー
+    """
+    logger.info(
+        f"[restore_contrast] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}"
+    )
+    try:
+        result = restore_contrast.restore_contrast(request)
+        logger.info("[restore_contrast] Processing completed successfully")
+        return result
+    except Exception as e:
+        logger.error(f"[restore_contrast] Error: {str(e)}", exc_info=True)
+        raise
+
+
+@app.route("/api/restore_brightness", methods=["POST"])
+def route_restore_brightness():
+    """
+    restore_brightness/main.py の restore_brightness を呼び出すラッパー
+    """
+    logger.info(
+        f"[restore_brightness] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}"
+    )
+    try:
+        result = restore_brightness.restore_brightness(request)
+        logger.info("[restore_brightness] Processing completed successfully")
+        return result
+    except Exception as e:
+        logger.error(f"[restore_brightness] Error: {str(e)}", exc_info=True)
         raise
 
 

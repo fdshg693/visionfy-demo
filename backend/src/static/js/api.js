@@ -103,7 +103,7 @@ class ApiClient {
     }
 
     async createClane(data) {
-        return this.request('/api/createclane', 'POST', data);
+        return this.request('/api/createclahe', 'POST', data);
     }
 
     async postGrayscale(data) {

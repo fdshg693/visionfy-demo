@@ -1,6 +1,6 @@
 
 // 役割: Processノードの詳細設定UI。関数選択/パラメータ編集/結果表示を担う。
-// 依存: OPENCV_FUNCTIONS_CONFIGとNodeDataの定義。
+// 依存: VISIONFY_FUNCTIONS_CONFIGとNodeDataの定義。
 import { ProcessNodeParamInputs } from '@/app/components/nodes/ProcessNodeParamInputs';
 import { useProcessNodeParams } from '@/hooks/useProcessNodeParams';
 import {
@@ -12,7 +12,7 @@ import {
 } from '@/types/node';
 import { isProcessNodeData } from '@/types/typeGuards';
 import type { OpencvParamValue } from '@/types/opencv';
-import { OPENCV_FUNCTIONS_CONFIG } from '@/types/opencv';
+import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/opencv';
 import { Node } from '@xyflow/react';
 import styles from '../NodeInspector.module.css';
 
@@ -57,8 +57,8 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
     };
 
     const currentFunctionConfig =
-        functionName && OPENCV_FUNCTIONS_CONFIG[functionName]
-            ? OPENCV_FUNCTIONS_CONFIG[functionName]
+        functionName && VISIONFY_FUNCTIONS_CONFIG[functionName]
+            ? VISIONFY_FUNCTIONS_CONFIG[functionName]
             : null;
 
     return (
@@ -105,7 +105,7 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
                     className={styles.select}
                 >
                     <option value="" disabled>Select a function</option>
-                    {Object.keys(OPENCV_FUNCTIONS_CONFIG).map((func) => (
+                    {Object.keys(VISIONFY_FUNCTIONS_CONFIG).map((func) => (
                         <option key={func} value={func}>
                             {func}
                         </option>

@@ -7,6 +7,8 @@ import type {
     CLAHEParams,
     GaussianBlurParams,
     GrayscaleParams,
+    RestoreBrightnessParams,
+    RestoreContrastParams,
     ProcessNodeFunctionName,
     ProcessNodeParams,
 } from '@/types/node';
@@ -72,8 +74,48 @@ export const buildGaussianBlurAdapter = (): RequestAdapter => {
     };
 };
 
+export const buildRemoveNoiseAdapter = (): RequestAdapter => {
+    return ({ baseUrl, inputData, base64ToBlob }) => {
+        const formData = new FormData();
+        formData.append('file', base64ToBlob(inputData ?? ''), 'image.jpg');
+        return {
+            url: `${baseUrl}/api/remove_noise`,
+            init: { method: "POST", body: formData },
+        };
+    };
+};
+
+export const buildRestoreBrightnessAdapter = (): RequestAdapter => {
+    return ({ baseUrl, params, inputData, base64ToBlob }) => {
+        const typedParams = params as RestoreBrightnessParams;
+        const formData = new FormData();
+        formData.append('file', base64ToBlob(inputData ?? ''), 'image.jpg');
+        formData.append('value', String(typedParams.value));
+        return {
+            url: `${baseUrl}/api/restore_brightness`,
+            init: { method: "POST", body: formData },
+        };
+    };
+};
+
+export const buildRestoreContrastAdapter = (): RequestAdapter => {
+    return ({ baseUrl, params, inputData, base64ToBlob }) => {
+        const typedParams = params as RestoreContrastParams;
+        const formData = new FormData();
+        formData.append('file', base64ToBlob(inputData ?? ''), 'image.jpg');
+        formData.append('gamma', String(typedParams.gamma));
+        return {
+            url: `${baseUrl}/api/restore_contrast`,
+            init: { method: "POST", body: formData },
+        };
+    };
+};
+
 export const createBackendAdapters = (): Record<string, RequestAdapter> => ({
     createclahe: buildCreateClaheAdapter(),
     grayscale: buildGrayscaleAdapter(),
     gaussianblur: buildGaussianBlurAdapter(),
+    remove_noise: buildRemoveNoiseAdapter(),
+    restore_brightness: buildRestoreBrightnessAdapter(),
+    restore_contrast: buildRestoreContrastAdapter(),
 });

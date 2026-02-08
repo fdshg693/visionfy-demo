@@ -1,18 +1,19 @@
+
 # Visionfy Demo
 
-This repository contains the source code for the Visionfy Demo application.
+このリポジトリは、Visionfy Demo アプリケーションのソースコードを含んでいます。
 
-## 📂 Project Structure
+## 📂 プロジェクト構成
 
 ```text
 .
-├── backend/      # Python Flask API (hosted on Cloud Run)
-│   ├── src/      # Application source code
-│   └── test/     # Testing scripts
-└── frontend/     # Next.js Frontend (hosted on Firebase App Hosting)
+├── backend/      # Python Flask API（Cloud Run 上でホスト）
+│   ├── src/      # アプリケーションソースコード
+│   └── test/     # テストスクリプト
+└── frontend/     # Next.js フロントエンド（Firebase App Hosting 上でホスト）
 ```
 
-## 🔗 Architecture & Relationships
+## 🔗 アーキテクチャと関係
 
 ```text
 +----------------------+           +----------------------+
@@ -22,18 +23,20 @@ This repository contains the source code for the Visionfy Demo application.
 +----------------------+           +----------------------+
 ```
 
-## 🚀 Deployment Overview
+## 🚀 デプロイ概要
 
-### Frontend
+### フロントエンド
 
-- **Platform**: Firebase App Hosting
-- **Method**:
-  - **Automatic**: Deploys automatically when changes are pushed to `main`.
-  - **Manual**: `firebase deploy`
-- See [FRONT_DEPLOY.md](./FRONT_DEPLOY.md) for details.
+- プラットフォーム: Firebase App Hosting
+- 設定ファイル: `frontend\apphosting.yaml`
+- 方法:
+  - 自動: 変更が `main` にプッシュされると自動的にデプロイされます。
+  - 手動: `firebase deploy` を使用してください。
 
-### Backend
+### バックエンド
 
-- **Platform**: Google Cloud Run
-- **Method**: Manual deployment via `gcloud` CLI.
-- See [backend/DEPLOY.md](./backend/DEPLOY.md) for details.
+- プラットフォーム: Google Cloud Run
+- 方法: `gcloud` CLI を使った手動デプロイ。
+- Github Actions による自動デプロイも設定されています。`.github\workflows\backend-cloud-run.yml` を参照してください。
+
+**詳細は`infra`ディレクトリ内のドキュメントを参照してください。**

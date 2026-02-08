@@ -43,8 +43,33 @@ export interface GrayscaleData extends BaseProcessNodeData {
     params: GrayscaleParams;
 }
 
+// ====================== 4. Remove Noise (cv2.medianBlur) ======================
+export type RemoveNoiseParams = Record<string, never>;
+export interface RemoveNoiseData extends BaseProcessNodeData {
+    functionName: 'remove_noise';
+    params: RemoveNoiseParams;
+}
+
+// ====================== 5. Restore Brightness ======================
+export interface RestoreBrightnessParams {
+    value: number;
+}
+export interface RestoreBrightnessData extends BaseProcessNodeData {
+    functionName: 'restore_brightness';
+    params: RestoreBrightnessParams;
+}
+
+// ====================== 6. Restore Contrast (Gamma Correction) ======================
+export interface RestoreContrastParams {
+    gamma: number;
+}
+export interface RestoreContrastData extends BaseProcessNodeData {
+    functionName: 'restore_contrast';
+    params: RestoreContrastParams;
+}
+
 /** Nodeの種類・パラメータを表す型 */
-export type ProcessNodeData = CLAHEData | GaussianBlurData | GrayscaleData;
+export type ProcessNodeData = CLAHEData | GaussianBlurData | GrayscaleData | RemoveNoiseData | RestoreBrightnessData | RestoreContrastData;
 
 /** 処理ノードで使用される関数名のユニオン型 */
 export type ProcessNodeFunctionName = ProcessNodeData['functionName'];
@@ -60,6 +85,9 @@ export type ProcessNodeParamsMap = {
     createclahe: CLAHEParams;
     gaussianblur: GaussianBlurParams;
     grayscale: GrayscaleParams;
+    remove_noise: RemoveNoiseParams;
+    restore_brightness: RestoreBrightnessParams;
+    restore_contrast: RestoreContrastParams;
 };
 
 /** 処理ノードのパラメータ群型 */
@@ -69,6 +97,9 @@ export const DEFAULT_NODE_PARAMS: ProcessNodeParamsMap = {
     createclahe: { clipLimit: 40.0, tileGridSize: [8, 8] },
     gaussianblur: { ksize: [5, 5], sigmaX: 0, sigmaY: 0 },
     grayscale: { enableThreshold: false, threshold: 128 },
+    remove_noise: {},
+    restore_brightness: { value: -30 },
+    restore_contrast: { gamma: 1.7 },
 };
 
 // Icon mapping for each function
@@ -76,4 +107,7 @@ export const DEFAULT_NODE_ICONS: Record<ProcessNodeFunctionName, string> = {
     createclahe: 'histogram',
     gaussianblur: 'brush',
     grayscale: 'palette',
+    remove_noise: 'settings',
+    restore_brightness: 'image',
+    restore_contrast: 'image',
 };

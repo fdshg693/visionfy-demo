@@ -11,3 +11,9 @@ env:
     availability:
       - BUILD
       - RUNTIME
+  - variable: GEMINI_API_KEY
+    secret: visionfy-gemini-api-key
+    # どちらで必要か明示するとより確実
+    availability:
+      - BUILD
+      - RUNTIME

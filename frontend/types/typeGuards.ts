@@ -10,6 +10,9 @@ import type {
   CLAHEData,
   GaussianBlurData,
   GrayscaleData,
+  RemoveNoiseData,
+  RestoreBrightnessData,
+  RestoreContrastData,
   BaseProcessNodeData,
 } from './node';
 
@@ -34,7 +37,7 @@ export function isProcessNodeData(data: unknown): data is ProcessNodeData {
     data !== null &&
     'functionName' in data &&
     typeof (data as ProcessNodeData).functionName === 'string' &&
-    ['createclahe', 'gaussianblur', 'grayscale'].includes(
+    ['createclahe', 'gaussianblur', 'grayscale', 'remove_noise', 'restore_brightness', 'restore_contrast'].includes(
       (data as ProcessNodeData).functionName
     )
   );
@@ -83,6 +86,44 @@ export function isGrayscaleData(data: unknown): data is GrayscaleData {
     data.params !== null &&
     'enableThreshold' in data.params &&
     'threshold' in data.params
+  );
+}
+
+/**
+ * Checks if the given data is RemoveNoiseData
+ */
+export function isRemoveNoiseData(data: unknown): data is RemoveNoiseData {
+  return (
+    isProcessNodeData(data) &&
+    data.functionName === 'remove_noise'
+  );
+}
+
+/**
+ * Checks if the given data is RestoreBrightnessData
+ */
+export function isRestoreBrightnessData(data: unknown): data is RestoreBrightnessData {
+  return (
+    isProcessNodeData(data) &&
+    data.functionName === 'restore_brightness' &&
+    'params' in data &&
+    typeof data.params === 'object' &&
+    data.params !== null &&
+    'value' in data.params
+  );
+}
+
+/**
+ * Checks if the given data is RestoreContrastData
+ */
+export function isRestoreContrastData(data: unknown): data is RestoreContrastData {
+  return (
+    isProcessNodeData(data) &&
+    data.functionName === 'restore_contrast' &&
+    'params' in data &&
+    typeof data.params === 'object' &&
+    data.params !== null &&
+    'gamma' in data.params
   );
 }
 

@@ -23,7 +23,7 @@ export interface OpencvFunctionConfig {
  * - value.description: 関数の説明文
  * - value.params: 各パラメータの名前、タイプ、デフォルト値など
  */
-export const OPENCV_FUNCTIONS_CONFIG: Record<string, OpencvFunctionConfig> = {
+export const VISIONFY_FUNCTIONS_CONFIG: Record<string, OpencvFunctionConfig> = {
     'grayscale': {
         description: 'グレースケールに変換します（cv2.COLOR_BGR2GRAY固定）。閾値を指定すると二値化も行います。',
         params: [
@@ -54,6 +54,22 @@ export const OPENCV_FUNCTIONS_CONFIG: Record<string, OpencvFunctionConfig> = {
             { name: 'ksize', type: 'tuple', defaultValue: [5, 5], label: 'ksize (width, height)' },
             { name: 'sigmaX', type: 'number', defaultValue: 0 },
             { name: 'sigmaY', type: 'number', defaultValue: 0 }
+        ]
+    },
+    'remove_noise': {
+        description: 'メディアンフィルタを用いてノイズを除去します。パラメータは不要です。',
+        params: []
+    },
+    'restore_brightness': {
+        description: '明るさを補正します。値が負の場合は明るくし、正の場合は暗くします。',
+        params: [
+            { name: 'value', type: 'number', defaultValue: -30, label: 'Brightness Value' }
+        ]
+    },
+    'restore_contrast': {
+        description: 'ガンマ補正を用いてコントラストを復元します。',
+        params: [
+            { name: 'gamma', type: 'number', defaultValue: 1.7, label: 'Gamma' }
         ]
     }
 };

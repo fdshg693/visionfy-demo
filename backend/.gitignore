@@ -6,3 +6,5 @@ memo/
 
 __pycache__/
 
+# Google Cloud サービスアカウントキー
+sa-key.json
