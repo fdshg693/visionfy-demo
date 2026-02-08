@@ -1,5 +1,6 @@
 // 役割: 処理ノードの見た目とパラメータ入力UIを表示し、入力変更をReactFlow状態に反映する。
 // 依存: ProcessNodeParamInputsとアイコン定義(processNodeIcons)。
+import { useProcessNodeParams } from '@/hooks/useProcessNodeParams';
 import type { OpencvParamValue } from '@/types/opencv';
 import { useFlowStore } from '@/workflow/flowStore';
 import { isProcessNodeData } from '@/types/typeGuards';
@@ -31,20 +32,20 @@ const PROCESS_NODE_ICON_MAP: Record<string, ProcessNodeIcon> = {
 export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
     const { updateNodeData } = useFlowStore();
     const isValid = isProcessNodeData(nodeData);
+    const { params } = useProcessNodeParams(nodeData as import('@/types/node').BaseProcessNodeData);
 
     // ユーザーのパラメータ入力変更に応じて、ノードデータを更新するハンドラー
     const handleParamChange = useCallback((key: string, value: OpencvParamValue) => {
         if (!isValid) {
             return;
         }
-        const currentParams = nodeData.params || ({} as Record<string, unknown>);
         updateNodeData(id, {
             params: {
-                ...currentParams,
+                ...params,
                 [key]: value,
             },
         });
-    }, [nodeData, id, isValid, updateNodeData]);
+    }, [params, id, isValid, updateNodeData]);
 
     // 念の為、不正なNodeDataの場合のフォールバック表示
     if (!isValid) {
@@ -58,7 +59,6 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
     }
 
     const status = nodeData.executionStatus || 'idle';
-    const params = nodeData.params;
 
     const IconComponent = nodeData.icon ? PROCESS_NODE_ICON_MAP[nodeData.icon] : null;
 

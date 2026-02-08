@@ -1,11 +1,31 @@
 // 役割: 選択ノードの種類に応じてStart/Process/Endの各Inspectorへ切り替える。
-// 依存: Start/Process/Endの各Inspectorコンポーネント。
+// 依存: Start/Process/Endの各Inspectorコンポーネント、NODE_TYPE定数。
 import type { NodeDataUpdate } from '@/types/node';
-import { Node } from '@xyflow/react';
+import { NODE_TYPE } from '@/constants/index';
+import type { Node } from '@xyflow/react';
+import type { ComponentType } from 'react';
 import styles from '../NodeInspector.module.css';
 import { EndNodeInspector } from '../inspectors/EndNodeInspector';
 import { ProcessNodeInspector } from '../inspectors/ProcessNodeInspector';
 import { StartNodeInspector } from '../inspectors/StartNodeInspector';
+
+/**
+ * 各Inspectorコンポーネントが受け取る共通Props
+ */
+interface InspectorComponentProps {
+    selectedNode: Node;
+    onUpdateNode: (nodeId: string, newData: NodeDataUpdate) => void;
+}
+
+/**
+ * ノードタイプ → Inspectorコンポーネントのレジストリ
+ * 新しいノードタイプを追加する場合は、ここにエントリを追加するだけでよい
+ */
+const INSPECTOR_REGISTRY: Record<string, ComponentType<InspectorComponentProps>> = {
+    [NODE_TYPE.START]: StartNodeInspector as ComponentType<InspectorComponentProps>,
+    [NODE_TYPE.PROCESS]: ProcessNodeInspector as ComponentType<InspectorComponentProps>,
+    [NODE_TYPE.END]: EndNodeInspector as ComponentType<InspectorComponentProps>,
+};
 
 interface NodeInspectorProps {
     selectedNode: Node | null;
@@ -32,7 +52,15 @@ export function NodeInspector({
         );
     }
 
-    const { type } = selectedNode;
+    const InspectorComponent = selectedNode.type ? INSPECTOR_REGISTRY[selectedNode.type] : undefined;
+
+    if (!InspectorComponent) {
+        return (
+            <div className={styles.emptyState}>
+                未知のノードタイプです: {selectedNode.type}
+            </div>
+        );
+    }
 
     return (
         <div className={styles.inspector}>
@@ -40,20 +68,10 @@ export function NodeInspector({
                 Inspector
             </h3>
 
-            {type === 'startNode' && (
-                <StartNodeInspector />
-            )}
-
-            {type === 'endNode' && (
-                <EndNodeInspector />
-            )}
-
-            {type === 'processNode' && (
-                <ProcessNodeInspector
-                    selectedNode={selectedNode}
-                    onUpdateNode={onUpdateNode}
-                />
-            )}
+            <InspectorComponent
+                selectedNode={selectedNode}
+                onUpdateNode={onUpdateNode}
+            />
         </div>
     );
 }

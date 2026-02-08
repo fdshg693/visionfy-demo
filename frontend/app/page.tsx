@@ -7,6 +7,7 @@ import { FlowCanvas } from '@/app/components/workflow/FlowCanvas';
 import { InspectorPanel } from '@/app/components/workflow/InspectorPanel';
 import { useWorkflowExecution } from '@/hooks/useWorkflowExecution';
 import { useSnapshotHistory } from '@/hooks/useSnapshotHistory';
+import { useSelectedNode } from '@/hooks/useSelectedNode';
 import { DEFAULT_NODE_PARAMS, type ProcessNodeData, type NodeDataUpdate } from '@/types/node';
 import { NODE_TYPE, EXECUTION_STATUS } from '@/constants/index';
 import type { WorkflowFile } from '@/types/workflow';
@@ -64,7 +65,7 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     handleDeleteSnapshot,
     handleRestoreSnapshot,
   } = useSnapshotHistory(initialHistoryEntries);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const { selectedNode, handleNodeClick, handlePaneClick, clearSelection } = useSelectedNode(nodes);
   const [activeInspectorTab, setActiveInspectorTab] = useState<'inspector' | 'snapshot'>('inspector');
   const { showError, showWarning } = useToast();
 
@@ -88,10 +89,6 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
 
   // ========== Node Handlers ==========
 
-  const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
-    setSelectedNodeId(node.id);
-  }, []);
-
   const handleUpdateNode = useCallback((nodeId: string, newData: NodeDataUpdate) => {
     updateNodeData(nodeId, newData);
   }, [updateNodeData]);
@@ -99,9 +96,9 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
   const handleResetCanvas = useCallback(() => {
     setNodes(initialNodes);
     setEdges(initialEdges);
-    setSelectedNodeId(null);
+    clearSelection();
     setFiles([]);
-  }, [setNodes, setEdges]);
+  }, [setNodes, setEdges, clearSelection]);
 
   const handleAddNode = useCallback(() => {
     const newNode: Node<ProcessNodeData> = {
@@ -119,7 +116,6 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     setNodes((nds) => nds.concat(newNode));
   }, [setNodes]);
 
-  const selectedNode = nodes.find((n) => n.id === selectedNodeId) || null;
   const handleMoveEnd: OnMove = useCallback(
     (_event, nextViewport: Viewport) => {
       setViewport(nextViewport);
@@ -143,10 +139,6 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     [edges, setEdges, showWarning]
   );
 
-  const onPaneClick = useCallback(() => {
-    setSelectedNodeId(null);
-  }, []);
-
   const inspectorValue = useMemo(() => ({
     files,
     setFiles,
@@ -165,8 +157,8 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
           nodeTypes={nodeTypes}
           defaultViewport={viewport}
           onConnect={onConnect}
-          onNodeClick={onNodeClick}
-          onPaneClick={onPaneClick}
+          onNodeClick={handleNodeClick}
+          onPaneClick={handlePaneClick}
           onMoveEnd={handleMoveEnd}
           onAddNode={handleAddNode}
           onResetCanvas={handleResetCanvas}

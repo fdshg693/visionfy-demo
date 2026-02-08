@@ -5,7 +5,7 @@ import { MessageCircle, Send, Trash2 } from 'lucide-react';
 
 import styles from '@/app/page.module.css';
 import type { ChatMessage } from '@/lib/chatService';
-import { useFlowStore } from '@/workflow/flowStore';
+import { useWorkflowContext } from '@/hooks/useWorkflowContext';
 
 /**
  * GEMINIとのチャットパネルコンポーネント
@@ -13,7 +13,7 @@ import { useFlowStore } from '@/workflow/flowStore';
  * AIはツールを使用してワークフローコンテキストを動的に取得します。
  */
 export function ChatPanel() {
-  const { nodes, edges } = useFlowStore();
+  const { nodes, edges } = useWorkflowContext();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);

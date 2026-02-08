@@ -2,6 +2,7 @@
 // 役割: Processノードの詳細設定UI。関数選択/パラメータ編集/結果表示を担う。
 // 依存: OPENCV_FUNCTIONS_CONFIGとNodeDataの定義。
 import { ProcessNodeParamInputs } from '@/app/components/nodes/ProcessNodeParamInputs';
+import { useProcessNodeParams } from '@/hooks/useProcessNodeParams';
 import {
     DEFAULT_NODE_ICONS,
     DEFAULT_NODE_PARAMS,
@@ -21,6 +22,9 @@ interface ProcessNodeInspectorProps {
 }
 
 export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNodeInspectorProps) {
+    // Hooks must be called before any early returns (Rules of Hooks)
+    const { resolvedFunctionName, params } = useProcessNodeParams(selectedNode.data as import('@/types/node').BaseProcessNodeData);
+
     // Type-safe data extraction with runtime validation
     if (!isProcessNodeData(selectedNode.data)) {
         return (
@@ -33,14 +37,8 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
     }
 
     const data = selectedNode.data;
-    const functionName = data.functionName || '';
-    const label = data.label || '';
-    const resolvedFunctionName =
-        functionName && functionName in DEFAULT_NODE_PARAMS
-            ? (functionName as ProcessNodeFunctionName)
-            : null;
-    const params = (data.params ??
-        (resolvedFunctionName ? DEFAULT_NODE_PARAMS[resolvedFunctionName] : {})) as ProcessNodeParams;
+    const functionName = (data.functionName as string) || '';
+    const label = (data.label as string) || '';
 
     const handleFunctionChange = (newFunctionName: ProcessNodeFunctionName) => {
         const defaultParams = DEFAULT_NODE_PARAMS[newFunctionName] as ProcessNodeParams;
@@ -54,9 +52,7 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
     };
 
     const handleParamChange = (key: string, value: OpencvParamValue) => {
-        const currentParams = (data.params ??
-            (resolvedFunctionName ? DEFAULT_NODE_PARAMS[resolvedFunctionName] : {})) as ProcessNodeParams;
-        const updatedParams = { ...currentParams, [key]: value } as ProcessNodeParams;
+        const updatedParams = { ...params, [key]: value } as ProcessNodeParams;
         onUpdateNode(selectedNode.id, { params: updatedParams });
     };
 
@@ -132,7 +128,7 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
                     </label>
                     <div className={styles.paramsList}>
                         <ProcessNodeParamInputs
-                            functionName={functionName || undefined}
+                            functionName={resolvedFunctionName || undefined}
                             params={params as ProcessNodeParams}
                             onParamChange={handleParamChange}
                             classNames={{
