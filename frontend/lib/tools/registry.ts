@@ -4,10 +4,14 @@
  * 新しいツールを追加する場合は、このファイルにエントリーを追加するだけでよい
  */
 import type { ToolRegistryEntry } from './types';
-import { 
-  createWorkflowContextTool, 
-  isWorkflowContextToolEnabled 
+import {
+  createWorkflowContextTool,
+  isWorkflowContextToolEnabled
 } from './workflowContextTool';
+import {
+  createExecutionImagesTool,
+  isExecutionImagesToolEnabled,
+} from './executionImagesTool';
 
 /**
  * 利用可能なすべてのツールのレジストリ
@@ -20,19 +24,12 @@ export const TOOL_REGISTRY: ToolRegistryEntry[] = [
     factory: createWorkflowContextTool,
     isEnabled: isWorkflowContextToolEnabled,
   },
-  // 将来的な拡張例：
-  // {
-  //   name: 'search_documentation',
-  //   description: 'アプリケーションのドキュメントを検索',
-  //   factory: createDocumentationSearchTool,
-  //   isEnabled: () => true,
-  // },
-  // {
-  //   name: 'analyze_image',
-  //   description: '画像の内容を分析',
-  //   factory: createImageAnalysisTool,
-  //   isEnabled: (context) => !!context.currentImage,
-  // },
+  {
+    name: 'get_execution_images',
+    description: '直前の実行結果の元画像・処理前後画像を取得',
+    factory: createExecutionImagesTool,
+    isEnabled: isExecutionImagesToolEnabled,
+  },
 ];
 
 /**

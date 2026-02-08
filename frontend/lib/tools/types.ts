@@ -14,6 +14,20 @@ export interface ToolContext {
   nodes?: string;
   /** ワークフローのエッジ情報（JSONシリアライズ済み） */
   edges?: string;
+  /** 元画像（アップロード画像）のbase64データ */
+  originalImage?: string;
+  /** 実行済みノードの結果（JSONシリアライズ済み: NodeResultEntry[]） */
+  nodeResults?: string;
+}
+
+/**
+ * 実行済みノードの結果エントリ
+ * nodeResultsのJSON内の各要素の型
+ */
+export interface NodeResultEntry {
+  nodeId: string;
+  functionName: string;
+  result: string;
 }
 
 /**

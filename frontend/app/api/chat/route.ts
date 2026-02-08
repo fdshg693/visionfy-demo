@@ -13,21 +13,25 @@ const logger = createLogger('ChatAPI');
  */
 export async function POST(req: NextRequest) {
   try {
-    const { messages, nodes, edges } = (await req.json()) as {
+    const { messages, nodes, edges, originalImage, nodeResults } = (await req.json()) as {
       messages: ChatMessage[];
       nodes?: Node[];
       edges?: Edge[];
+      originalImage?: string;
+      nodeResults?: { nodeId: string; functionName: string; result: string }[];
     };
 
-    logger.info({ 
-      messageCount: messages.length, 
-      hasNodes: !!nodes, 
-      hasEdges: !!edges 
+    logger.info({
+      messageCount: messages.length,
+      hasNodes: !!nodes,
+      hasEdges: !!edges,
+      hasOriginalImage: !!originalImage,
+      nodeResultCount: nodeResults?.length ?? 0,
     }, 'Chat request received');
-    logger.debug({ 
-      messages, 
-      nodeCount: nodes?.length ?? 0, 
-      edgeCount: edges?.length ?? 0 
+    logger.debug({
+      messages,
+      nodeCount: nodes?.length ?? 0,
+      edgeCount: edges?.length ?? 0
     }, 'Chat request details');
 
     if (!process.env.GEMINI_API_KEY) {
@@ -45,6 +49,8 @@ export async function POST(req: NextRequest) {
     const toolContext = nodes && edges ? {
       nodes: JSON.stringify(nodes),
       edges: JSON.stringify(edges),
+      originalImage,
+      nodeResults: nodeResults ? JSON.stringify(nodeResults) : undefined,
     } : undefined;
     
     logger.info({ hasToolContext: !!toolContext }, 'Starting AI stream');

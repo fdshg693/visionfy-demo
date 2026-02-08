@@ -6,6 +6,7 @@ import { MessageCircle, Send, Trash2 } from 'lucide-react';
 import styles from '@/app/page.module.css';
 import type { ChatMessage } from '@/lib/chatService';
 import { useWorkflowContext } from '@/hooks/useWorkflowContext';
+import { useInspector } from '@/contexts/InspectorContext';
 import { useChatThreads } from '@/hooks/useChatThreads';
 import { useResizablePanel } from '@/hooks/useResizablePanel';
 import { ChatMarkdown } from './ChatMarkdown';
@@ -18,7 +19,8 @@ import { ThreadMenu } from './ThreadMenu';
  * マークダウン対応、リサイズ可能、スレッド管理機能付き。
  */
 export function ChatPanel() {
-  const { nodes, edges } = useWorkflowContext();
+  const { nodes, edges, nodeResults } = useWorkflowContext();
+  const { files } = useInspector();
   const {
     threads,
     activeThreadId,
@@ -57,6 +59,17 @@ export function ChatPanel() {
     setIsLoading(true);
 
     try {
+      // 元画像をbase64に変換（ファイルがある場合のみ）
+      let originalImage: string | undefined;
+      if (files.length > 0) {
+        originalImage = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(files[0].file);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (error) => reject(error);
+        });
+      }
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -64,6 +77,8 @@ export function ChatPanel() {
           messages: [...messages, userMessage],
           nodes,
           edges,
+          originalImage,
+          nodeResults,
         }),
       });
 
@@ -100,7 +115,7 @@ export function ChatPanel() {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, messages, nodes, edges, addMessage, updateLastAssistantMessage, saveCurrentThread]);
+  }, [input, isLoading, messages, nodes, edges, files, nodeResults, addMessage, updateLastAssistantMessage, saveCurrentThread]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
