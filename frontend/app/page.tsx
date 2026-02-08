@@ -6,17 +6,15 @@ import { ChatPanel } from '@/app/components/chat/ChatPanel';
 import { FlowCanvas } from '@/app/components/workflow/FlowCanvas';
 import { InspectorPanel } from '@/app/components/workflow/InspectorPanel';
 import { useWorkflowExecution } from '@/hooks/useWorkflowExecution';
+import { useSnapshotHistory } from '@/hooks/useSnapshotHistory';
 import { DEFAULT_NODE_PARAMS, type ProcessNodeData, type NodeDataUpdate } from '@/types/node';
 import { NODE_TYPE, EXECUTION_STATUS } from '@/constants/index';
 import type { WorkflowFile } from '@/types/workflow';
 import { FlowStoreProvider, useFlowStore } from '@/workflow/flowStore';
 import { initialEdges, initialNodes, nodeTypes } from '@/constants/flowConfig';
-import { toFlowSnapshot } from '@/workflow/flowSerializer';
 import { getConnectionConstraintError } from '@/workflow/connectionConstraints';
 import {
   loadFlowHistory,
-  saveFlowSnapshot,
-  saveFlowHistory,
   type FlowHistoryEntry,
 } from '@/workflow/flowPersistence';
 import {
@@ -28,7 +26,7 @@ import {
   type Viewport,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { InspectorProvider } from '@/contexts/InspectorContext';
 import { ToastProvider, useToast } from '@/contexts/ToastContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -54,15 +52,19 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     setNodes,
     setEdges,
     setViewport,
-    onNodesChange,
-    onEdgesChange,
     updateNodeData,
     resetNodeExecutionStatuses,
     updateNodeExecutionStatus,
     updateNodeExecutionResult,
   } = useFlowStore();
+  const {
+    historyEntries,
+    handleSaveSnapshot,
+    handleRenameSnapshot,
+    handleDeleteSnapshot,
+    handleRestoreSnapshot,
+  } = useSnapshotHistory(initialHistoryEntries);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [historyEntries, setHistoryEntries] = useState<FlowHistoryEntry[]>(() => initialHistoryEntries);
   const [activeInspectorTab, setActiveInspectorTab] = useState<'inspector' | 'snapshot'>('inspector');
   const { showError, showWarning } = useToast();
 
@@ -83,44 +85,6 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     updateNodeExecutionResult,
     onError: handleExecutionError,
   });
-
-  // ========== Snapshot Handlers ==========
-
-  const handleSaveSnapshot = useCallback(() => {
-    const snapshot = toFlowSnapshot(nodes, edges, viewport);
-    const entry = saveFlowSnapshot(snapshot);
-    setHistoryEntries((current) => [entry, ...current].slice(0, 20));
-  }, [nodes, edges, viewport]);
-
-  const handleRenameSnapshot = useCallback(
-    (entryId: string, name: string) => {
-      setHistoryEntries((current) => {
-        const next = current.map((entry) =>
-          entry.id === entryId ? { ...entry, name: name.trim() } : entry
-        );
-        saveFlowHistory(next);
-        return next;
-      });
-    },
-    []
-  );
-
-  const handleDeleteSnapshot = useCallback((entryId: string) => {
-    setHistoryEntries((current) => {
-      const next = current.filter((entry) => entry.id !== entryId);
-      saveFlowHistory(next);
-      return next;
-    });
-  }, []);
-
-  const handleRestoreSnapshot = useCallback(
-    (entry: FlowHistoryEntry) => {
-      setNodes(entry.snapshot.nodes);
-      setEdges(entry.snapshot.edges);
-      setViewport(entry.snapshot.viewport);
-    },
-    [setNodes, setEdges, setViewport]
-  );
 
   // ========== Node Handlers ==========
 
@@ -178,31 +142,28 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     },
     [edges, setEdges, showWarning]
   );
-  
+
   const onPaneClick = useCallback(() => {
     setSelectedNodeId(null);
   }, []);
 
+  const inspectorValue = useMemo(() => ({
+    files,
+    setFiles,
+    resultImage,
+    executeWorkflow,
+  }), [files, setFiles, resultImage, executeWorkflow]);
+
   return (
     <InspectorProvider
-      value={{
-        files,
-        setFiles,
-        resultImage,
-        executeWorkflow,
-        nodes,
-      }}
+      value={inspectorValue}
     >
       <div className={styles.container}>
         <ChatPanel />
 
         <FlowCanvas
-          nodes={nodes}
-          edges={edges}
           nodeTypes={nodeTypes}
           defaultViewport={viewport}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onNodeClick={onNodeClick}
           onPaneClick={onPaneClick}

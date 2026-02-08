@@ -3,7 +3,6 @@
 'use client';
 
 import type { WorkflowFile } from '@/types/workflow';
-import type { Node } from '@xyflow/react';
 import { createContext, useContext, type ReactNode } from 'react';
 
 type InspectorContextValue = {
@@ -11,7 +10,6 @@ type InspectorContextValue = {
   setFiles: (files: WorkflowFile[]) => void;
   resultImage: string | null;
   executeWorkflow: () => void;
-  nodes: Node[];
 };
 
 const InspectorContext = createContext<InspectorContextValue | undefined>(undefined);

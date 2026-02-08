@@ -1,21 +1,14 @@
 // 役割: Endノードの結果表示UI。Before/Afterと実行履歴をタブで切替表示する。
-// 依存: nodesから履歴を抽出し、CollapsibleHistoryItemで展開表示。
+// 依存: useExecutionHistoryで履歴抽出、useObjectURLでblob URL管理。
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
-import { isProcessNodeData } from '@/types/typeGuards';
+import { useState } from 'react';
 import styles from '../NodeInspector.module.css';
 import { useInspector } from '@/contexts/InspectorContext';
+import { useFlowStore } from '@/workflow/flowStore';
+import { useObjectURL } from '@/hooks/useObjectURL';
+import { useExecutionHistory, type ExecutionHistoryItem } from '@/hooks/useExecutionHistory';
 
-/**
- * ワークフローの各プロセスノードの実行結果を表す
- */
-interface ExecutionHistoryItem {
-    nodeId: string;
-    functionName: ProcessNodeFunctionName;
-    params: ProcessNodeParams;
-    resultImage: string;
-}
+
 
 /**
  * 折りたたみ可能な実行履歴アイテムコンポーネント。
@@ -58,37 +51,11 @@ function CollapsibleHistoryItem({ item, index }: { item: ExecutionHistoryItem; i
  * - historyタブ：各プロセスノードの実行履歴を展開表示
  */
 export function EndNodeInspector() {
-    const { resultImage, files, nodes } = useInspector();
+    const { resultImage, files } = useInspector();
+    const { nodes } = useFlowStore();
     const [activeTab, setActiveTab] = useState<'result' | 'history'>('result');
-    const originalImage = useMemo(() => {
-        if (files.length === 0) return null;
-        return URL.createObjectURL(files[0].file);
-    }, [files]);
-
-    useEffect(() => {
-        return () => {
-            if (originalImage) URL.revokeObjectURL(originalImage);
-        };
-    }, [originalImage]);
-
-    // Extract execution history from process nodes with type-safe validation
-    const executionHistory = nodes
-        .filter((node) => node.type === 'processNode')
-        .map((node) => {
-            // Validate node data structure
-            if (!isProcessNodeData(node.data)) return null;
-
-            const data = node.data;
-            if (!data.result) return null;
-
-            return {
-                nodeId: node.id,
-                functionName: data.functionName,
-                params: (data.resultParams ?? data.params) as ProcessNodeParams,
-                resultImage: data.result,
-            };
-        })
-        .filter((item): item is ExecutionHistoryItem => item !== null);
+    const originalImage = useObjectURL(files.length > 0 ? files[0].file : null);
+    const executionHistory = useExecutionHistory(nodes);
 
     return (
         <div className={styles.inspectorContent}>

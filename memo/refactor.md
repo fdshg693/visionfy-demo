@@ -1,65 +1,111 @@
----
+## 📊 調査結果サマリー
 
-Frontend リファクタリング提案
-
-優先度: 高
-
----
-
-優先度: 中
-
-5. バリデーションの追加
-
-場所: types/opencv.ts, ProcessNodeParamInputs.tsx
-
-パラメータの範囲チェックがない（例: threshold 0-255、ksize は奇数のみ）。
-
-提案: OpencvParamDefinition に validation ルールを追加  
- interface OpencvParamDefinition {  
- // 既存フィールド...  
- validation?: {  
- min?: number;  
- max?: number;  
- isOdd?: boolean;  
- };  
- }
-
-6. 循環参照検出の改善
-
-場所: useWorkflowExecution.ts:113-115
-
-現状の visited Set は不完全。ノード追加後にループ検出される。
-
-提案: 実行前にトポロジカルソートでDAG検証
+### ✅ 良好な点
+コードベースは全体的に**非常に良く設計されています**：
+- Props drillingはほぼ最小限
+- Contextの適切な使用
+- 型安全性の徹底
 
 ---
 
-優先度: 低
+## ✅ 完了した改善
 
-7. コンポーネント分割
+### ✓ FlowCanvas - Props冗長性削除
+- `nodes`/`edges`/`onNodesChange`/`onEdgesChange` をpropsから削除
+- 内部で`useFlowStore()`から取得するよう変更
+- 新規hook: [useContextMenu.ts](frontend/hooks/useContextMenu.ts)
 
-- page.tsx (215行) → スナップショット操作を別hookに
-- ProcessNodeInspector.tsx → フォーム部分を分離
+### ✓ EndNodeInspector - 関心の分離
+- Blob URL管理とプロセス履歴抽出をカスタムフックに分離
+- 新規hook: [useObjectURL.ts](frontend/hooks/useObjectURL.ts)
+- 新規hook: [useExecutionHistory.ts](frontend/hooks/useExecutionHistory.ts)
 
-8. 未使用コードの削除
+### ✓ WorkflowContent - スナップショット管理の抽出
+- スナップショット保存/復元/リネーム/削除ロジックをフックに抽出
+- 新規hook: [useSnapshotHistory.ts](frontend/hooks/useSnapshotHistory.ts)
 
-- types/opencv.ts の CV2_COLOR_RGB2GRAY 定数（未使用）
-
-9. 命名の統一
-
-- バックエンドの createclane タイポを修正するか、フロントエンドで明示的にマッピング
+### ✓ InspectorContext - 責務の整理
+- `nodes`プロパティを削除（FlowStoreから直接取得）
+- InspectorProvider の value を`useMemo`化してパフォーマンス改善
 
 ---
 
-ファイル構成サマリー（追加したコメント）  
- ┌───────────────────────────────┬───────────────────────────────────────┐  
- │ ファイル │ 役割 │  
- ├───────────────────────────────┼───────────────────────────────────────┤  
- │ hooks/useWorkflowExecution.ts │ ノードグラフ走査・API実行 │  
- ├───────────────────────────────┼───────────────────────────────────────┤  
- │ workflow/flowStore.tsx │ ノード/エッジ/実行状態の一元管理 │  
- ├───────────────────────────────┼───────────────────────────────────────┤  
- │ lib/backendApiService.ts │ Flaskバックエンドへのリクエスト抽象化 │  
- ├───────────────────────────────┼───────────────────────────────────────┤  
- │ lib/backendApiAdapters.ts │ エンドポイント別リクエスト形式変換 │  
- └───────────────────────────────┴───────────────────────────────────────┘
+## 🔶 残りの改善点
+
+### 1. **WorkflowContent - ノード選択の抽出**
+`c:\CodeRoot\visionfy-demo\frontend\app\page.tsx`
+
+**問題**: ノード選択ロジックがコンポーネント内に散在
+
+**改善案**: カスタムフック化
+```typescript
+const useSelectedNode = (nodes) => {
+  const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const selectedNode = useMemo(() => 
+    nodes.find(n => n.id === selectedNodeId), [nodes, selectedNodeId]);
+  const handleNodeClick = useCallback((event, node) => {
+    setSelectedNodeId(node.id);
+  }, []);
+  const handlePaneClick = useCallback(() => {
+    setSelectedNodeId(null);
+  }, []);
+  return { selectedNode, handleNodeClick, handlePaneClick };
+}
+```
+
+---
+
+### 2. **ChatPanel - FlowStoreへの直接依存**
+`c:\CodeRoot\visionfy-demo\frontend\app\components\chat\ChatPanel.tsx:16`
+
+**問題**: ChatがFlowStoreの内部構造に依存
+```typescript
+const { nodes, edges } = useFlowStore();
+```
+
+**改善**: シリアライズされたコンテキストを使用
+```typescript
+// 新規hook
+const useWorkflowContext = () => {
+  const { nodes, edges } = useFlowStore();
+  return useMemo(() => toFlowSnapshot(nodes, edges), [nodes, edges]);
+}
+
+// ChatPanel内
+const workflowContext = useWorkflowContext();
+```
+
+---
+
+### 3. **重複ロジック - パラメータ解決**
+複数箇所で同じパターン：
+- `ProcessNodeInspector.tsx:38-43,57-58`
+- `ProcessNode.tsx:40-41`
+
+**改善**: 共通化
+```typescript
+const useProcessNodeParams = (nodeData: BaseProcessNodeData) => {
+  return useMemo(() => {
+    const functionName = nodeData.functionName;
+    if (!functionName || !(functionName in DEFAULT_NODE_PARAMS)) return {};
+    return nodeData.params ?? DEFAULT_NODE_PARAMS[functionName];
+  }, [nodeData.functionName, nodeData.params]);
+}
+```
+
+---
+
+### 4. **NodeInspector - ハードコードされたルーティング**
+`c:\CodeRoot\visionfy-demo\frontend\app\components\workflow\NodeInspector.tsx:22-59`
+
+**改善**: コンポーネントレジストリパターン
+```typescript
+const INSPECTOR_COMPONENTS = {
+  startNode: StartNodeInspector,
+  processNode: ProcessNodeInspector,
+  endNode: EndNodeInspector,
+} as const;
+
+// 使用
+const InspectorComponent = INSPECTOR_COMPONENTS[selectedNode.type];
+```
