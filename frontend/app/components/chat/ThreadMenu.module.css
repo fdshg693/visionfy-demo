@@ -1,0 +1,148 @@
+.menuContainer {
+  position: relative;
+}
+
+.menuButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #666;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.menuButton:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 240px;
+  max-height: 360px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  overflow-y: auto;
+  z-index: 50;
+  margin-top: 4px;
+}
+
+.newThreadBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #e0e0e0;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  transition: background-color 0.15s;
+}
+
+.newThreadBtn:hover {
+  background-color: #e8f0fe;
+}
+
+.threadList {
+  display: flex;
+  flex-direction: column;
+}
+
+.threadListLabel {
+  font-size: 11px;
+  color: #999;
+  padding: 8px 12px 4px;
+  user-select: none;
+}
+
+.threadItem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.threadItem:hover {
+  background-color: #f5f5f5;
+}
+
+.threadItemActive {
+  background-color: #e8f0fe;
+}
+
+.threadItemActive:hover {
+  background-color: #d6e4fc;
+}
+
+.threadIcon {
+  flex-shrink: 0;
+  color: #999;
+}
+
+.threadInfo {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+}
+
+.threadTitle {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.threadDate {
+  font-size: 10px;
+  color: #999;
+}
+
+.threadDeleteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #999;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s, background-color 0.15s;
+}
+
+.threadItem:hover .threadDeleteBtn {
+  opacity: 1;
+}
+
+.threadDeleteBtn:hover {
+  color: #e53935;
+  background-color: rgba(229, 57, 53, 0.08);
+}
+
+.emptyMessage {
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+  padding: 16px;
+  margin: 0;
+}

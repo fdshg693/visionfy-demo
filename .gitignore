@@ -1,2 +1,3 @@
 *.log
-DEPLOY*
+.DS_Store
+.vscode/mcp.json

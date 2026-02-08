@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Visionfy Demo フロントエンド概要
 
-## Getting Started
+## 機能の列挙
+- 画像処理ワークフローの可視化・編集（ノード/エッジの配置・接続）
+- Start/Process/End ノード別のインスペクタ UI
+- 画像アップロードとワークフロー実行
+- 実行結果のプレビュー（Before/After）
+- 実行履歴の表示（各ノードの結果・パラメータ）
+- スナップショットの保存・復元・リネーム・削除
+- 接続制約（1ノードあたり入力/出力は1本）
+- バックエンド API 呼び出しのプロキシ/アダプタ対応
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## フォルダごとの責務・依存関係
+- `app/`
+  - Next.js App Router の画面と API 入口。
+  - `page.tsx` がワークフロー全体の状態・実行・スナップショットを統括し、`components/` と `workflow/` を束ねる。
+  - `api/process-node/` はフロントからの処理要求を受け、`lib/` の API サービス経由でバックエンドへ中継する。
+  - `components/` は UI コンポーネント群で、`types/` の型と `workflow/` の状態/永続化ロジックに依存する。
+- `components/`
+  - `workflow/` はキャンバス表示やスナップショット UI の枠を担当し、`workflow/` と `hooks/` の状態/実行に依存。
+  - `inspector/` はノード種別に応じた詳細 UI を提供し、`types/` と `app/` から渡される実行状態に依存。
+  - `nodes/` は React Flow 用のノード表示を担当し、`types/` のノード定義と関連アイコンに依存。
+- `hooks/`
+  - 画像処理ワークフローの実行フローを管理し、`app/api` のエンドポイントへリクエストする。
+  - 実行結果とノードの実行状態の更新を担当し、`workflow/` のストアと連携。
+- `lib/`
+  - バックエンド API との通信アダプタとサービスを提供。
+  - `API_BASE_URL` 環境変数に依存し、アダプタでルート差異やフォーム送信を吸収。
+- `types/`
+  - ノード/処理関数の型定義とデフォルトパラメータを管理。
+  - `components/` と `workflow/` と `hooks/` の共通契約として参照される。
+- `workflow/`
+  - ノード/エッジ/ビューポートの状態管理、スナップショット生成、永続化を担当。
+  - `storageService` を介してローカルストレージに依存し、`app/` と `components/` から利用される。
+- `public/`
+  - 画面で使う静的アセットの配布を担当し、`app/` の UI で参照される。
+- ルート直下の設定ファイル群
+  - Next.js/TypeScript/ESLint/PostCSS の設定を保持し、ビルド/開発時の挙動を規定する。

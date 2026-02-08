@@ -1,9 +1,32 @@
 from flask import Flask, request, jsonify, send_from_directory
 import os
+import logging
+
+# ロギング設定
+log_level = os.environ.get("LOG_LEVEL", "DEBUG" if os.environ.get("FLASK_DEBUG") else "INFO")
+logging.basicConfig(
+    level=getattr(logging, log_level.upper(), logging.INFO),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+# 起動時に環境変数をログ出力
+def log_env_vars():
+    """重要な環境変数のログ出力（機密情報はマスク）"""
+    env_vars = {
+        "FLASK_DEBUG": os.environ.get("FLASK_DEBUG"),
+        "LOG_LEVEL": os.environ.get("LOG_LEVEL"),
+        "PORT": os.environ.get("PORT"),
+    }
+    for name, value in env_vars.items():
+        if value:
+            logger.info(f"Environment variable {name}={value}")
+        else:
+            logger.warning(f"Environment variable {name} is not set")
 
 # Import function modules
 # api package is assumed to be in the same directory
-from api.createclane import main as createclane
+from api.createclahe import main as createclahe
 from api.grayscale import main as grayscale
 from api.gaussian_blur import main as gaussian_blur
 
@@ -36,14 +59,19 @@ def health_check():
     return jsonify({"status": "healthy"}), 200
 
 
-@app.route("/api/createclane", methods=["GET", "POST", "PUT", "DELETE"])
-def route_createclane():
+@app.route("/api/createclahe", methods=["POST"])
+def route_createclahe():
     """
-    createclane/main.py の change_image1 を呼び出すラッパー
+    createclahe/main.py の apply_clahe を呼び出すラッパー
     """
-    return createclane.change_image1(request)
-
-    return createclane.change_image1(request)
+    logger.info(f"[createclahe] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}")
+    try:
+        result = createclahe.apply_clahe(request)
+        logger.info("[createclahe] Processing completed successfully")
+        return result
+    except Exception as e:
+        logger.error(f"[createclahe] Error: {str(e)}", exc_info=True)
+        raise
 
 
 @app.route("/api/grayscale", methods=["POST"])
@@ -51,7 +79,14 @@ def route_grayscale():
     """
     grayscale/main.py の transform_grayscale を呼び出すラッパー
     """
-    return grayscale.transform_grayscale(request)
+    logger.info(f"[grayscale] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}")
+    try:
+        result = grayscale.transform_grayscale(request)
+        logger.info("[grayscale] Processing completed successfully")
+        return result
+    except Exception as e:
+        logger.error(f"[grayscale] Error: {str(e)}", exc_info=True)
+        raise
 
 
 @app.route("/api/gaussian_blur", methods=["POST"])
@@ -59,9 +94,18 @@ def route_gaussian_blur():
     """
     gaussian_blur/main.py の apply_gaussian_blur を呼び出すラッパー
     """
-    return gaussian_blur.apply_gaussian_blur(request)
+    logger.info(f"[gaussian_blur] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}")
+    try:
+        result = gaussian_blur.apply_gaussian_blur(request)
+        logger.info("[gaussian_blur] Processing completed successfully")
+        return result
+    except Exception as e:
+        logger.error(f"[gaussian_blur] Error: {str(e)}", exc_info=True)
+        raise
 
 
 if __name__ == "__main__":
     # ローカル開発用
+    log_env_vars()
+    logger.info("Starting Flask server on 0.0.0.0:8080")
     app.run(host="0.0.0.0", port=8080, debug=True)

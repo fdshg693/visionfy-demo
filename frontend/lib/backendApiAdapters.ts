@@ -1,0 +1,79 @@
+/**
+ * バックエンドリクエストアダプター
+ * 役割: 各画像処理関数ごとにバックエンドが期待するリクエスト形式に変換
+ * 全エンドポイントは画像ファイル + パラメータを multipart/form-data で送信
+ */
+import type {
+    CLAHEParams,
+    GaussianBlurParams,
+    GrayscaleParams,
+    ProcessNodeFunctionName,
+    ProcessNodeParams,
+} from '@/types/node';
+
+export type RequestAdapterResult = {
+    url: string;
+    init: RequestInit;
+};
+
+export type RequestAdapterArgs<TParams = ProcessNodeParams> = {
+    baseUrl: string;
+    functionName: ProcessNodeFunctionName;
+    params: TParams;
+    inputData?: string;
+    base64ToBlob: (base64: string) => Blob;
+};
+
+export type RequestAdapter = (args: RequestAdapterArgs) => RequestAdapterResult;
+
+export const buildCreateClaheAdapter = (): RequestAdapter => {
+    return ({ baseUrl, params, inputData, base64ToBlob }) => {
+        const typedParams = params as CLAHEParams;
+        const formData = new FormData();
+        formData.append('file', base64ToBlob(inputData ?? ''), 'image.jpg');
+        formData.append('clipLimit', String(typedParams.clipLimit));
+        formData.append('tileGridSizeX', String(typedParams.tileGridSize[0]));
+        formData.append('tileGridSizeY', String(typedParams.tileGridSize[1]));
+        return {
+            url: `${baseUrl}/api/createclahe`,
+            init: { method: "POST", body: formData },
+        };
+    };
+};
+
+export const buildGrayscaleAdapter = (): RequestAdapter => {
+    return ({ baseUrl, params, inputData, base64ToBlob }) => {
+        const typedParams = params as GrayscaleParams;
+        const formData = new FormData();
+        formData.append('file', base64ToBlob(inputData ?? ''), 'image.jpg');
+        if (typedParams.enableThreshold) {
+            formData.append('threshold', String(typedParams.threshold));
+        }
+        return {
+            url: `${baseUrl}/api/grayscale`,
+            init: { method: "POST", body: formData },
+        };
+    };
+};
+
+export const buildGaussianBlurAdapter = (): RequestAdapter => {
+    return ({ baseUrl, params, inputData, base64ToBlob }) => {
+        const typedParams = params as GaussianBlurParams;
+        const formData = new FormData();
+        formData.append('file', base64ToBlob(inputData ?? ''), 'image.jpg');
+        formData.append('ksizeX', String(typedParams.ksize[0]));
+        formData.append('ksizeY', String(typedParams.ksize[1]));
+        formData.append('sigmaX', String(typedParams.sigmaX));
+        formData.append('sigmaY', String(typedParams.sigmaY));
+        return {
+            url: `${baseUrl}/api/gaussian_blur`,
+            init: { method: "POST", body: formData },
+        };
+    };
+};
+
+export const createBackendAdapters = (): Record<string, RequestAdapter> => ({
+    createclahe: buildCreateClaheAdapter(),
+    grayscale: buildGrayscaleAdapter(),
+    gaussianblur: buildGaussianBlurAdapter(),
+});

@@ -1,34 +1,53 @@
-# Backend Directory
+# Backend Source Code (`src`)
 
-This directory contains the Python backend services for Visionfy.
+This directory contains the actual executable code for the backend API.
 
-## 📂 Directory Responsibilities
+## 🧱 Code Structure
 
 ```text
-backend/
-├── src/          # 🏭 Production Code
-│   │             Contains the Flask application, API logic, and Dockerfile.
-│   │             This is the directory that gets deployed to Cloud Run.
-│   │
-├── test/         # 🧪 Tests
-│   │             Scripts to test the API endpoints.
-│   │
-├── DEPLOY.md     # Deployment instructions for Cloud Run
-└── DOCKER.md     # Docker usage instructions
+src/
+├── main.py           # 🏁 Entry Point
+│                     Initializes Flask app and defines routes.
+│
+├── api/              # 🧠 API Logic
+│                     Contains specific logic modules (e.g., createclane).
+│
+├── imgs/             # 🖼️ Static Assets
+│                     Static images like favicon.
+│
+├── Dockerfile        # 🐳 Container Config
+│                     Defines how to build the image for Cloud Run.
+│
+└── requirements.txt  # 📦 Dependencies
+                      List of Python packages allowed in the environment.
 ```
 
-## 🚀 Deployment
+## 🔧 Responsibilities
 
-The backend is deployed to **Google Cloud Run**.
+- **API Server**: Host the API endpoints on port `8080`.
+- **Health Checks**: Provide `/health` endpoint for monitoring.
+- **Routing**: Delegate requests to appropriate modules in `api/`.
 
-**Quick Deploy Command:**
+## 🏃 Running Locally
 
-```bash
-# Navigate to source
-cd src
+1. **Install Dependencies**:
 
-# Deploy to Cloud Run
-gcloud run deploy visionfy-api --source . --region asia-northeast1 --allow-unauthenticated
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-See [DEPLOY.md](DEPLOY.md) for full details.
+2. **Run Server**:
+   ```bash
+   python main.py
+   ```
+   The server will start at `http://0.0.0.0:8080`.
+
+## 📡 Key Endpoints
+
+| Method | Path                 | Description                           |
+| ------ | -------------------- | ------------------------------------- |
+| `GET`  | `/`                  | Serves static `index.html`            |
+| `GET`  | `/health`            | Returns `{"status": "healthy"}`       |
+| `POST` | `/api/createclane`   | CLAHE (contrast limited AHE)          |
+| `POST` | `/api/grayscale`     | Grayscale (+ optional threshold)      |
+| `POST` | `/api/gaussian_blur` | Gaussian blur (optional ksize/sigma)  |
