@@ -8,12 +8,20 @@ BECAUSE in tha case there is no wrting conflicts.
 
 ## ARCHITECTURE
 
-@../.ai/overview/architecture.md
+@../ai/overview/architecture.md
 
 ## COMMANDS
 
-@../.ai/overview/commands.md
+@../ai/overview/commands.md
 
 ## PROJECT
 
-@../.ai/overview/project.md
+@../ai/overview/project.md
+
+## INFRASTRUCTURE
+
+@../ai/overview/infrastructure.md
+
+## AI CHAT
+
+@../ai/overview/ai-chat.md

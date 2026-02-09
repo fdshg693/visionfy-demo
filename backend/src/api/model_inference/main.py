@@ -58,7 +58,7 @@ def _get_model_path() -> str:
     2. GCS download via MODEL_GCS_BUCKET / MODEL_GCS_PATH env vars → /tmp/model.ckpt
     """
     # 1. Check local file first
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     local_path = os.path.join(base_dir, "models", "model.ckpt")
 
     if os.path.exists(local_path):
