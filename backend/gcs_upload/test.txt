@@ -1,3 +1,0 @@
-this is a test file for gcs upload
-
-this is positioned directory under `ROOT` folder of GCS
