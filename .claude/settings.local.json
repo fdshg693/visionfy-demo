@@ -10,7 +10,8 @@
       "WebFetch(domain:docs.langchain.com)",
       "WebFetch(domain:medium.com)",
       "WebFetch(domain:dev.to)",
-      "WebFetch(domain:reference.langchain.com)"
+      "WebFetch(domain:reference.langchain.com)",
+      "Bash(git check-ignore:*)"
     ]
   }
 }

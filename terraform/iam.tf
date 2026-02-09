@@ -18,6 +18,24 @@ resource "google_secret_manager_secret_iam_member" "frontend_gemini_key" {
 }
 
 # =============================================================================
+# Service Account for Backend (to access GCS model bucket)
+# =============================================================================
+
+resource "google_service_account" "backend" {
+  project      = google_project.main.project_id
+  account_id   = "backend-cloudrun"
+  display_name = "Backend Cloud Run Service Account"
+
+  depends_on = [google_project_service.apis["iam.googleapis.com"]]
+}
+
+resource "google_storage_bucket_iam_member" "backend_model_reader" {
+  bucket = google_storage_bucket.models.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.backend.email}"
+}
+
+# =============================================================================
 # Public access for both Cloud Run services
 # =============================================================================
 

@@ -34,6 +34,7 @@ resource "google_project_service" "apis" {
     "artifactregistry.googleapis.com",
     "secretmanager.googleapis.com",
     "iam.googleapis.com",
+    "storage.googleapis.com",
   ])
 
   project                    = google_project.main.project_id

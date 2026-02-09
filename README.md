@@ -37,7 +37,7 @@ OpenCV変換を画像に適用し、リアルタイムで結果を表示しま�
 
 ### クイックスタート
 
-```bash
+```powershell
 # 1. インフラ作成
 cd terraform
 cp terraform.tfvars.example terraform.tfvars  # 値を編集
@@ -62,13 +62,13 @@ terraform apply
 ## ローカル開発
 
 ### フロントエンド (`frontend/`)
-```bash
+```powershell
 pnpm install
 pnpm dev        # localhost:3000
 ```
 
 ### バックエンド (`backend/`)
-```bash
+```powershell
 pip install -r requirements.txt
 python src/main.py   # localhost:8080
 ```

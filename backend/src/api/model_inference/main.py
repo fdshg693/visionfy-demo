@@ -38,16 +38,50 @@ def _parse_params(request: Request) -> ModelInferenceParams:
         raise ValueError("Invalid parameter values") from exc
 
 
+def _download_from_gcs(bucket_name: str, blob_path: str, dest_path: str) -> None:
+    """Download a file from GCS to a local path."""
+    from google.cloud import storage as gcs
+
+    logger.info(f"Downloading model from gs://{bucket_name}/{blob_path} ...")
+    client = gcs.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(blob_path)
+    blob.download_to_filename(dest_path)
+    logger.info(f"Model downloaded to {dest_path}")
+
+
 def _get_model_path() -> str:
-    """Get the absolute path to the model checkpoint"""
-    # main.py is in backend/src/, models/ is at backend/src/models/
+    """Get the absolute path to the model checkpoint.
+
+    Resolution order:
+    1. Local file at backend/src/models/model.ckpt (for local development)
+    2. GCS download via MODEL_GCS_BUCKET / MODEL_GCS_PATH env vars → /tmp/model.ckpt
+    """
+    # 1. Check local file first
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    model_path = os.path.join(base_dir, "models", "model.ckpt")
+    local_path = os.path.join(base_dir, "models", "model.ckpt")
 
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model checkpoint not found at {model_path}")
+    if os.path.exists(local_path):
+        return local_path
 
-    return model_path
+    # 2. Try GCS download
+    gcs_bucket = os.environ.get("MODEL_GCS_BUCKET")
+    gcs_path = os.environ.get("MODEL_GCS_PATH")
+
+    if not gcs_bucket or not gcs_path:
+        raise FileNotFoundError(
+            f"Model checkpoint not found at {local_path} and "
+            "MODEL_GCS_BUCKET / MODEL_GCS_PATH env vars are not set"
+        )
+
+    tmp_path = os.path.join("/tmp", "model.ckpt")
+
+    if os.path.exists(tmp_path):
+        logger.info(f"Using cached model at {tmp_path}")
+        return tmp_path
+
+    _download_from_gcs(gcs_bucket, gcs_path, tmp_path)
+    return tmp_path
 
 
 def _load_model() -> torch.nn.Module:

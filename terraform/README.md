@@ -42,7 +42,7 @@ terraform/
 
 ### 1. 準備
 
-```bash
+```powershell
 # 変数ファイルの作成
 cp terraform.tfvars.example terraform.tfvars
 
@@ -57,7 +57,7 @@ gcloud auth application-default login
 
 ### 2. 基盤リソースの作成
 
-```bash
+```powershell
 # PowerShellの場合（引用符が必要）
 terraform apply `
   '-target=google_project.main' `
@@ -81,7 +81,7 @@ terraform apply \
 
 ### 3. Dockerイメージのビルドとデプロイ
 
-```bash
+```powershell
 # Docker認証
 gcloud auth configure-docker asia-northeast1-docker.pkg.dev
 
@@ -104,13 +104,14 @@ terraform apply
 ### Cloud Run設定
 
 **Backend:**
-- CPU: 1
-- メモリ: 512Mi
+- CPU: 2
+- メモリ: 4Gi（PyTorch + anomalib + モデル推論に必要）
 - 最小インスタンス: 0
-- 最大インスタンス: 5
+- 最大インスタンス: 3
 - タイムアウト: デフォルト（300秒）
 - ポート: 8080
 - ヘルスチェック: `/health` (HTTP GET)
+- スタートアッププローブ: 最大100秒（モデル読み込み時間を考慮）
 
 **Frontend:**
 - CPU: 1
@@ -132,7 +133,7 @@ terraform apply
 
 ## コマンドリファレンス
 
-```bash
+```powershell
 # 計画の確認（実行前のドライラン）
 terraform plan
 

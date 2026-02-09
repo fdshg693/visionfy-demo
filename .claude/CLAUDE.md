@@ -17,7 +17,3 @@ BECAUSE in tha case there is no wrting conflicts.
 ## PROJECT
 
 @../.ai/overview/project.md
-
-## frontend
-
-@../.ai/overview/frontend.md

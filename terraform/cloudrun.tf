@@ -9,6 +9,8 @@ resource "google_cloud_run_v2_service" "backend" {
   ingress  = "INGRESS_TRAFFIC_ALL"
 
   template {
+    service_account = google_service_account.backend.email
+
     containers {
       image = "${var.region}-docker.pkg.dev/${var.project_id}/visionfy-demo/backend:${var.backend_image_tag}"
 
@@ -18,9 +20,19 @@ resource "google_cloud_run_v2_service" "backend" {
 
       resources {
         limits = {
-          cpu    = "1"
-          memory = "512Mi"
+          cpu    = "2"
+          memory = "4Gi"
         }
+      }
+
+      env {
+        name  = "MODEL_GCS_BUCKET"
+        value = google_storage_bucket.models.name
+      }
+
+      env {
+        name  = "MODEL_GCS_PATH"
+        value = "models/model.ckpt"
       }
 
       startup_probe {
@@ -28,15 +40,15 @@ resource "google_cloud_run_v2_service" "backend" {
           path = "/health"
           port = 8080
         }
-        initial_delay_seconds = 5
-        period_seconds        = 10
-        failure_threshold     = 3
+        initial_delay_seconds = 10
+        period_seconds        = 15
+        failure_threshold     = 6
       }
     }
 
     scaling {
       min_instance_count = 0
-      max_instance_count = 5
+      max_instance_count = 3
     }
   }
 

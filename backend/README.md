@@ -49,13 +49,13 @@ backend/
 
 ### 1. 依存パッケージのインストール
 
-```bash
+```powershell
 pip install -r requirements.txt
 ```
 
 ### 2. サーバー起動
 
-```bash
+```powershell
 python src/main.py
 ```
 
@@ -94,7 +94,7 @@ python src/main.py
 
 ### ローカルでのビルドと実行
 
-```bash
+```powershell
 # イメージをビルド
 docker build -t visionfy-backend .
 
