@@ -1,10 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { MessageCircle, Send, Trash2 } from 'lucide-react';
+import { MessageCircle, Send, Settings, Trash2 } from 'lucide-react';
 
 import styles from '@/app/page.module.css';
 import type { ChatMessage } from '@/lib/chatService';
+import { storageService } from '@/lib/storageService';
+import { SYSTEM_PROMPT } from '@/lib/chatPrompts';
 import { useWorkflowContext } from '@/hooks/useWorkflowContext';
 import { useInspector } from '@/contexts/InspectorContext';
 import { useChatThreads } from '@/hooks/useChatThreads';
@@ -41,6 +43,11 @@ export function ChatPanel() {
   });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    return storageService.getItem('visionfy-custom-system-prompt') || '';
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // メッセージ更新時に末尾へスクロール
@@ -79,6 +86,7 @@ export function ChatPanel() {
           edges,
           originalImage,
           nodeResults,
+          ...(customPrompt ? { customSystemPrompt: customPrompt } : {}),
         }),
       });
 
@@ -115,7 +123,7 @@ export function ChatPanel() {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, messages, nodes, edges, files, nodeResults, addMessage, updateLastAssistantMessage, saveCurrentThread]);
+  }, [input, isLoading, messages, nodes, edges, files, nodeResults, customPrompt, addMessage, updateLastAssistantMessage, saveCurrentThread]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -131,6 +139,21 @@ export function ChatPanel() {
     clearMessages();
     setInput('');
   }, [clearMessages]);
+
+  const handleSavePrompt = useCallback(() => {
+    if (customPrompt.trim()) {
+      storageService.setItem('visionfy-custom-system-prompt', customPrompt);
+    } else {
+      storageService.removeItem('visionfy-custom-system-prompt');
+      setCustomPrompt('');
+    }
+    setShowSettings(false);
+  }, [customPrompt]);
+
+  const handleResetPrompt = useCallback(() => {
+    storageService.removeItem('visionfy-custom-system-prompt');
+    setCustomPrompt('');
+  }, []);
 
   return (
     <div
@@ -149,6 +172,15 @@ export function ChatPanel() {
         <span>AI チャット</span>
         <button
           type="button"
+          className={styles.chatSettingsBtn}
+          onClick={() => setShowSettings((v) => !v)}
+          aria-label="システムプロンプト設定"
+          title="システムプロンプト設定"
+        >
+          <Settings size={14} />
+        </button>
+        <button
+          type="button"
           className={styles.chatClearBtn}
           onClick={handleClear}
           disabled={messages.length === 0}
@@ -158,6 +190,34 @@ export function ChatPanel() {
           <Trash2 size={14} />
         </button>
       </div>
+
+      {showSettings && (
+        <div className={styles.chatSettingsPanel}>
+          <label className={styles.chatSettingsLabel}>システムプロンプト</label>
+          <textarea
+            className={styles.chatSettingsTextarea}
+            value={customPrompt || SYSTEM_PROMPT}
+            onChange={(e) => setCustomPrompt(e.target.value)}
+            rows={6}
+          />
+          <div className={styles.chatSettingsBtnGroup}>
+            <button
+              type="button"
+              className={styles.chatSettingsResetBtn}
+              onClick={handleResetPrompt}
+            >
+              デフォルトに戻す
+            </button>
+            <button
+              type="button"
+              className={styles.chatSettingsSaveBtn}
+              onClick={handleSavePrompt}
+            >
+              保存
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className={styles.chatMessages}>
         {messages.length === 0 && (

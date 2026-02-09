@@ -72,14 +72,21 @@ const PARAM_FIELD_RENDERERS: Record<OpencvParamDefinition['type'], ParamFieldRen
             ))}
         </select>
     ),
-    tuple: ({ currentValue, onChange, classNames }) => {
+    tuple: ({ config, currentValue, onChange, classNames }) => {
         const tupleVal = Array.isArray(currentValue) ? currentValue : [0, 0];
         const handleTupleChange = (index: number, val: string) => {
-            const parsed = Number.parseFloat(val);
-            const nextValue = Number.isNaN(parsed) ? 0 : parsed;
+            let parsed = Number.parseFloat(val);
+            if (Number.isNaN(parsed)) parsed = 0;
+            // Enforce step/min constraints (e.g. odd-only for ksize)
+            if (config.min !== undefined && parsed < config.min) {
+                parsed = config.min;
+            }
+            if (config.step && config.min !== undefined) {
+                parsed = Math.round((parsed - config.min) / config.step) * config.step + config.min;
+            }
             const newTuple: [number, number] = [
-                index === 0 ? nextValue : tupleVal[0],
-                index === 1 ? nextValue : tupleVal[1],
+                index === 0 ? parsed : tupleVal[0],
+                index === 1 ? parsed : tupleVal[1],
             ];
             onChange(newTuple);
         };
@@ -92,6 +99,8 @@ const PARAM_FIELD_RENDERERS: Record<OpencvParamDefinition['type'], ParamFieldRen
                     onChange={(e) => handleTupleChange(0, e.target.value)}
                     className={classNames?.smallInput ?? 'nodrag'}
                     placeholder="x"
+                    step={config.step}
+                    min={config.min}
                 />
                 <input
                     type="number"
@@ -99,6 +108,8 @@ const PARAM_FIELD_RENDERERS: Record<OpencvParamDefinition['type'], ParamFieldRen
                     onChange={(e) => handleTupleChange(1, e.target.value)}
                     className={classNames?.smallInput ?? 'nodrag'}
                     placeholder="y"
+                    step={config.step}
+                    min={config.min}
                 />
             </div>
         );
@@ -111,12 +122,14 @@ const PARAM_FIELD_RENDERERS: Record<OpencvParamDefinition['type'], ParamFieldRen
             className={classNames ? undefined : 'nodrag'}
         />
     ),
-    number: ({ currentValue, onChange, classNames }) => (
+    number: ({ config, currentValue, onChange, classNames }) => (
         <input
             type="number"
             value={Number(currentValue ?? 0)}
             onChange={(e) => onChange(Number(e.target.value))}
             className={classNames?.input ?? 'nodrag'}
+            step={config.step}
+            min={config.min}
         />
     ),
     text: ({ currentValue, onChange, classNames }) => (

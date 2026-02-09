@@ -1,6 +1,6 @@
 // 役割: ノード/エッジのキャンバス表示と操作UI(ミニマップ/ズーム/追加ボタン/リセット/右クリック削除)を提供する。
 // 依存: ReactFlowのイベントを受け取り、親から渡された状態更新に委譲する。
-import { type ComponentProps } from 'react';
+import { type ComponentProps, useState } from 'react';
 import {
   Background,
   Controls,
@@ -10,6 +10,10 @@ import {
 } from '@xyflow/react';
 import { useFlowStore } from '@/workflow/flowStore';
 import { useContextMenu } from '@/hooks/useContextMenu';
+import { useInspector } from '@/contexts/InspectorContext';
+import { UsageGuidePanel } from './UsageGuidePanel';
+import type { ProcessNodeFunctionName } from '@/types/node';
+import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/opencv';
 
 import styles from '@/app/page.module.css';
 
@@ -20,7 +24,7 @@ type FlowCanvasProps = {
   onNodeClick: ComponentProps<typeof ReactFlow>['onNodeClick'];
   onPaneClick: ComponentProps<typeof ReactFlow>['onPaneClick'];
   onMoveEnd?: ComponentProps<typeof ReactFlow>['onMoveEnd'];
-  onAddNode: () => void;
+  onAddNode: (functionName: ProcessNodeFunctionName) => void;
   onResetCanvas: () => void;
 };
 
@@ -39,6 +43,8 @@ export function FlowCanvas({
   onResetCanvas,
 }: FlowCanvasProps) {
   const { nodes, edges, onNodesChange, onEdgesChange } = useFlowStore();
+  const { files, executeWorkflow } = useInspector();
+  const [showAddNodeMenu, setShowAddNodeMenu] = useState(false);
   const {
     containerRef,
     contextMenu,
@@ -82,13 +88,47 @@ export function FlowCanvas({
         >
           ↺ Reset
         </button>
+        <div className={styles.addNodeWrapper}>
+          <button
+            onClick={() => setShowAddNodeMenu((prev) => !prev)}
+            className={styles.addBtn}
+          >
+            ＋ Add Node
+          </button>
+          {showAddNodeMenu && (
+            <>
+              <div className={styles.contextMenuOverlay} onClick={() => setShowAddNodeMenu(false)} />
+              <div className={styles.addNodeDropdown}>
+                {Object.entries(VISIONFY_FUNCTIONS_CONFIG).map(([name, config]) => (
+                  <button
+                    key={name}
+                    className={styles.addNodeOption}
+                    onClick={() => {
+                      onAddNode(name as ProcessNodeFunctionName);
+                      setShowAddNodeMenu(false);
+                    }}
+                  >
+                    <span className={styles.addNodeOptionName}>{name}</span>
+                    <span className={styles.addNodeOptionDesc}>{config.description}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className={styles.runButtonArea}>
         <button
-          onClick={onAddNode}
-          className={styles.addBtn}
+          className={styles.runButton}
+          onClick={executeWorkflow}
+          disabled={files.length === 0}
         >
-          ＋ Add Node
+          ▶ Run
         </button>
       </div>
+
+      <UsageGuidePanel />
 
       {contextMenu && (
         <>

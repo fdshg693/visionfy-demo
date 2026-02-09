@@ -320,8 +320,102 @@
   color: #111827;
 }
 
-.chatClearBtn {
+.chatSettingsBtn {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chatSettingsBtn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.chatSettingsPanel {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chatSettingsLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.chatSettingsTextarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  line-height: 1.5;
+  color: #111827;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.chatSettingsTextarea:focus {
+  border-color: #111827;
+}
+
+.chatSettingsBtnGroup {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.chatSettingsSaveBtn {
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #111827;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.chatSettingsSaveBtn:hover {
+  opacity: 0.85;
+}
+
+.chatSettingsResetBtn {
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: transparent;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chatSettingsResetBtn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.chatClearBtn {
+  /* margin-left removed — settings button now pushes this */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -454,4 +548,88 @@
 
 .chatResizeHandle:hover {
   background-color: #c7d2fe;
+}
+
+/* ===== Add Node ドロップダウン ===== */
+
+.addNodeWrapper {
+  position: relative;
+}
+
+.addNodeDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  min-width: 260px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.addNodeOption {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.addNodeOption:hover {
+  background: #f3f4f6;
+}
+
+.addNodeOptionName {
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+  color: #111827;
+}
+
+.addNodeOptionDesc {
+  display: block;
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.runButtonArea {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+}
+
+.runButton {
+  padding: 10px 24px;
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.runButton:hover {
+  background: #2563eb;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.runButton:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.6;
 }

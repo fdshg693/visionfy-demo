@@ -9,6 +9,10 @@ export interface OpencvParamDefinition {
     options?: { label: string; value: number | string | boolean }[];
     defaultValue?: OpencvParamValue;
     label?: string; // Display label (uses name if omitted)
+    /** Input step increment (e.g. 2 for odd-only when min is 1) */
+    step?: number;
+    /** Minimum allowed value */
+    min?: number;
 }
 
 export interface OpencvFunctionConfig {
@@ -51,7 +55,7 @@ export const VISIONFY_FUNCTIONS_CONFIG: Record<string, OpencvFunctionConfig> = {
     'gaussianblur': {
         description: 'ガウシアンフィルタを用いて画像をぼかします。',
         params: [
-            { name: 'ksize', type: 'tuple', defaultValue: [5, 5], label: 'ksize (width, height)' },
+            { name: 'ksize', type: 'tuple', defaultValue: [5, 5], label: 'ksize (width, height)', step: 2, min: 1 },
             { name: 'sigmaX', type: 'number', defaultValue: 0 },
             { name: 'sigmaY', type: 'number', defaultValue: 0 }
         ]

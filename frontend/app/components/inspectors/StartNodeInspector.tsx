@@ -16,7 +16,7 @@ registerPlugin(FilePondPluginImagePreview);
  * ファイルアップロードとワークフロー実行ボタンを提供する。
  */
 export function StartNodeInspector() {
-    const { files, setFiles, executeWorkflow } = useInspector();
+    const { files, setFiles } = useInspector();
     return (
         <div className={styles.inspectorContent}>
             <div className={styles.field}>
@@ -32,16 +32,6 @@ export function StartNodeInspector() {
                         credits={false}
                     />
                 </div>
-            </div>
-
-            <div className={styles.field}>
-                <button
-                    className={styles.runBtn}
-                    onClick={executeWorkflow}
-                    disabled={files.length === 0}
-                >
-                    Run Workflow
-                </button>
             </div>
         </div>
     );

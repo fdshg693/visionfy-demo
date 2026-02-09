@@ -37,10 +37,11 @@ export class ChatService {
    * 会話履歴からLangchainメッセージ配列を構築し、エージェントでストリーム処理する
    * toolContext が渡された場合はツールをエージェントに渡し、AIが必要に応じて実行できるようにする
    */
-  async stream(messages: ChatMessage[], toolContext?: ToolContext) {
+  async stream(messages: ChatMessage[], toolContext?: ToolContext, customSystemPrompt?: string) {
     logger.info({ 
       messageCount: messages.length, 
-      hasToolContext: !!toolContext 
+      hasToolContext: !!toolContext,
+      hasCustomPrompt: !!customSystemPrompt,
     }, 'Building langchain messages');
     
     const langchainMessages: BaseMessage[] = messages.map((msg) =>
@@ -61,7 +62,7 @@ export class ChatService {
     const agent = createAgent({
       model: this.model,
       tools,
-      systemPrompt: SYSTEM_PROMPT,
+      systemPrompt: customSystemPrompt ?? SYSTEM_PROMPT,
     });
 
     logger.info({ totalMessages: langchainMessages.length }, 'Starting streamEvents');

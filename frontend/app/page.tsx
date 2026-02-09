@@ -8,7 +8,7 @@ import { InspectorPanel } from '@/app/components/workflow/InspectorPanel';
 import { useWorkflowExecution } from '@/hooks/useWorkflowExecution';
 import { useSnapshotHistory } from '@/hooks/useSnapshotHistory';
 import { useSelectedNode } from '@/hooks/useSelectedNode';
-import { DEFAULT_NODE_PARAMS, type ProcessNodeData, type NodeDataUpdate } from '@/types/node';
+import { DEFAULT_NODE_PARAMS, DEFAULT_NODE_ICONS, type ProcessNodeData, type ProcessNodeFunctionName, type NodeDataUpdate } from '@/types/node';
 import { NODE_TYPE, EXECUTION_STATUS } from '@/constants/index';
 import type { WorkflowFile } from '@/types/workflow';
 import { FlowStoreProvider, useFlowStore } from '@/workflow/flowStore';
@@ -100,18 +100,18 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     setFiles([]);
   }, [setNodes, setEdges, clearSelection]);
 
-  const handleAddNode = useCallback(() => {
+  const handleAddNode = useCallback((functionName: ProcessNodeFunctionName) => {
     const newNode: Node<ProcessNodeData> = {
       id: `node-${Date.now()}`,
       type: NODE_TYPE.PROCESS,
       position: { x: Math.random() * 400, y: Math.random() * 400 },
       data: {
-        label: 'createclahe',
-        functionName: 'createclahe',
-        params: DEFAULT_NODE_PARAMS['createclahe'],
+        label: functionName,
+        functionName,
+        params: DEFAULT_NODE_PARAMS[functionName],
         executionStatus: EXECUTION_STATUS.IDLE,
-        icon: 'histogram',
-      },
+        icon: DEFAULT_NODE_ICONS[functionName],
+      } as ProcessNodeData,
     };
     setNodes((nds) => nds.concat(newNode));
   }, [setNodes]);

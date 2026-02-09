@@ -9,11 +9,6 @@ variable "project_name" {
   default     = "Visionfy Demo"
 }
 
-variable "org_id" {
-  description = "GCP organization ID"
-  type        = string
-}
-
 variable "billing_account" {
   description = "GCP billing account ID"
   type        = string

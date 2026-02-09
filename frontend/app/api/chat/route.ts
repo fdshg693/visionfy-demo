@@ -13,12 +13,13 @@ const logger = createLogger('ChatAPI');
  */
 export async function POST(req: NextRequest) {
   try {
-    const { messages, nodes, edges, originalImage, nodeResults } = (await req.json()) as {
+    const { messages, nodes, edges, originalImage, nodeResults, customSystemPrompt } = (await req.json()) as {
       messages: ChatMessage[];
       nodes?: Node[];
       edges?: Edge[];
       originalImage?: string;
       nodeResults?: { nodeId: string; functionName: string; result: string }[];
+      customSystemPrompt?: string;
     };
 
     logger.info({
@@ -53,8 +54,8 @@ export async function POST(req: NextRequest) {
       nodeResults: nodeResults ? JSON.stringify(nodeResults) : undefined,
     } : undefined;
     
-    logger.info({ hasToolContext: !!toolContext }, 'Starting AI stream');
-    const eventStream = await chatService.stream(messages, toolContext);
+    logger.info({ hasToolContext: !!toolContext, hasCustomPrompt: !!customSystemPrompt }, 'Starting AI stream');
+    const eventStream = await chatService.stream(messages, toolContext, customSystemPrompt);
 
     const readableStream = new ReadableStream({
       async start(controller) {
