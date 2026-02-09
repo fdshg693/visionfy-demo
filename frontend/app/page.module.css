@@ -516,12 +516,127 @@
   word-break: break-word;
 }
 
+.chatMessageImages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.chatMessageImageThumb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.chatMessageImageImg {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.chatMessageImageName {
+  font-size: 10px;
+  opacity: 0.8;
+  max-width: 64px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chatMessageImagePlaceholder {
+  width: 64px;
+  height: 64px;
+  border-radius: 6px;
+  border: 1px dashed rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+}
+
 .chatInputArea {
   padding: 10px 12px;
   border-top: 1px solid #e5e7eb;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chatAttachmentPreview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chatAttachmentThumb {
+  position: relative;
+  width: 52px;
+  height: 52px;
+}
+
+.chatAttachmentImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.chatAttachmentRemove {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.chatAttachmentRemove:hover {
+  background: #dc2626;
+}
+
+.chatInputRow {
+  display: flex;
   gap: 8px;
   align-items: flex-end;
+}
+
+.chatAttachBtn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.chatAttachBtn:hover {
+  color: #111827;
+  border-color: #111827;
+}
+
+.chatAttachBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 .chatInputField {

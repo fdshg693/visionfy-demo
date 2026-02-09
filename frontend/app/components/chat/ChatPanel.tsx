@@ -1,10 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { MessageCircle, Send, Settings, Trash2 } from 'lucide-react';
+import { MessageCircle, Paperclip, Send, Settings, Trash2, X } from 'lucide-react';
 
 import styles from '@/app/page.module.css';
-import type { ChatMessage } from '@/lib/chatService';
+import type { ChatMessage, ChatMessageImage } from '@/lib/chatService';
 import { storageService } from '@/lib/storageService';
 import { SYSTEM_PROMPT } from '@/lib/chatPrompts';
 import { useWorkflowContext } from '@/hooks/useWorkflowContext';
@@ -44,6 +44,8 @@ export function ChatPanel() {
   });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [attachedImages, setAttachedImages] = useState<ChatMessageImage[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [customPrompt, setCustomPrompt] = useState<string>(() => {
     if (typeof window === 'undefined') return '';
@@ -56,14 +58,52 @@ export function ChatPanel() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // ファイル選択時の処理: 画像をbase64に変換して添付リストに追加
+  const handleFileSelect = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFiles = e.target.files;
+      if (!selectedFiles) return;
+
+      const newImages: ChatMessageImage[] = [];
+      for (const file of Array.from(selectedFiles)) {
+        if (!file.type.startsWith('image/')) continue;
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => {
+            // data:image/png;base64,XXXX から base64 部分のみ抽出
+            const result = reader.result as string;
+            const base64Data = result.split(',')[1];
+            resolve(base64Data);
+          };
+          reader.onerror = (error) => reject(error);
+        });
+        newImages.push({ name: file.name, base64, mimeType: file.type });
+      }
+      setAttachedImages((prev) => [...prev, ...newImages]);
+      // input をリセットして同じファイルを再選択可能にする
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    },
+    []
+  );
+
+  const handleRemoveImage = useCallback((index: number) => {
+    setAttachedImages((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
   // チャット内容をAIに送信
   const handleSend = useCallback(async () => {
     const trimmed = input.trim();
     if (!trimmed || isLoading) return;
 
-    const userMessage: ChatMessage = { role: 'user', content: trimmed };
+    const userMessage: ChatMessage = {
+      role: 'user',
+      content: trimmed,
+      ...(attachedImages.length > 0 ? { images: attachedImages } : {}),
+    };
     addMessage(userMessage);
     setInput('');
+    setAttachedImages([]);
     setIsLoading(true);
 
     try {
@@ -124,7 +164,7 @@ export function ChatPanel() {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, messages, nodes, edges, files, nodeResults, customPrompt, addMessage, updateLastAssistantMessage, saveCurrentThread]);
+  }, [input, isLoading, messages, nodes, edges, files, nodeResults, customPrompt, attachedImages, addMessage, updateLastAssistantMessage, saveCurrentThread]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -239,7 +279,30 @@ export function ChatPanel() {
             {msg.role === 'assistant' ? (
               <MessageContent content={msg.content} />
             ) : (
-              msg.content
+              <>
+                {msg.images && msg.images.length > 0 && (
+                  <div className={styles.chatMessageImages}>
+                    {msg.images.map((img, j) => (
+                      <div key={j} className={styles.chatMessageImageThumb}>
+                        {img.base64 ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={`data:${img.mimeType};base64,${img.base64}`}
+                            alt={img.name}
+                            className={styles.chatMessageImageImg}
+                          />
+                        ) : (
+                          <div className={styles.chatMessageImagePlaceholder}>
+                            <Paperclip size={16} />
+                          </div>
+                        )}
+                        <span className={styles.chatMessageImageName}>{img.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {msg.content}
+              </>
             )}
           </div>
         ))}
@@ -247,24 +310,66 @@ export function ChatPanel() {
       </div>
 
       <div className={styles.chatInputArea}>
-        <textarea
-          className={styles.chatInputField}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="メッセージを入力... (Enter で送信)"
-          rows={2}
-          disabled={isLoading}
-        />
-        <button
-          type="button"
-          className={styles.chatSendBtn}
-          onClick={handleSend}
-          disabled={!input.trim() || isLoading}
-          aria-label="送信"
-        >
-          <Send size={16} />
-        </button>
+        {attachedImages.length > 0 && (
+          <div className={styles.chatAttachmentPreview}>
+            {attachedImages.map((img, i) => (
+              <div key={i} className={styles.chatAttachmentThumb}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`data:${img.mimeType};base64,${img.base64}`}
+                  alt={img.name}
+                  className={styles.chatAttachmentImg}
+                />
+                <button
+                  type="button"
+                  className={styles.chatAttachmentRemove}
+                  onClick={() => handleRemoveImage(i)}
+                  aria-label={`${img.name} を削除`}
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className={styles.chatInputRow}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleFileSelect}
+            style={{ display: 'none' }}
+          />
+          <button
+            type="button"
+            className={styles.chatAttachBtn}
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isLoading}
+            aria-label="画像を添付"
+            title="画像を添付"
+          >
+            <Paperclip size={16} />
+          </button>
+          <textarea
+            className={styles.chatInputField}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="メッセージを入力... (Enter で送信)"
+            rows={2}
+            disabled={isLoading}
+          />
+          <button
+            type="button"
+            className={styles.chatSendBtn}
+            onClick={handleSend}
+            disabled={!input.trim() || isLoading}
+            aria-label="送信"
+          >
+            <Send size={16} />
+          </button>
+        </div>
       </div>
 
       {/* リサイズハンドル */}

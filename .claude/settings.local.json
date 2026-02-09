@@ -4,7 +4,13 @@
       "Bash(pnpm build:*)",
       "Bash(xargs ls:*)",
       "Bash(terraform init:*)",
-      "Bash(terraform validate:*)"
+      "Bash(terraform validate:*)",
+      "WebFetch(domain:www.philschmid.de)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:docs.langchain.com)",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:reference.langchain.com)"
     ]
   }
 }

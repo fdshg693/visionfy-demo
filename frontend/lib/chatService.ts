@@ -16,9 +16,16 @@ import { createEnabledTools, type ToolContext } from "./tools";
 
 const logger = createLogger('ChatService');
 
+export type ChatMessageImage = {
+  name: string;
+  base64: string;
+  mimeType: string;
+};
+
 export type ChatMessage = {
   role: "user" | "assistant";
   content: string;
+  images?: ChatMessageImage[];
 };
 
 export class ChatService {
@@ -44,11 +51,41 @@ export class ChatService {
       hasCustomPrompt: !!customSystemPrompt,
     }, 'Building langchain messages');
     
-    const langchainMessages: BaseMessage[] = messages.map((msg) =>
-      msg.role === "user"
-        ? new HumanMessage(msg.content)
-        : new AIMessage(msg.content)
-    );
+    const langchainMessages: BaseMessage[] = messages.map((msg) => {
+      if (msg.role === "assistant") {
+        return new AIMessage(msg.content);
+      }
+
+      // 画像がない場合はテキストのみ
+      if (!msg.images || msg.images.length === 0) {
+        return new HumanMessage(msg.content);
+      }
+
+      // マルチモーダルメッセージを構築（テキスト + 画像）
+      const content: Array<
+        | { type: "text"; text: string }
+        | { type: "image_url"; image_url: string }
+      > = [];
+
+      // ファイル名情報をテキストに含める
+      const imageLabels = msg.images
+        .map((img, i) => `[添付画像${i + 1}: ${img.name}]`)
+        .join(" ");
+      content.push({
+        type: "text",
+        text: `${msg.content}\n\n${imageLabels}`,
+      });
+
+      // 各画像をimage_urlとして追加
+      for (const image of msg.images) {
+        content.push({
+          type: "image_url",
+          image_url: `data:${image.mimeType};base64,${image.base64}`,
+        });
+      }
+
+      return new HumanMessage({ content });
+    });
 
     // ツールコンテキストがある場合、有効なツールを生成してエージェントを作成
     const tools = toolContext ? createEnabledTools(toolContext) : [];

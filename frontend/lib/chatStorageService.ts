@@ -25,15 +25,37 @@ export function loadThreads(): ChatThread[] {
   }
 }
 
+/**
+ * 永続化時に画像のbase64データを除去してストレージ容量を節約する。
+ * ファイル名とMIMEタイプは保持し、UIで添付履歴を表示できるようにする。
+ */
+function stripImageData(messages: ChatMessage[]): ChatMessage[] {
+  return messages.map((msg) => {
+    if (!msg.images || msg.images.length === 0) return msg;
+    return {
+      ...msg,
+      images: msg.images.map((img) => ({
+        name: img.name,
+        base64: '',
+        mimeType: img.mimeType,
+      })),
+    };
+  });
+}
+
 export function saveThread(thread: ChatThread): void {
   if (!canUseStorage()) return;
   try {
+    const threadToSave = {
+      ...thread,
+      messages: stripImageData(thread.messages),
+    };
     const threads = loadThreads();
     const index = threads.findIndex((t) => t.id === thread.id);
     if (index >= 0) {
-      threads[index] = thread;
+      threads[index] = threadToSave;
     } else {
-      threads.push(thread);
+      threads.push(threadToSave);
     }
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(threads));
   } catch {}
