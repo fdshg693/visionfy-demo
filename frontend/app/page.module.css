@@ -864,7 +864,7 @@
 .toolListDropdown {
   position: absolute;
   top: 100%;
-  right: 0;
+  left: 0;
   margin-top: 4px;
   background: white;
   border: 1px solid #e5e7eb;

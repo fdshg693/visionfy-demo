@@ -1,5 +1,5 @@
 import { InputImagePanel } from '@/app/components/workflow/InputImagePanel';
-import { ResultInspector } from '@/app/components/inspectors/EndNodeInspector';
+import { ResultInspector } from '@/app/components/inspectors/ResultNodeInspector';
 import styles from '@/app/page.module.css';
 
 /**

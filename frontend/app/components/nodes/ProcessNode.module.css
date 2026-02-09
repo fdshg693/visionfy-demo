@@ -1,4 +1,5 @@
 .node {
+    position: relative;
     padding: 6px 8px;
     border-radius: 6px;
     background: white;
@@ -135,4 +136,83 @@
     width: 6px !important;
     height: 6px !important;
     background: #555 !important;
+}
+
+/* ===== Hover Popup ===== */
+.hoverPopup {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    padding: 10px;
+    z-index: 1000;
+    pointer-events: none;
+    animation: popupFadeIn 0.15s ease-out;
+    white-space: nowrap;
+}
+
+@keyframes popupFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.hoverPopupImages {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hoverPopupImageWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.hoverPopupLabel {
+    font-size: 10px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.hoverPopupImageBox {
+    width: 100px;
+    height: 100px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f9fafb;
+}
+
+.hoverPopupImage {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.hoverPopupArrow {
+    font-size: 16px;
+    color: #9ca3af;
+    font-weight: 600;
+    padding: 0 2px;
+}
+
+.hoverPopupEmpty {
+    font-size: 9px;
+    color: #9ca3af;
 }

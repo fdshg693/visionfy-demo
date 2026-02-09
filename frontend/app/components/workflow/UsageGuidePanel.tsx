@@ -58,7 +58,7 @@ export function UsageGuidePanel() {
                 aria-label="使い方ガイドを表示"
                 title="使い方"
             >
-                ?
+                ❓ 使い方
             </button>
         </>
     );

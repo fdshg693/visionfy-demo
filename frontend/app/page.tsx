@@ -83,7 +83,7 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
 
   // Image Upload & Result State
   const [files, setFiles] = useState<WorkflowFile[]>([]);
-  const { executeWorkflow, resultImage } = useWorkflowExecution({
+  const { executeWorkflow, resultImage, clearResultImage } = useWorkflowExecution({
     nodes,
     edges,
     files,
@@ -104,7 +104,16 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     setEdges(initialEdges);
     clearSelection();
     setFiles([]);
-  }, [setNodes, setEdges, clearSelection]);
+    clearResultImage();
+  }, [setNodes, setEdges, clearSelection, clearResultImage]);
+
+  // ファイルが空になったとき、実行結果もクリアする
+  useEffect(() => {
+    if (files.length === 0) {
+      clearResultImage();
+      resetNodeExecutionStatuses();
+    }
+  }, [files.length, clearResultImage, resetNodeExecutionStatuses]);
 
   const handleAddNode = useCallback((functionName: ProcessNodeFunctionName) => {
     const newNode: Node<ProcessNodeData> = {

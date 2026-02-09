@@ -1,47 +1,40 @@
 .toggleButton {
-  position: absolute;
-  bottom: 130px;
-  right: 20px;
-  z-index: 10;
-  width: 36px;
-  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  background: #ffffff;
-  color: #374151;
-  border: 1px solid #e5e7eb;
+  padding: 8px 14px;
+  background: #3b82f6;
+  color: #ffffff;
+  border: 1px solid #3b82f6;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
   transition: all 0.2s;
+  gap: 4px;
 }
 
 .toggleButton:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  background: #2563eb;
+  border-color: #2563eb;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
 }
 
 .toggleButtonActive {
-  background: #111827;
+  background: #1d4ed8;
   color: #ffffff;
-  border-color: #111827;
+  border-color: #1d4ed8;
 }
 
 .toggleButtonActive:hover {
-  background: #1f2937;
-  border-color: #1f2937;
+  background: #1e40af;
+  border-color: #1e40af;
 }
 
 .panel {
   position: absolute;
-  bottom: 175px;
+  top: 60px;
   right: 20px;
   z-index: 10;
   width: 340px;

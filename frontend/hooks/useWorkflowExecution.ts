@@ -183,9 +183,14 @@ export const useWorkflowExecution = ({
     onError,
   ]);
 
+  const clearResultImage = useCallback(() => {
+    setResultImage(null);
+  }, []);
+
   return {
     executeWorkflow,
     isProcessing,
     resultImage,
+    clearResultImage,
   };
 };

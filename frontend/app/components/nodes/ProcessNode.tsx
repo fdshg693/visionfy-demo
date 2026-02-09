@@ -6,8 +6,10 @@ import type { OpencvParamValue } from '@/types/opencv';
 import { useFlowStore } from '@/workflow/flowStore';
 import { isProcessNodeData } from '@/types/typeGuards';
 import { Handle, Node, NodeProps, Position } from '@xyflow/react';
-import { useCallback } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 import { ProcessNodeParamInputs } from './ProcessNodeParamInputs';
+import { useInspector } from '@/contexts/InspectorContext';
+import { useObjectURL } from '@/hooks/useObjectURL';
 import styles from './ProcessNode.module.css';
 
 /** 関数タイプに応じた背景色CSSクラスのマッピング */
@@ -40,9 +42,33 @@ const PROCESS_NODE_ICON_MAP: Record<string, ProcessNodeIcon> = {
  * 処理する関数のタイプおよび、それに応じたパラメータ入力UIを表示する。
  */
 export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
-    const { updateNodeData } = useFlowStore();
+    const { updateNodeData, nodes, edges } = useFlowStore();
+    const { files } = useInspector();
     const isValid = isProcessNodeData(nodeData);
     const { params } = useProcessNodeParams(nodeData as import('@/types/node').BaseProcessNodeData);
+    const [isHovered, setIsHovered] = useState(false);
+
+    // 入力画像を取得: 前のprocessノードのresult、なければnull
+    const inputImage = useMemo(() => {
+        const incomingEdge = edges.find(e => e.target === id);
+        if (!incomingEdge) return null;
+
+        const sourceNode = nodes.find(n => n.id === incomingEdge.source);
+        if (!sourceNode) return null;
+
+        if (sourceNode.type === 'processNode' && isProcessNodeData(sourceNode.data) && sourceNode.data.result) {
+            return sourceNode.data.result as string;
+        }
+
+        return null;
+    }, [id, nodes, edges]);
+
+    // 元画像のURL (startNodeからの入力の場合)
+    const originalFile = files.length > 0 ? files[0].file : null;
+    const originalImageURL = useObjectURL(originalFile);
+
+    // 最終的な入力画像（前のノードのresult or アップロード画像）
+    const effectiveInputImage = inputImage || originalImageURL;
 
     // ユーザーのパラメータ入力変更に応じて、ノードデータを更新するハンドラー
     const handleParamChange = useCallback((key: string, value: OpencvParamValue) => {
@@ -71,9 +97,14 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
     const status = nodeData.executionStatus || 'idle';
 
     const IconComponent = nodeData.icon ? PROCESS_NODE_ICON_MAP[nodeData.icon] : null;
+    const hasResult = !!nodeData.result;
 
     return (
-        <div className={`${styles.node} ${styles[status]} ${FUNCTION_TYPE_CLASS_MAP[nodeData.functionName as string] || ''}`}>
+        <div
+            className={`${styles.node} ${styles[status]} ${FUNCTION_TYPE_CLASS_MAP[nodeData.functionName as string] || ''}`}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
             <Handle
                 type="target"
                 position={Position.Left}
@@ -101,6 +132,33 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
                 position={Position.Right}
                 className={styles.handle}
             />
+
+            {/* Hover popup: shows input/output images when result exists */}
+            {hasResult && isHovered && (
+                <div className={styles.hoverPopup}>
+                    <div className={styles.hoverPopupImages}>
+                        <div className={styles.hoverPopupImageWrapper}>
+                            <span className={styles.hoverPopupLabel}>Input</span>
+                            <div className={styles.hoverPopupImageBox}>
+                                {effectiveInputImage ? (
+                                    /* eslint-disable-next-line @next/next/no-img-element */
+                                    <img src={effectiveInputImage} alt="Input" className={styles.hoverPopupImage} />
+                                ) : (
+                                    <span className={styles.hoverPopupEmpty}>No input</span>
+                                )}
+                            </div>
+                        </div>
+                        <div className={styles.hoverPopupArrow}>→</div>
+                        <div className={styles.hoverPopupImageWrapper}>
+                            <span className={styles.hoverPopupLabel}>Output</span>
+                            <div className={styles.hoverPopupImageBox}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={nodeData.result as string} alt="Output" className={styles.hoverPopupImage} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

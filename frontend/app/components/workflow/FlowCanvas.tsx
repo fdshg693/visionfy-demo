@@ -131,8 +131,9 @@ export function FlowCanvas({
         </div>
       </div>
 
-      {/* Action buttons: History, Save, Run */}
+      {/* Action buttons: Guide, History, Save, Run */}
       <div className={styles.runButtonArea}>
+        <UsageGuidePanel />
         <div className={styles.actionButtonWrapper}>
           <button className={styles.addBtn} onClick={() => setShowHistoryDropdown((prev) => !prev)}>
             📋 履歴
@@ -149,8 +150,6 @@ export function FlowCanvas({
         <button className={styles.addBtn} onClick={onSaveSnapshot}>💾 保存</button>
         <button className={styles.runButton} onClick={executeWorkflow} disabled={files.length === 0}>▶ Run</button>
       </div>
-
-      <UsageGuidePanel />
 
       {contextMenu && (
         <>

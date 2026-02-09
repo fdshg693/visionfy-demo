@@ -107,6 +107,8 @@ export function FlowStoreProvider({
           data: {
             ...node.data,
             executionStatus: EXECUTION_STATUS.IDLE as ExecutionStatusValue,
+            result: undefined,
+            resultParams: undefined,
           },
         };
       })
