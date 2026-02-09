@@ -13,6 +13,7 @@ import type {
   RemoveNoiseData,
   RestoreBrightnessData,
   RestoreContrastData,
+  ModelInferenceData,
   BaseProcessNodeData,
 } from './node';
 
@@ -37,7 +38,7 @@ export function isProcessNodeData(data: unknown): data is ProcessNodeData {
     data !== null &&
     'functionName' in data &&
     typeof (data as ProcessNodeData).functionName === 'string' &&
-    ['createclahe', 'gaussianblur', 'grayscale', 'remove_noise', 'restore_brightness', 'restore_contrast'].includes(
+    ['createclahe', 'gaussianblur', 'grayscale', 'remove_noise', 'restore_brightness', 'restore_contrast', 'model_inference'].includes(
       (data as ProcessNodeData).functionName
     )
   );
@@ -124,6 +125,21 @@ export function isRestoreContrastData(data: unknown): data is RestoreContrastDat
     typeof data.params === 'object' &&
     data.params !== null &&
     'gamma' in data.params
+  );
+}
+
+/**
+ * Checks if the given data is ModelInferenceData
+ */
+export function isModelInferenceData(data: unknown): data is ModelInferenceData {
+  return (
+    isProcessNodeData(data) &&
+    data.functionName === 'model_inference' &&
+    'params' in data &&
+    typeof data.params === 'object' &&
+    data.params !== null &&
+    'overlayAlpha' in data.params &&
+    'heatmapAlpha' in data.params
   );
 }
 

@@ -10,7 +10,7 @@ from api.gaussian_blur import main as gaussian_blur
 from api.remove_noise import main as remove_noise
 from api.restore_contrast import main as restore_contrast
 from api.restore_brightness import main as restore_brightness
-from api.gcs_check import main as gcs_check
+from api.model_inference import main as model_inference
 
 from flask_cors import CORS
 
@@ -168,18 +168,20 @@ def route_restore_brightness():
         raise
 
 
-@app.route("/api/gcs_check", methods=["GET"])
-def route_gcs_check():
+@app.route("/api/model_inference", methods=["POST"])
+def route_model_inference():
     """
-    GCSマウントの疎通確認エンドポイント
+    model_inference/main.py の apply_model_inference を呼び出すラッパー
     """
-    logger.info("[gcs_check] Request received")
+    logger.info(
+        f"[model_inference] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}"
+    )
     try:
-        result = gcs_check.check_gcs_connectivity()
-        logger.info("[gcs_check] Check completed")
+        result = model_inference.apply_model_inference(request)
+        logger.info("[model_inference] Processing completed successfully")
         return result
     except Exception as e:
-        logger.error(f"[gcs_check] Error: {str(e)}", exc_info=True)
+        logger.error(f"[model_inference] Error: {str(e)}", exc_info=True)
         raise
 
 

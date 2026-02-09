@@ -8,3 +8,9 @@ __pycache__/
 
 # Google Cloud サービスアカウントキー
 sa-key.json
+
+# 推論モデル ckpt ファイル
+*.ckpt
+
+# 推論結果
+*.png

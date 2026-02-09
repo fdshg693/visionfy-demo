@@ -75,5 +75,12 @@ export const VISIONFY_FUNCTIONS_CONFIG: Record<string, OpencvFunctionConfig> = {
         params: [
             { name: 'gamma', type: 'number', defaultValue: 1.7, label: 'Gamma' }
         ]
+    },
+    'model_inference': {
+        description: 'Patchcoreモデルによる異常検知推論を実行し、ヒートマップオーバーレイを返します。',
+        params: [
+            { name: 'overlayAlpha', type: 'number', defaultValue: 0.6, label: 'Overlay Alpha', min: 0, step: 0.1 },
+            { name: 'heatmapAlpha', type: 'number', defaultValue: 0.4, label: 'Heatmap Alpha', min: 0, step: 0.1 }
+        ]
     }
 };

@@ -2,59 +2,7 @@ import cv2
 import numpy as np
 import torch
 from anomalib.models import Patchcore
-from typing import Dict, Any, Optional
-from new_functions import (
-    remove_noise,
-    restore_contrast,
-    restore_brightness,
-)
-
-
-def preprocess_image(
-    image: np.ndarray,
-    use_noise_removal: bool = True,
-    use_contrast_restoration: bool = True,
-    gamma: float = 1.7,
-    use_brightness_restoration: bool = True,
-    brightness_restoration_val: int = -30,
-) -> np.ndarray:
-    """
-    Applies preprocessing steps to an image for anomaly detection.
-
-    Args:
-        image (np.ndarray): Input image in RGB format (H, W, C).
-        use_noise_removal (bool): Whether to apply noise removal (Median filter).
-        use_contrast_restoration (bool): Whether to apply contrast restoration (gamma correction).
-        gamma (float): Gamma value used for restoration (inverse of degradation).
-        use_brightness_restoration (bool): Whether to apply brightness restoration.
-        brightness_restoration_val (int): Value to subtract for brightness restoration.
-
-    Returns:
-        np.ndarray: Preprocessed image in RGB format (H, W, C).
-    """
-    # Ensure input is numpy array
-    if not isinstance(image, np.ndarray):
-        raise TypeError(f"Expected numpy.ndarray, got {type(image)}")
-
-    # Validates input is HWC
-    if image.ndim != 3 or image.shape[2] != 3:
-        raise ValueError("Expected image with shape (H, W, 3)")
-
-    rgb = image.copy()
-
-    # ---- Step 1: Noise Removal ----
-    if use_noise_removal:
-        rgb = remove_noise(rgb)
-
-    # ---- Step 2: Contrast Restoration ----
-    if use_contrast_restoration:
-        rgb = restore_contrast(rgb, gamma=gamma)
-
-    # ---- Step 3: Brightness Restoration ----
-    if use_brightness_restoration:
-        rgb = restore_brightness(rgb, value=brightness_restoration_val)
-
-    return rgb
+from typing import Dict, Any
 
 
 def load_model(ckpt_path: str, device: str = None) -> torch.nn.Module:
@@ -72,7 +20,7 @@ def load_model(ckpt_path: str, device: str = None) -> torch.nn.Module:
     if device is None:
         device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    model = Patchcore.load_from_checkpoint(ckpt_path)
+    model = Patchcore.load_from_checkpoint(ckpt_path, weights_only=False)
     model.eval()
     model.to(device)
     return model
@@ -169,3 +117,55 @@ def run_inference(
     anom_map_np = tensor2image(anom_map)
 
     return {"pred_score": score.item(), "anomaly_map": anom_map_np}
+
+
+if __name__ == "__main__":
+    import os
+
+    # パスの設定（スクリプトの場所を基準）
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    backend_dir = os.path.dirname(script_dir)
+
+    ckpt_path = os.path.join(backend_dir, "model.ckpt")
+    image_path = os.path.join(backend_dir, "fish.jpeg")
+    output_path = os.path.join(backend_dir, "anomaly_heatmap.png")
+
+    # モデルのロード
+    print(f"Loading model from {ckpt_path}...")
+    model = load_model(ckpt_path)
+
+    # 画像の読み込み
+    print(f"Loading image from {image_path}...")
+    image = cv2.imread(image_path)
+    if image is None:
+        raise FileNotFoundError(f"Image not found: {image_path}")
+    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    # 推論の実行
+    print("Running inference...")
+    result = run_inference(image_rgb, model)
+
+    # 結果の表示
+    print(f"Anomaly Score: {result['pred_score']:.4f}")
+
+    # ヒートマップの正規化と可視化
+    anomaly_map = result["anomaly_map"]
+    # 0-255にスケール
+    heatmap_normalized = (
+        (anomaly_map - anomaly_map.min())
+        / (anomaly_map.max() - anomaly_map.min())
+        * 255
+    ).astype(np.uint8)
+
+    # カラーマップ適用（JET）
+    heatmap_colored = cv2.applyColorMap(heatmap_normalized, cv2.COLORMAP_JET)
+
+    # 元の画像サイズにリサイズ
+    heatmap_resized = cv2.resize(heatmap_colored, (image.shape[1], image.shape[0]))
+
+    # 元の画像とヒートマップを重ね合わせ
+    overlay = cv2.addWeighted(image, 0.6, heatmap_resized, 0.4, 0)
+
+    # 保存
+    cv2.imwrite(output_path, overlay)
+    print(f"Heatmap saved to {output_path}")

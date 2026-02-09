@@ -55,6 +55,11 @@
     border-color: #d8b4fe;
 }
 
+.fn-model_inference {
+    background: #fef2f2;
+    border-color: #fca5a5;
+}
+
 /* Function type icon colors */
 .fn-createclahe .icon {
     color: #3b82f6;
@@ -78,6 +83,10 @@
 
 .fn-restore_contrast .icon {
     color: #a855f7;
+}
+
+.fn-model_inference .icon {
+    color: #ef4444;
 }
 
 .header {

@@ -61,6 +61,14 @@ const NODE_DESCRIPTIONS: Record<ProcessNodeFunctionName, {
       gamma: 'ガンマ値（デフォルト: 1.7）。1.0未満で暗くなり、1.0より大きいと明るくなります。',
     },
   },
+  model_inference: {
+    name: 'モデル推論（Patchcore異常検知）',
+    description: 'Patchcoreモデルによる異常検知推論を実行し、ヒートマップオーバーレイを返します。異常スコアも算出されます。',
+    paramDescriptions: {
+      overlayAlpha: '元画像の重み（デフォルト: 0.6）。0〜1の範囲で指定します。',
+      heatmapAlpha: 'ヒートマップの重み（デフォルト: 0.4）。0〜1の範囲で指定します。',
+    },
+  },
 };
 
 /**

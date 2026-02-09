@@ -303,6 +303,46 @@
             </div>
           </div>
         </section>
+
+        <!-- Model Inference API Section -->
+        <section class="card">
+          <div class="card-header">
+            <h2>Model Inference</h2>
+            <span class="badge post">POST</span>
+          </div>
+          <div class="card-body">
+            <p class="description">Upload an image to perform anomaly detection with heatmap overlay.</p>
+
+            <div class="input-group">
+              <label for="file-model-inference">Image File</label>
+              <input type="file" id="file-model-inference" accept="image/*" />
+            </div>
+
+            <div class="input-group">
+              <label for="model-inference-overlay-alpha">Overlay Alpha (Original Weight)</label>
+              <input type="number" id="model-inference-overlay-alpha" value="0.6" step="0.1" min="0" max="1" />
+            </div>
+
+            <div class="input-group">
+              <label for="model-inference-heatmap-alpha">Heatmap Alpha (Heatmap Weight)</label>
+              <input type="number" id="model-inference-heatmap-alpha" value="0.4" step="0.1" min="0" max="1" />
+            </div>
+
+            <button id="btn-model-inference" class="btn primary">
+              Upload & Process
+            </button>
+            <div id="res-model-inference" class="response-area hidden">
+              <div class="result-section">
+                <h4 class="section-title">Request</h4>
+                <pre><code class="req-content"></code></pre>
+              </div>
+              <div class="result-section">
+                <h4 class="section-title">Response</h4>
+                <pre><code class="res-content"></code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
 

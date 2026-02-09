@@ -9,6 +9,7 @@ import type {
     GrayscaleParams,
     RestoreBrightnessParams,
     RestoreContrastParams,
+    ModelInferenceParams,
     ProcessNodeFunctionName,
     ProcessNodeParams,
 } from '@/types/node';
@@ -111,6 +112,20 @@ export const buildRestoreContrastAdapter = (): RequestAdapter => {
     };
 };
 
+export const buildModelInferenceAdapter = (): RequestAdapter => {
+    return ({ baseUrl, params, inputData, base64ToBlob }) => {
+        const typedParams = params as ModelInferenceParams;
+        const formData = new FormData();
+        formData.append('file', base64ToBlob(inputData ?? ''), 'image.jpg');
+        formData.append('overlayAlpha', String(typedParams.overlayAlpha));
+        formData.append('heatmapAlpha', String(typedParams.heatmapAlpha));
+        return {
+            url: `${baseUrl}/api/model_inference`,
+            init: { method: "POST", body: formData },
+        };
+    };
+};
+
 export const createBackendAdapters = (): Record<string, RequestAdapter> => ({
     createclahe: buildCreateClaheAdapter(),
     grayscale: buildGrayscaleAdapter(),
@@ -118,4 +133,5 @@ export const createBackendAdapters = (): Record<string, RequestAdapter> => ({
     remove_noise: buildRemoveNoiseAdapter(),
     restore_brightness: buildRestoreBrightnessAdapter(),
     restore_contrast: buildRestoreContrastAdapter(),
+    model_inference: buildModelInferenceAdapter(),
 });

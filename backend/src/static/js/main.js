@@ -188,4 +188,28 @@ document.addEventListener('DOMContentLoaded', () => {
         UI.showResponse('res-restore-brightness', res);
         UI.setLoading('btn-restore-brightness', false);
     });
+
+    // Model Inference
+    document.getElementById('btn-model-inference').addEventListener('click', async () => {
+        const fileInput = document.getElementById('file-model-inference');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert('Please select an image file.');
+            return;
+        }
+
+        const overlayAlpha = UI.getInputValue('model-inference-overlay-alpha');
+        const heatmapAlpha = UI.getInputValue('model-inference-heatmap-alpha');
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('overlayAlpha', overlayAlpha);
+        formData.append('heatmapAlpha', heatmapAlpha);
+
+        UI.setLoading('btn-model-inference', true);
+        const res = await api.postModelInference(formData);
+        UI.showResponse('res-model-inference', res);
+        UI.setLoading('btn-model-inference', false);
+    });
 });

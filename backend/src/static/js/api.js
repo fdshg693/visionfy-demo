@@ -51,8 +51,14 @@ class ApiClient {
                     message: 'Image received successfully',
                     type: contentType,
                     size: blob.size,
-                    url: URL.createObjectURL(blob) 
+                    url: URL.createObjectURL(blob)
                 };
+                
+                // Extract anomaly score if present (model inference endpoint)
+                const anomalyScore = response.headers.get('X-Anomaly-Score');
+                if (anomalyScore) {
+                    responseData.anomalyScore = parseFloat(anomalyScore);
+                }
             } else {
                 responseData = await response.text();
             }
@@ -124,6 +130,10 @@ class ApiClient {
 
     async postRestoreBrightness(data) {
         return this.request('/api/restore_brightness', 'POST', data);
+    }
+
+    async postModelInference(data) {
+        return this.request('/api/model_inference', 'POST', data);
     }
 }
 

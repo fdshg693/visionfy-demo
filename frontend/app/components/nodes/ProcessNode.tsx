@@ -20,9 +20,10 @@ const FUNCTION_TYPE_CLASS_MAP: Record<string, string> = {
     'remove_noise': styles['fn-remove_noise'],
     'restore_brightness': styles['fn-restore_brightness'],
     'restore_contrast': styles['fn-restore_contrast'],
+    'model_inference': styles['fn-model_inference'],
 };
 
-import { ChartNoAxesColumn, CheckCircle, Image as ImageIcon, Paintbrush, Palette, Play, Settings } from 'lucide-react';
+import { ChartNoAxesColumn, CheckCircle, Image as ImageIcon, Paintbrush, Palette, Play, ScanSearch, Settings } from 'lucide-react';
 import type { FC } from 'react';
 
 type ProcessNodeIcon = FC<{ size?: number; className?: string }>;
@@ -35,6 +36,7 @@ const PROCESS_NODE_ICON_MAP: Record<string, ProcessNodeIcon> = {
     'play': Play,
     'brush': Paintbrush,
     'palette': Palette,
+    'scan': ScanSearch,
 };
 
 /**

@@ -68,8 +68,18 @@ export interface RestoreContrastData extends BaseProcessNodeData {
     params: RestoreContrastParams;
 }
 
+// ====================== 7. Model Inference (Patchcore Anomaly Detection) ======================
+export interface ModelInferenceParams {
+    overlayAlpha: number;
+    heatmapAlpha: number;
+}
+export interface ModelInferenceData extends BaseProcessNodeData {
+    functionName: 'model_inference';
+    params: ModelInferenceParams;
+}
+
 /** Nodeの種類・パラメータを表す型 */
-export type ProcessNodeData = CLAHEData | GaussianBlurData | GrayscaleData | RemoveNoiseData | RestoreBrightnessData | RestoreContrastData;
+export type ProcessNodeData = CLAHEData | GaussianBlurData | GrayscaleData | RemoveNoiseData | RestoreBrightnessData | RestoreContrastData | ModelInferenceData;
 
 /** 処理ノードで使用される関数名のユニオン型 */
 export type ProcessNodeFunctionName = ProcessNodeData['functionName'];
@@ -88,6 +98,7 @@ export type ProcessNodeParamsMap = {
     remove_noise: RemoveNoiseParams;
     restore_brightness: RestoreBrightnessParams;
     restore_contrast: RestoreContrastParams;
+    model_inference: ModelInferenceParams;
 };
 
 /** 処理ノードのパラメータ群型 */
@@ -100,6 +111,7 @@ export const DEFAULT_NODE_PARAMS: ProcessNodeParamsMap = {
     remove_noise: {},
     restore_brightness: { value: -30 },
     restore_contrast: { gamma: 1.7 },
+    model_inference: { overlayAlpha: 0.6, heatmapAlpha: 0.4 },
 };
 
 // Icon mapping for each function
@@ -110,4 +122,5 @@ export const DEFAULT_NODE_ICONS: Record<ProcessNodeFunctionName, string> = {
     remove_noise: 'settings',
     restore_brightness: 'image',
     restore_contrast: 'image',
+    model_inference: 'scan',
 };

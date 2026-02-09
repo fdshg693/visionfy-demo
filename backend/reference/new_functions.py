@@ -66,3 +66,53 @@ def restore_brightness(image: np.ndarray, value: int = -30) -> np.ndarray:
         rgb_f = rgb_f - beta
         rgb = np.clip(rgb_f, 0, 255).astype(np.uint8)
     return rgb
+
+
+# 上記の関数を組み合わせて、前処理パイプラインを作成する例
+
+
+def preprocess_image(
+    image: np.ndarray,
+    use_noise_removal: bool = True,
+    use_contrast_restoration: bool = True,
+    gamma: float = 1.7,
+    use_brightness_restoration: bool = True,
+    brightness_restoration_val: int = -30,
+) -> np.ndarray:
+    """
+    Applies preprocessing steps to an image for anomaly detection.
+
+    Args:
+        image (np.ndarray): Input image in RGB format (H, W, C).
+        use_noise_removal (bool): Whether to apply noise removal (Median filter).
+        use_contrast_restoration (bool): Whether to apply contrast restoration (gamma correction).
+        gamma (float): Gamma value used for restoration (inverse of degradation).
+        use_brightness_restoration (bool): Whether to apply brightness restoration.
+        brightness_restoration_val (int): Value to subtract for brightness restoration.
+
+    Returns:
+        np.ndarray: Preprocessed image in RGB format (H, W, C).
+    """
+    # Ensure input is numpy array
+    if not isinstance(image, np.ndarray):
+        raise TypeError(f"Expected numpy.ndarray, got {type(image)}")
+
+    # Validates input is HWC
+    if image.ndim != 3 or image.shape[2] != 3:
+        raise ValueError("Expected image with shape (H, W, 3)")
+
+    rgb = image.copy()
+
+    # ---- Step 1: Noise Removal ----
+    if use_noise_removal:
+        rgb = remove_noise(rgb)
+
+    # ---- Step 2: Contrast Restoration ----
+    if use_contrast_restoration:
+        rgb = restore_contrast(rgb, gamma=gamma)
+
+    # ---- Step 3: Brightness Restoration ----
+    if use_brightness_restoration:
+        rgb = restore_brightness(rgb, value=brightness_restoration_val)
+
+    return rgb

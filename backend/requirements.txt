@@ -3,3 +3,8 @@ gunicorn
 opencv-python-headless
 numpy
 flask-cors
+anomalib
+torch
+torchvision
+lightning
+requests
