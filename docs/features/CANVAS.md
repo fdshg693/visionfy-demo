@@ -38,11 +38,13 @@
 - `frontend/app/components/nodes/ProcessNode.tsx` — 処理ノードのカスタムコンポーネント
 - `frontend/app/components/nodes/EndNode.tsx` — 終了ノードコンポーネント
 
-### インスペクタ
+### インスペクタ・パネル
 
-- `frontend/app/components/inspectors/StartNodeInspector.tsx` — 画像アップロード・ワークフロー実行
-- `frontend/app/components/inspectors/ProcessNodeInspector.tsx` — 関数選択・パラメータ編集・結果表示
-- `frontend/app/components/inspectors/EndNodeInspector.tsx` — Before/After比較・実行履歴
+- `frontend/app/components/workflow/InspectorPanel.tsx` — サイドバーパネル（入力画像と結果の常時表示）
+- `frontend/app/components/workflow/InputImagePanel.tsx` — 画像アップロード・ワークフロー実行
+- `frontend/app/components/inspectors/EndNodeInspector.tsx` — ResultInspector（Before/After比較・実行履歴、常時表示）
+- `frontend/app/components/workflow/ProcessNodePopup.tsx` — ProcessNode設定編集用ポップアップ
+- `frontend/app/components/inspectors/ProcessNodeInspector.tsx` — 関数選択・パラメータ編集（ポップアップ内で使用）
 - `frontend/contexts/InspectorContext.tsx` — インスペクタ用コンテキスト（prop drilling回避）
 
 ### 状態管理・ワークフロー

@@ -17,7 +17,7 @@
 
 - Node types/params and defaults are defined in frontend/types/; constants in frontend/constants/.
 - Workflow state, persistence, and snapshots live in frontend/workflow/ and use local storage via storageService.
-- Inspector UIs are per node type under frontend/app/components/inspector/inspectors/.
+- Inspector UIs are per node type under frontend/app/components/inspectors/.
 
 ## Dev workflows
 
@@ -49,8 +49,8 @@
 
 - **FlowStoreContext**: global mutation surface — nodes, edges, viewport, and all updaters (`updateNodeData`, `resetNodeExecutionStatuses`, etc.)
 - **InspectorContext**: read/execute-only — `files`, `setFiles`, `resultImage`, `executeWorkflow`, `nodes`
-- InspectorContext exists purely to avoid prop drilling through `InspectorPanel → NodeInspector → {Start,Process,End}NodeInspector`
-- It re-exposes `nodes` from FlowStore so `EndNodeInspector` can iterate process nodes for execution history without additional prop chains
+- InspectorContext exists purely to avoid prop drilling through `InspectorPanel → InputImagePanel/ResultInspector` and `ProcessNodePopup → ProcessNodeInspector`
+- It re-exposes `nodes` from FlowStore so `ResultInspector` can iterate process nodes for execution history without additional prop chains
 - `FlowStoreContext` value is wrapped in `useMemo` — any node data change (including per-node `executionStatus`) produces a new value object and re-renders every consumer
 
 ## What Is and Isn't Persisted
@@ -58,7 +58,7 @@
 - Serializer (`flowSerializer`) explicitly picks only: `label`, `functionName`, `params` for process nodes; `label` for others
 - Stripped on save: `executionStatus`, `result`, `resultParams`, `icon` — all runtime/transient
 - `resultParams` is a separate field from `params` — stores the exact params used at execution time
-- `EndNodeInspector` history uses `resultParams ?? params` — correctly shows stale execution params if the user edited params post-run without re-executing
+- `ResultInspector` history uses `resultParams ?? params` — correctly shows stale execution params if the user edited params post-run without re-executing
 
 ## Snapshot Migration & Validation
 
@@ -114,7 +114,7 @@
 
 ## Memory Concerns
 
-- `EndNodeInspector` creates a blob URL for the "Before" image inside a `useEffect` keyed on `files`; the cleanup function calls `URL.revokeObjectURL` so the URL is revoked when `files` changes or the component unmounts
+- `ResultInspector` creates a blob URL for the "Before" image inside a `useEffect` keyed on `files`; the cleanup function calls `URL.revokeObjectURL` so the URL is revoked when `files` changes or the component unmounts
 - Execution results (`result` field) are base64-encoded full images stored directly in React node state — large images inflate the size of every FlowStore context value and every snapshot
 
 ## Type System Decisions

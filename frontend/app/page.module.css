@@ -59,7 +59,8 @@
   border-left: 1px solid #e5e7eb;
   overflow-y: auto;
   box-shadow: -4px 0 15px -3px rgba(0, 0, 0, 0.05);
-  /* Subtle shadow from right */
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebarTabs {
@@ -250,6 +251,41 @@
   display: flex;
   gap: 6px;
   align-items: center;
+}
+
+/* ===== Snapshot Dropdown (on canvas) ===== */
+
+.snapshotDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  padding: 12px;
+}
+
+.snapshotDropdownHeader {
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 8px;
+}
+
+.snapshotHistoryTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.snapshotHistorySection {
+  margin-top: 12px;
 }
 
 .snapshotInput {
@@ -604,6 +640,13 @@
   top: 20px;
   right: 20px;
   z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.actionButtonWrapper {
+  position: relative;
 }
 
 .runButton {
@@ -632,6 +675,14 @@
   cursor: not-allowed;
   box-shadow: none;
   opacity: 0.6;
+}
+
+/* ===== Result Section (sidebar) ===== */
+
+.resultSection {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
 }
 
 /* ===== Input Image Panel ===== */

@@ -12,7 +12,9 @@ import { useFlowStore } from '@/workflow/flowStore';
 import { useContextMenu } from '@/hooks/useContextMenu';
 import { useInspector } from '@/contexts/InspectorContext';
 import { UsageGuidePanel } from './UsageGuidePanel';
+import { SnapshotDropdown } from './SnapshotDropdown';
 import type { ProcessNodeFunctionName } from '@/types/node';
+import type { FlowHistoryEntry } from '@/workflow/flowPersistence';
 import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/opencv';
 
 import styles from '@/app/page.module.css';
@@ -26,6 +28,11 @@ type FlowCanvasProps = {
   onMoveEnd?: ComponentProps<typeof ReactFlow>['onMoveEnd'];
   onAddNode: (functionName: ProcessNodeFunctionName) => void;
   onResetCanvas: () => void;
+  onSaveSnapshot: () => void;
+  historyEntries: FlowHistoryEntry[];
+  onRestoreSnapshot: (entry: FlowHistoryEntry) => void;
+  onRenameSnapshot: (entryId: string, name: string) => void;
+  onDeleteSnapshot: (entryId: string) => void;
 };
 
 /**
@@ -41,10 +48,16 @@ export function FlowCanvas({
   onMoveEnd,
   onAddNode,
   onResetCanvas,
+  onSaveSnapshot,
+  historyEntries,
+  onRestoreSnapshot,
+  onRenameSnapshot,
+  onDeleteSnapshot,
 }: FlowCanvasProps) {
   const { nodes, edges, onNodesChange, onEdgesChange } = useFlowStore();
   const { files, executeWorkflow } = useInspector();
   const [showAddNodeMenu, setShowAddNodeMenu] = useState(false);
+  const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
   const {
     containerRef,
     contextMenu,
@@ -118,14 +131,23 @@ export function FlowCanvas({
         </div>
       </div>
 
+      {/* Action buttons: History, Save, Run */}
       <div className={styles.runButtonArea}>
-        <button
-          className={styles.runButton}
-          onClick={executeWorkflow}
-          disabled={files.length === 0}
-        >
-          ▶ Run
-        </button>
+        <div className={styles.actionButtonWrapper}>
+          <button className={styles.addBtn} onClick={() => setShowHistoryDropdown((prev) => !prev)}>
+            📋 履歴
+          </button>
+          <SnapshotDropdown
+            isOpen={showHistoryDropdown}
+            onClose={() => setShowHistoryDropdown(false)}
+            historyEntries={historyEntries}
+            onRestoreSnapshot={onRestoreSnapshot}
+            onRenameSnapshot={onRenameSnapshot}
+            onDeleteSnapshot={onDeleteSnapshot}
+          />
+        </div>
+        <button className={styles.addBtn} onClick={onSaveSnapshot}>💾 保存</button>
+        <button className={styles.runButton} onClick={executeWorkflow} disabled={files.length === 0}>▶ Run</button>
       </div>
 
       <UsageGuidePanel />

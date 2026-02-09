@@ -5,6 +5,7 @@
 import { ChatPanel } from '@/app/components/chat/ChatPanel';
 import { FlowCanvas } from '@/app/components/workflow/FlowCanvas';
 import { InspectorPanel } from '@/app/components/workflow/InspectorPanel';
+import { ProcessNodePopup } from '@/app/components/workflow/ProcessNodePopup';
 import { useWorkflowExecution } from '@/hooks/useWorkflowExecution';
 import { useSnapshotHistory } from '@/hooks/useSnapshotHistory';
 import { useSelectedNode } from '@/hooks/useSelectedNode';
@@ -41,9 +42,10 @@ type WorkflowContentProps = {
 
 /**
  * ページは以下の三つの要素で構成されている
- * - FlowCanvas: ノードとエッジの表示と編集を担当
- * - InspectorPanel: 選択ノードの設定編集とスナップショット管理を担当
- * - ChatPanel: AIチャットインターフェースを担当
+ * - FlowCanvas: ノードとエッジの表示と編集を担当。ツールバーでスナップショット管理も提供。
+ * - InspectorPanel: 入力画像の表示と実行結果の常時表示を担当。
+ * - ChatPanel: AIチャットインターフェースを担当。
+ * - ProcessNodePopup: ProcessNodeの設定編集用のポップアップUI。
  */
 function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
   const {
@@ -66,12 +68,11 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     handleRestoreSnapshot,
   } = useSnapshotHistory(initialHistoryEntries);
   const { selectedNode, handleNodeClick, handlePaneClick, clearSelection } = useSelectedNode(nodes);
-  // STARTノードのクリックを無視する（専用入力パネルがあるため）
+  // PROCESSノード以外のクリックを無視する（ポップアップはPROCESSノード専用）
   const handleNodeClickFiltered = useCallback((_event: React.MouseEvent, node: Node) => {
-    if (node.type === NODE_TYPE.START) return;
+    if (node.type !== NODE_TYPE.PROCESS) return;
     handleNodeClick(_event, node);
   }, [handleNodeClick]);
-  const [activeInspectorTab, setActiveInspectorTab] = useState<'inspector' | 'snapshot'>('inspector');
   const { showError, showWarning } = useToast();
 
   // エラーハンドラ
@@ -167,18 +168,19 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
           onMoveEnd={handleMoveEnd}
           onAddNode={handleAddNode}
           onResetCanvas={handleResetCanvas}
-        />
-
-        <InspectorPanel
-          selectedNode={selectedNode}
-          onUpdateNode={handleUpdateNode}
-          historyEntries={historyEntries}
           onSaveSnapshot={handleSaveSnapshot}
+          historyEntries={historyEntries}
           onRestoreSnapshot={handleRestoreSnapshot}
           onRenameSnapshot={handleRenameSnapshot}
           onDeleteSnapshot={handleDeleteSnapshot}
-          activeTab={activeInspectorTab}
-          onChangeTab={setActiveInspectorTab}
+        />
+
+        <InspectorPanel />
+
+        <ProcessNodePopup
+          selectedNode={selectedNode}
+          onUpdateNode={handleUpdateNode}
+          onClose={handlePaneClick}
         />
       </div>
     </InspectorProvider>

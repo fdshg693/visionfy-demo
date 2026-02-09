@@ -1,5 +1,6 @@
-// 役割: Endノードの結果表示UI。Before/Afterと実行パイプライン履歴をタブで切替表示する。
+// 役割: ワークフロー実行結果の常時表示UI。Before/Afterと実行パイプライン履歴をタブで切替表示する。
 // 依存: useExecutionHistoryで履歴抽出、useObjectURLでblob URL管理。
+// 備考: InspectorPanelに常時表示され、ENDノードのクリックには依存しない。
 import { useState } from 'react';
 import styles from '../NodeInspector.module.css';
 import { useInspector } from '@/contexts/InspectorContext';
@@ -39,12 +40,14 @@ function PipelineImage({ src, alt, label }: { src: string; alt: string; label?: 
 }
 
 /**
- * ワークフローの終了ノード用インスペクターコンポーネント。
+ * ワークフロー実行結果の常時表示コンポーネント。
  * Before/Afterと実行パイプライン履歴をタブで切替表示する。
  * - resultタブ：元画像と結果画像の比較表示
  * - historyタブ：元画像から最終画像までの変化を縦に並べて表示
+ * 
+ * InspectorPanelに常時マウントされ、ENDノードのクリックには依存しない。
  */
-export function EndNodeInspector() {
+export function ResultInspector() {
     const { resultImage, files } = useInspector();
     const { nodes } = useFlowStore();
     const [activeTab, setActiveTab] = useState<'result' | 'history'>('result');
