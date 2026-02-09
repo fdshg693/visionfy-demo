@@ -66,6 +66,11 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     handleRestoreSnapshot,
   } = useSnapshotHistory(initialHistoryEntries);
   const { selectedNode, handleNodeClick, handlePaneClick, clearSelection } = useSelectedNode(nodes);
+  // STARTノードのクリックを無視する（専用入力パネルがあるため）
+  const handleNodeClickFiltered = useCallback((_event: React.MouseEvent, node: Node) => {
+    if (node.type === NODE_TYPE.START) return;
+    handleNodeClick(_event, node);
+  }, [handleNodeClick]);
   const [activeInspectorTab, setActiveInspectorTab] = useState<'inspector' | 'snapshot'>('inspector');
   const { showError, showWarning } = useToast();
 
@@ -157,7 +162,7 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
           nodeTypes={nodeTypes}
           defaultViewport={viewport}
           onConnect={onConnect}
-          onNodeClick={handleNodeClick}
+          onNodeClick={handleNodeClickFiltered}
           onPaneClick={handlePaneClick}
           onMoveEnd={handleMoveEnd}
           onAddNode={handleAddNode}

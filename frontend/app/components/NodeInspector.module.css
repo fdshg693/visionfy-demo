@@ -283,3 +283,82 @@
     flex-direction: column;
     gap: 16px;
 }
+
+/* Pipeline View Styles */
+.pipelineContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding-bottom: 16px;
+}
+
+.pipelineArrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 0;
+}
+
+.pipelineArrowLine {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1;
+}
+
+.pipelineStepLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: rgba(59, 130, 246, 0.15);
+    border-radius: 12px;
+}
+
+.pipelineStepIndex {
+    background: #3b82f6;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.pipelineStepName {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.pipelineImageWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
+.pipelineImageLabel {
+    font-size: 10px;
+    color: #9ca3af;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.pipelineImageBox {
+    width: 100%;
+    aspect-ratio: 1;
+    background: #111827;
+    border-radius: 4px;
+    border: 1px solid #374151;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}

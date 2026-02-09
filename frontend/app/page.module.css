@@ -633,3 +633,25 @@
   box-shadow: none;
   opacity: 0.6;
 }
+
+/* ===== Input Image Panel ===== */
+
+.inputImagePanel {
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.inputImageTitle {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.inputImageUpload {
+  /* Constrain FilePond height for compact display */
+}
+
+.inputImageUpload :global(.filepond--root) {
+  margin-bottom: 0;
+}

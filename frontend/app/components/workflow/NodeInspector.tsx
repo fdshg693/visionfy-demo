@@ -7,7 +7,6 @@ import type { ComponentType } from 'react';
 import styles from '../NodeInspector.module.css';
 import { EndNodeInspector } from '../inspectors/EndNodeInspector';
 import { ProcessNodeInspector } from '../inspectors/ProcessNodeInspector';
-import { StartNodeInspector } from '../inspectors/StartNodeInspector';
 
 /**
  * 各Inspectorコンポーネントが受け取る共通Props
@@ -22,7 +21,6 @@ interface InspectorComponentProps {
  * 新しいノードタイプを追加する場合は、ここにエントリを追加するだけでよい
  */
 const INSPECTOR_REGISTRY: Record<string, ComponentType<InspectorComponentProps>> = {
-    [NODE_TYPE.START]: StartNodeInspector as ComponentType<InspectorComponentProps>,
     [NODE_TYPE.PROCESS]: ProcessNodeInspector as ComponentType<InspectorComponentProps>,
     [NODE_TYPE.END]: EndNodeInspector as ComponentType<InspectorComponentProps>,
 };

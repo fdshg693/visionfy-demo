@@ -1,6 +1,5 @@
-// 役割: Endノードの結果表示UI。Before/Afterと実行履歴をタブで切替表示する。
+// 役割: Endノードの結果表示UI。Before/Afterと実行パイプライン履歴をタブで切替表示する。
 // 依存: useExecutionHistoryで履歴抽出、useObjectURLでblob URL管理。
-import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import styles from '../NodeInspector.module.css';
 import { useInspector } from '@/contexts/InspectorContext';
@@ -8,47 +7,42 @@ import { useFlowStore } from '@/workflow/flowStore';
 import { useObjectURL } from '@/hooks/useObjectURL';
 import { useExecutionHistory, type ExecutionHistoryItem } from '@/hooks/useExecutionHistory';
 
-
+/**
+ * パイプラインの矢印と処理ノード名を表示するコンポーネント。
+ */
+function PipelineArrow({ index, functionName }: { index: number; functionName: string }) {
+    return (
+        <div className={styles.pipelineArrow}>
+            <div className={styles.pipelineArrowLine}>↓</div>
+            <div className={styles.pipelineStepLabel}>
+                <span className={styles.pipelineStepIndex}>{index + 1}</span>
+                <span className={styles.pipelineStepName}>{functionName}</span>
+            </div>
+            <div className={styles.pipelineArrowLine}>↓</div>
+        </div>
+    );
+}
 
 /**
- * 折りたたみ可能な実行履歴アイテムコンポーネント。
+ * パイプラインの画像を表示するコンポーネント。
  */
-function CollapsibleHistoryItem({ item, index }: { item: ExecutionHistoryItem; index: number }) {
-    const [isOpen, setIsOpen] = useState(false);
-
+function PipelineImage({ src, alt, label }: { src: string; alt: string; label?: string }) {
     return (
-        <div className={styles.historyItem}>
-            <button
-                className={styles.historyHeader}
-                onClick={() => setIsOpen(!isOpen)}
-            >
-                <div className={styles.historyHeaderLeft}>
-                    <span className={styles.historyIndex}>{index + 1}</span>
-                    <span className={styles.historyFunctionName}>{item.functionName}</span>
-                </div>
-                {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-            </button>
-
-            {isOpen && (
-                <div className={styles.historyContent}>
-                    <div className={styles.historyImageBox}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={item.resultImage} alt={`Step ${index + 1}`} className={styles.resultImage} />
-                    </div>
-                    <div className={styles.historyParams}>
-                        <pre>{JSON.stringify(item.params, null, 2)}</pre>
-                    </div>
-                </div>
-            )}
+        <div className={styles.pipelineImageWrapper}>
+            {label && <span className={styles.pipelineImageLabel}>{label}</span>}
+            <div className={styles.pipelineImageBox}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt={alt} className={styles.resultImage} />
+            </div>
         </div>
     );
 }
 
 /**
  * ワークフローの終了ノード用インスペクターコンポーネント。
- * Before/Afterと実行履歴をタブで切替表示する。
+ * Before/Afterと実行パイプライン履歴をタブで切替表示する。
  * - resultタブ：元画像と結果画像の比較表示
- * - historyタブ：各プロセスノードの実行履歴を展開表示
+ * - historyタブ：元画像から最終画像までの変化を縦に並べて表示
  */
 export function EndNodeInspector() {
     const { resultImage, files } = useInspector();
@@ -111,15 +105,36 @@ export function EndNodeInspector() {
                 </div>
             )}
 
-            {/* History Tab */}
+            {/* History Tab - Pipeline View */}
             {activeTab === 'history' && (
-                <div className={styles.historyContainer}>
+                <div className={styles.pipelineContainer}>
                     {executionHistory.length === 0 ? (
                         <div className={styles.emptyState}>No execution history</div>
                     ) : (
-                        executionHistory.map((item, index) => (
-                            <CollapsibleHistoryItem key={item.nodeId} item={item} index={index} />
-                        ))
+                        <>
+                            {/* Original Image */}
+                            {originalImage && (
+                                <PipelineImage
+                                    src={originalImage}
+                                    alt="Original"
+                                    label="Original"
+                                />
+                            )}
+
+                            {/* Pipeline Steps */}
+                            {executionHistory.map((item, index) => (
+                                <div key={item.nodeId}>
+                                    <PipelineArrow
+                                        index={index}
+                                        functionName={item.functionName}
+                                    />
+                                    <PipelineImage
+                                        src={item.resultImage}
+                                        alt={`Step ${index + 1} result`}
+                                    />
+                                </div>
+                            ))}
+                        </>
                     )}
                 </div>
             )}

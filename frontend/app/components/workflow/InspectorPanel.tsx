@@ -1,5 +1,6 @@
 // 役割: 右側インスペクタの枠。選択ノードの詳細UIをNodeInspectorへ集約して渡す。
 // 依存: NodeInspectorに実行/画像/ノード情報を橋渡しする。
+import { InputImagePanel } from '@/app/components/workflow/InputImagePanel';
 import { NodeInspector } from '@/app/components/workflow/NodeInspector';
 import type { FlowHistoryEntry } from '@/workflow/flowPersistence';
 import type { NodeDataUpdate } from '@/types/node';
@@ -39,6 +40,8 @@ export function InspectorPanel({
 }: InspectorPanelProps) {
   return (
     <div className={styles.sidebar}>
+      <InputImagePanel />
+
       <div className={styles.sidebarTabs}>
         <button
           type="button"
