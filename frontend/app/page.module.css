@@ -655,3 +655,89 @@
 .inputImageUpload :global(.filepond--root) {
   margin-bottom: 0;
 }
+
+/* Tool Call Indicator */
+.toolCallIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  margin: 4px 0;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 12px;
+  font-size: 11px;
+  color: #0369a1;
+  font-weight: 500;
+}
+
+/* Tool List */
+.toolListContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.toolListBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.toolListBtn:hover {
+  color: #111827;
+  background: #f3f4f6;
+}
+
+.toolListDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  min-width: 220px;
+  z-index: 50;
+}
+
+.toolListTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  padding: 2px 4px 6px;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 4px;
+}
+
+.toolListItem {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.toolListItem:hover {
+  background: #f9fafb;
+}
+
+.toolListName {
+  font-size: 11px;
+  font-weight: 500;
+  color: #111827;
+  font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+}
+
+.toolListDesc {
+  font-size: 10px;
+  color: #6b7280;
+}

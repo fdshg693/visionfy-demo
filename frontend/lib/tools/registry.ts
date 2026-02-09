@@ -12,6 +12,10 @@ import {
   createExecutionImagesTool,
   isExecutionImagesToolEnabled,
 } from './executionImagesTool';
+import {
+  createAvailableNodesTool,
+  isAvailableNodesToolEnabled,
+} from './availableNodesTool';
 
 /**
  * 利用可能なすべてのツールのレジストリ
@@ -29,6 +33,12 @@ export const TOOL_REGISTRY: ToolRegistryEntry[] = [
     description: '直前の実行結果の元画像・処理前後画像を取得',
     factory: createExecutionImagesTool,
     isEnabled: isExecutionImagesToolEnabled,
+  },
+  {
+    name: 'get_available_nodes',
+    description: '利用可能な処理ノード一覧を取得',
+    factory: createAvailableNodesTool,
+    isEnabled: isAvailableNodesToolEnabled,
   },
 ];
 

@@ -10,6 +10,15 @@ import { useCallback } from 'react';
 import { ProcessNodeParamInputs } from './ProcessNodeParamInputs';
 import styles from './ProcessNode.module.css';
 
+/** 関数タイプに応じた背景色CSSクラスのマッピング */
+const FUNCTION_TYPE_CLASS_MAP: Record<string, string> = {
+    'createclahe': styles['fn-createclahe'],
+    'gaussianblur': styles['fn-gaussianblur'],
+    'grayscale': styles['fn-grayscale'],
+    'remove_noise': styles['fn-remove_noise'],
+    'restore_brightness': styles['fn-restore_brightness'],
+    'restore_contrast': styles['fn-restore_contrast'],
+};
 
 import { ChartNoAxesColumn, CheckCircle, Image as ImageIcon, Paintbrush, Palette, Play, Settings } from 'lucide-react';
 import type { FC } from 'react';
@@ -64,7 +73,7 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
     const IconComponent = nodeData.icon ? PROCESS_NODE_ICON_MAP[nodeData.icon] : null;
 
     return (
-        <div className={`${styles.node} ${styles[status]}`}>
+        <div className={`${styles.node} ${styles[status]} ${FUNCTION_TYPE_CLASS_MAP[nodeData.functionName as string] || ''}`}>
             <Handle
                 type="target"
                 position={Position.Left}

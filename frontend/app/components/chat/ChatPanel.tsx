@@ -11,8 +11,9 @@ import { useWorkflowContext } from '@/hooks/useWorkflowContext';
 import { useInspector } from '@/contexts/InspectorContext';
 import { useChatThreads } from '@/hooks/useChatThreads';
 import { useResizablePanel } from '@/hooks/useResizablePanel';
-import { ChatMarkdown } from './ChatMarkdown';
+import { MessageContent } from './MessageContent';
 import { ThreadMenu } from './ThreadMenu';
+import { ToolList } from './ToolList';
 
 /**
  * GEMINIとのチャットパネルコンポーネント
@@ -170,6 +171,7 @@ export function ChatPanel() {
         />
         <MessageCircle size={16} />
         <span>AI チャット</span>
+        <ToolList />
         <button
           type="button"
           className={styles.chatSettingsBtn}
@@ -235,7 +237,7 @@ export function ChatPanel() {
             }
           >
             {msg.role === 'assistant' ? (
-              <ChatMarkdown content={msg.content} />
+              <MessageContent content={msg.content} />
             ) : (
               msg.content
             )}

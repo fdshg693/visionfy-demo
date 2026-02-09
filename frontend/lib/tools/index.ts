@@ -6,3 +6,4 @@ export type { ToolContext, ToolFactory, ToolRegistryEntry, NodeResultEntry } fro
 export { TOOL_REGISTRY, createEnabledTools } from './registry';
 export { createWorkflowContextTool, isWorkflowContextToolEnabled } from './workflowContextTool';
 export { createExecutionImagesTool, isExecutionImagesToolEnabled } from './executionImagesTool';
+export { createAvailableNodesTool, isAvailableNodesToolEnabled } from './availableNodesTool';

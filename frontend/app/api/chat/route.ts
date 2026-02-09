@@ -77,8 +77,7 @@ export async function POST(req: NextRequest) {
                 tool: event.name, 
                 input: event.data?.input 
               }, 'Tool execution started');
-              // オプション: ツール実行中のメッセージをクライアントに送信
-              // controller.enqueue(encoder.encode(`\n[${event.name}を実行中...]\n`));
+              controller.enqueue(encoder.encode(`<<TOOL_START:${event.name}>>`));
             }
             // ツール実行終了
             else if (event.event === 'on_tool_end') {
@@ -86,6 +85,7 @@ export async function POST(req: NextRequest) {
                 tool: event.name, 
                 output: event.data?.output 
               }, 'Tool execution completed');
+              controller.enqueue(encoder.encode(`<<TOOL_END:${event.name}>>`));
             }
           }
           logger.info('AI stream completed successfully');
