@@ -5,6 +5,8 @@
 import type { Node, Edge } from '@xyflow/react';
 import { NODE_TYPE } from '@/constants/index';
 import { buildNodeChain } from '@/workflow/workflowChain';
+import { NODE_DESCRIPTIONS } from '@/lib/tools/availableNodesTool';
+import type { ProcessNodeFunctionName } from '@/types/processNode';
 
 export const SYSTEM_PROMPT = `あなたは画像処理ワークフローアプリ「Visionfy」のAIアシスタントです。ノードベースのワークフローで画像処理を行うツールです。
 以下の画像処理機能がサポートされています：
@@ -13,45 +15,6 @@ export const SYSTEM_PROMPT = `あなたは画像処理ワークフローアプ�
 - ガウシアンブラー（カーネルサイズとシグマの調整可能）
 ワークフローの使い方や画像処理について質問があればお気軽にどうぞ。日本語で回答してください。
 「現在のワークフロー状態」が与えられた場合はそれを踏まえて回答してください。`;
-
-/** 各ツールの説明とパラメータの説明。新ツール追加時はここに追加する */
-const TOOL_DESCRIPTIONS: Record<
-  string,
-  { name: string; description: string; paramDescriptions: Record<string, string> }
-> = {
-  createclahe: {
-    name: 'CLAHE（コントラスト制限適応ヒストグラム均等化）',
-    description:
-      '画像のコントラストを自動的に均等化する。不均一なライティング条件を改善し、暗い領域や明るい領域の細部を強調する。',
-    paramDescriptions: {
-      clipLimit:
-        'クリップ閾値。コントラスト強調の強さを控制する。値が大きいほど強調が強くなるが、ノイズも増える可能性がある。',
-      tileGridSize: 'ヒストグラム計算用のタイルグリッドサイズ [幅, 高さ]。',
-    },
-  },
-  gaussianblur: {
-    name: 'ガウシアンブラー',
-    description:
-      'ガウシアン分布に基づくブラー（ぼかし）フィルタを適用する。画像のノイズ除去やエッジの滑らかにに使用される。',
-    paramDescriptions: {
-      ksize:
-        'ブラーカーネルサイズ [幅, 高さ]。奇数値が推奨される。偶数値の場合はバックエンドで次の奇数に自動補正される。',
-      sigmaX: 'X方向のガウシアン標準偏差。0の場合はksizeから自動計算される。',
-      sigmaY: 'Y方向のガウシアン標準偏差。0の場合はksizeから自動計算される。',
-    },
-  },
-  grayscale: {
-    name: 'グレイスケール変換',
-    description:
-      'カラー画像をグレイスケール（単一チャンネル）に変換する。オプションで閾値に基づく二値化も適用可能。',
-    paramDescriptions: {
-      enableThreshold:
-        '閾値による二値化を有効にするかどうか。falseの場合は単純なグレイスケール変換のみ。',
-      threshold:
-        '二値化の閾値（0-255）。この値より明るいピクセルは白（255）、暗いピクセルは黒（0）になる。',
-    },
-  },
-};
 
 /**
  * 現在のノード・エッジ構成からワークフローコンテキスト文字列を生成する。
@@ -67,7 +30,9 @@ export function buildWorkflowContext(nodes: Node[], edges: Edge[]): string {
     if (node.type === NODE_TYPE.END) return 'End';
     const data = node.data as Record<string, unknown>;
     const fnName = data?.functionName as string | undefined;
-    return TOOL_DESCRIPTIONS[fnName ?? '']?.name ?? fnName ?? 'Unknown';
+    return (fnName && fnName in NODE_DESCRIPTIONS)
+      ? NODE_DESCRIPTIONS[fnName as ProcessNodeFunctionName].name
+      : (fnName ?? 'Unknown');
   });
 
   let context = '## 現在のワークフロー状態\n\n';
@@ -87,7 +52,9 @@ export function buildWorkflowContext(nodes: Node[], edges: Edge[]): string {
     processNodesInChain.forEach((node, i) => {
       const data = node.data as Record<string, unknown>;
       const fnName = data?.functionName as string | undefined;
-      const toolInfo = fnName ? TOOL_DESCRIPTIONS[fnName] : undefined;
+      const toolInfo = (fnName && fnName in NODE_DESCRIPTIONS)
+        ? NODE_DESCRIPTIONS[fnName as ProcessNodeFunctionName]
+        : undefined;
       if (!toolInfo || !fnName) return;
 
       context += `\n**${i + 1}. ${toolInfo.name}**\n`;
@@ -115,7 +82,10 @@ export function buildWorkflowContext(nodes: Node[], edges: Edge[]): string {
     disconnected.forEach((node) => {
       const data = node.data as Record<string, unknown>;
       const fnName = data?.functionName as string | undefined;
-      context += `- ${TOOL_DESCRIPTIONS[fnName ?? '']?.name ?? fnName ?? 'Unknown'}\n`;
+      const name = (fnName && fnName in NODE_DESCRIPTIONS)
+        ? NODE_DESCRIPTIONS[fnName as ProcessNodeFunctionName].name
+        : (fnName ?? 'Unknown');
+      context += `- ${name}\n`;
     });
   }
 

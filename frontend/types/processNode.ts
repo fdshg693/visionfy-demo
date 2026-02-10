@@ -1,4 +1,5 @@
 import type { ExecutionStatusValue } from '@/constants/index';
+import { PROCESS_FUNCTIONS_BASE } from './processFunctionBase';
 
 /**
  * 全てのNodeで共通する基本データ構造 
@@ -104,23 +105,29 @@ export type ProcessNodeParamsMap = {
 /** 処理ノードのパラメータ群型 */
 export type ProcessNodeParams = ProcessNodeParamsMap[ProcessNodeFunctionName];
 
-export const DEFAULT_NODE_PARAMS: ProcessNodeParamsMap = {
-    createclahe: { clipLimit: 40.0, tileGridSize: [8, 8] },
-    gaussianblur: { ksize: [5, 5], sigmaX: 0, sigmaY: 0 },
-    grayscale: { enableThreshold: false, threshold: 128 },
-    remove_noise: {},
-    restore_brightness: { value: -30 },
-    restore_contrast: { gamma: 1.7 },
-    model_inference: { overlayAlpha: 0.6, heatmapAlpha: 0.4 },
-};
+/**
+ * デフォルトパラメータ
+ * processFunctionBase.ts の PROCESS_FUNCTIONS_BASE から自動生成
+ */
+export const DEFAULT_NODE_PARAMS: ProcessNodeParamsMap = Object.fromEntries(
+    Object.entries(PROCESS_FUNCTIONS_BASE).map(([functionName, definition]) => [
+        functionName,
+        Object.fromEntries(
+            Object.entries(definition.params).map(([paramName, paramDef]) => [
+                paramName,
+                paramDef.defaultValue,
+            ])
+        ),
+    ])
+) as unknown as ProcessNodeParamsMap;
 
-// Icon mapping for each function
-export const DEFAULT_NODE_ICONS: Record<ProcessNodeFunctionName, string> = {
-    createclahe: 'histogram',
-    gaussianblur: 'brush',
-    grayscale: 'palette',
-    remove_noise: 'settings',
-    restore_brightness: 'image',
-    restore_contrast: 'image',
-    model_inference: 'scan',
-};
+/**
+ * アイコンマッピング
+ * processFunctionBase.ts の PROCESS_FUNCTIONS_BASE から自動生成
+ */
+export const DEFAULT_NODE_ICONS: Record<ProcessNodeFunctionName, string> = Object.fromEntries(
+    Object.entries(PROCESS_FUNCTIONS_BASE).map(([functionName, definition]) => [
+        functionName,
+        definition.icon,
+    ])
+) as Record<ProcessNodeFunctionName, string>;

@@ -4,72 +4,38 @@
  */
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
-import { DEFAULT_NODE_PARAMS, DEFAULT_NODE_ICONS } from '@/types/processNode';
-import type { ProcessNodeFunctionName } from '@/types/processNode';
+import { DEFAULT_NODE_PARAMS, DEFAULT_NODE_ICONS, ProcessNodeFunctionName } from '@/types/processNode';
+import { PROCESS_FUNCTIONS_BASE } from '@/types/processFunctionBase';
 import type { ToolFactory } from './types';
 
 /**
- * 各ノードタイプの詳細情報
- * chatPrompts.tsのTOOL_DESCRIPTIONSは非公開かつ不完全なので、ここで全6種を定義
+ * 各ノードタイプの詳細情報（AI用）
+ * processFunctionBase.ts の PROCESS_FUNCTIONS_BASE から自動生成
+ * この定義はchatPrompts.tsからもインポートされて使用される
  */
-const NODE_DESCRIPTIONS: Record<ProcessNodeFunctionName, {
+export const NODE_DESCRIPTIONS: Record<ProcessNodeFunctionName, {
   name: string;
   description: string;
   paramDescriptions: Record<string, string>;
-}> = {
-  createclahe: {
-    name: 'CLAHE（コントラスト制限適応ヒストグラム均等化）',
-    description: '画像のコントラストを自動的に均等化する処理です。局所的なコントラストを改善し、暗い部分や明るい部分の詳細を引き出します。',
-    paramDescriptions: {
-      clipLimit: 'コントラスト制限のしきい値（デフォルト: 40.0）。値が大きいほどコントラストが強くなります。',
-      tileGridSize: 'タイルグリッドのサイズ [幅, 高さ]（デフォルト: [8, 8]）。画像を分割するグリッドの大きさを指定します。',
+}> = Object.fromEntries(
+  Object.entries(PROCESS_FUNCTIONS_BASE).map(([functionName, definition]) => [
+    functionName,
+    {
+      name: definition.displayName,
+      description: definition.description,
+      paramDescriptions: Object.fromEntries(
+        Object.entries(definition.params).map(([paramName, paramDef]) => [
+          paramName,
+          paramDef.aiDescription,
+        ])
+      ),
     },
-  },
-  gaussianblur: {
-    name: 'ガウシアンブラー',
-    description: 'ガウシアン分布に基づくブラー（ぼかし）処理です。ノイズ除去や画像の平滑化に使用します。',
-    paramDescriptions: {
-      ksize: 'カーネルサイズ [幅, 高さ]（デフォルト: [5, 5]）。奇数である必要があります。値が大きいほどぼかしが強くなります。',
-      sigmaX: 'X方向の標準偏差（デフォルト: 0）。0の場合はカーネルサイズから自動計算されます。',
-      sigmaY: 'Y方向の標準偏差（デフォルト: 0）。0の場合はsigmaXと同じ値が使用されます。',
-    },
-  },
-  grayscale: {
-    name: 'グレイスケール変換',
-    description: 'カラー画像をグレイスケール（白黒）に変換します。オプションで二値化しきい値を適用できます。',
-    paramDescriptions: {
-      enableThreshold: '二値化しきい値を有効にするかどうか（デフォルト: false）。',
-      threshold: '二値化のしきい値 0-255（デフォルト: 128）。enableThresholdがtrueの場合に使用されます。',
-    },
-  },
-  remove_noise: {
-    name: 'ノイズ除去（メディアンブラー）',
-    description: 'メディアンフィルタを使用して画像のノイズを除去します。特にソルト＆ペッパーノイズに効果的です。',
-    paramDescriptions: {},
-  },
-  restore_brightness: {
-    name: '明るさ復元',
-    description: '画像の明るさを調整します。暗すぎる画像や明るすぎる画像を補正できます。',
-    paramDescriptions: {
-      value: '明るさの調整値（デフォルト: -30）。正の値で明るく、負の値で暗くなります。',
-    },
-  },
-  restore_contrast: {
-    name: 'コントラスト復元（ガンマ補正）',
-    description: 'ガンマ補正を使用してコントラストを調整します。画像の明暗バランスを改善できます。',
-    paramDescriptions: {
-      gamma: 'ガンマ値（デフォルト: 1.7）。1.0未満で暗くなり、1.0より大きいと明るくなります。',
-    },
-  },
-  model_inference: {
-    name: 'モデル推論（Patchcore異常検知）',
-    description: 'Patchcoreモデルによる異常検知推論を実行し、ヒートマップオーバーレイを返します。異常スコアも算出されます。',
-    paramDescriptions: {
-      overlayAlpha: '元画像の重み（デフォルト: 0.6）。0〜1の範囲で指定します。',
-      heatmapAlpha: 'ヒートマップの重み（デフォルト: 0.4）。0〜1の範囲で指定します。',
-    },
-  },
-};
+  ])
+) as Record<ProcessNodeFunctionName, {
+  name: string;
+  description: string;
+  paramDescriptions: Record<string, string>;
+}>;
 
 /**
  * 利用可能なノード情報をフォーマットされた文字列として生成
