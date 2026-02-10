@@ -1,0 +1,130 @@
+{
+    "entries": [
+        {
+            "id": "snapshot-1770637415485",
+            "createdAt": "2026-02-09T11:43:35.485Z",
+            "name": "スナップショット 2026/02/09 20:43",
+            "snapshot": {
+                "nodes": [
+                    {
+                        "id": "start",
+                        "type": "startNode",
+                        "position": {
+                            "x": 50,
+                            "y": 150
+                        },
+                        "data": {
+                            "label": "Start"
+                        },
+                        "measured": {
+                            "width": 100,
+                            "height": 29
+                        },
+                        "selected": false
+                    },
+                    {
+                        "id": "clahe-demo",
+                        "type": "processNode",
+                        "position": {
+                            "x": 190,
+                            "y": 126
+                        },
+                        "data": {
+                            "label": "createclahe",
+                            "functionName": "createclahe",
+                            "params": {
+                                "clipLimit": 40,
+                                "tileGridSize": [
+                                    8,
+                                    8
+                                ]
+                            }
+                        },
+                        "measured": {
+                            "width": 140,
+                            "height": 88
+                        },
+                        "selected": false,
+                        "dragging": false
+                    },
+                    {
+                        "id": "end",
+                        "type": "endNode",
+                        "position": {
+                            "x": 542,
+                            "y": 156.3896907216495
+                        },
+                        "data": {
+                            "label": "End"
+                        },
+                        "measured": {
+                            "width": 100,
+                            "height": 29
+                        },
+                        "selected": true,
+                        "dragging": false
+                    },
+                    {
+                        "id": "node-1770636429383",
+                        "type": "processNode",
+                        "position": {
+                            "x": 357.5311139815679,
+                            "y": 126.83746440333425
+                        },
+                        "data": {
+                            "label": "grayscale",
+                            "functionName": "grayscale",
+                            "params": {
+                                "enableThreshold": false,
+                                "threshold": 128
+                            }
+                        },
+                        "measured": {
+                            "width": 140,
+                            "height": 84
+                        },
+                        "selected": false,
+                        "dragging": false
+                    }
+                ],
+                "edges": [
+                    {
+                        "style": {
+                            "stroke": "#b1b1b7",
+                            "strokeWidth": 2
+                        },
+                        "animated": true,
+                        "source": "start",
+                        "target": "clahe-demo",
+                        "id": "xy-edge__start-clahe-demo"
+                    },
+                    {
+                        "style": {
+                            "stroke": "#b1b1b7",
+                            "strokeWidth": 2
+                        },
+                        "animated": true,
+                        "source": "clahe-demo",
+                        "target": "node-1770636429383",
+                        "id": "xy-edge__clahe-demo-node-1770636429383"
+                    },
+                    {
+                        "style": {
+                            "stroke": "#b1b1b7",
+                            "strokeWidth": 2
+                        },
+                        "animated": true,
+                        "source": "node-1770636429383",
+                        "target": "end",
+                        "id": "xy-edge__node-1770636429383-end"
+                    }
+                ],
+                "viewport": {
+                    "x": 73.90765765765764,
+                    "y": 176.9527027027027,
+                    "zoom": 1.6385135135135136
+                }
+            }
+        }
+    ]
+}

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Menu, Plus, Trash2, MessageSquare } from 'lucide-react';
 import styles from './ThreadMenu.module.css';
+import buttonStyles from '@/lib/styles/buttons.module.css';
 import type { ChatThread } from '@/lib/chatStorageService';
 
 type ThreadMenuProps = {
@@ -68,7 +69,7 @@ export function ThreadMenu({
         <div className={styles.menuContainer} ref={menuRef}>
             <button
                 type="button"
-                className={styles.menuButton}
+                className={buttonStyles['btn-icon-sm']}
                 onClick={() => setIsOpen((prev) => !prev)}
                 aria-label="スレッドメニュー"
                 title="スレッドメニュー"
@@ -80,7 +81,7 @@ export function ThreadMenu({
                 <div className={styles.dropdown}>
                     <button
                         type="button"
-                        className={styles.newThreadBtn}
+                        className={`${buttonStyles['btn-menu']} ${styles.newThreadBtn}`}
                         onClick={handleNewThread}
                     >
                         <Plus size={14} />
@@ -111,7 +112,7 @@ export function ThreadMenu({
                                     </div>
                                     <button
                                         type="button"
-                                        className={styles.threadDeleteBtn}
+                                        className={`${buttonStyles['btn-icon-sm']} ${buttonStyles['btn-icon-ghost']} ${styles.threadDeleteBtn}`}
                                         onClick={(e) => handleDelete(e, thread.id)}
                                         aria-label={`${thread.title}を削除`}
                                         title="削除"

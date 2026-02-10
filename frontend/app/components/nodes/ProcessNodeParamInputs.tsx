@@ -5,6 +5,7 @@ import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/opencv';
 import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
 import type { ReactNode } from 'react';
 import styles from './ProcessNode.module.css';
+import formStyles from '@/lib/styles/forms.module.css';
 
 type Props = {
     functionName?: ProcessNodeFunctionName;
@@ -63,7 +64,7 @@ const PARAM_FIELD_RENDERERS: Record<OpencvParamDefinition['type'], ParamFieldRen
                 );
                 onChange((selected?.value ?? e.target.value) as OpencvParamValue);
             }}
-            className={classNames?.select ?? 'nodrag'}
+            className={classNames?.select ?? `${formStyles['input-select']} ${formStyles.small} nodrag`}
         >
             {config.options?.map((opt) => (
                 <option key={String(opt.value)} value={String(opt.value)}>
@@ -92,12 +93,12 @@ const PARAM_FIELD_RENDERERS: Record<OpencvParamDefinition['type'], ParamFieldRen
         };
 
         return (
-            <div className={classNames?.tupleInput} style={!classNames ? { display: 'flex', gap: '4px' } : undefined}>
+            <div className={classNames?.tupleInput ?? formStyles['tuple-input']}>
                 <input
                     type="number"
                     value={tupleVal[0]}
                     onChange={(e) => handleTupleChange(0, e.target.value)}
-                    className={classNames?.smallInput ?? 'nodrag'}
+                    className={classNames?.smallInput ?? `${formStyles['input-small']} nodrag`}
                     placeholder="x"
                     step={config.step}
                     min={config.min}
@@ -106,7 +107,7 @@ const PARAM_FIELD_RENDERERS: Record<OpencvParamDefinition['type'], ParamFieldRen
                     type="number"
                     value={tupleVal[1]}
                     onChange={(e) => handleTupleChange(1, e.target.value)}
-                    className={classNames?.smallInput ?? 'nodrag'}
+                    className={classNames?.smallInput ?? `${formStyles['input-small']} nodrag`}
                     placeholder="y"
                     step={config.step}
                     min={config.min}
@@ -119,7 +120,7 @@ const PARAM_FIELD_RENDERERS: Record<OpencvParamDefinition['type'], ParamFieldRen
             type="checkbox"
             checked={Boolean(currentValue)}
             onChange={(e) => onChange(e.target.checked)}
-            className={classNames ? undefined : 'nodrag'}
+            className={classNames ? undefined : `${formStyles['input-checkbox']} nodrag`}
         />
     ),
     number: ({ config, currentValue, onChange, classNames }) => (
@@ -127,7 +128,7 @@ const PARAM_FIELD_RENDERERS: Record<OpencvParamDefinition['type'], ParamFieldRen
             type="number"
             value={Number(currentValue ?? 0)}
             onChange={(e) => onChange(Number(e.target.value))}
-            className={classNames?.input ?? 'nodrag'}
+            className={classNames?.input ?? `${formStyles['input-small']} nodrag`}
             step={config.step}
             min={config.min}
         />
@@ -137,7 +138,7 @@ const PARAM_FIELD_RENDERERS: Record<OpencvParamDefinition['type'], ParamFieldRen
             type="text"
             value={String(currentValue ?? '')}
             onChange={(e) => onChange(e.target.value)}
-            className={classNames?.input ?? 'nodrag'}
+            className={classNames?.input ?? `${formStyles['input-small']} nodrag`}
         />
     ),
 };

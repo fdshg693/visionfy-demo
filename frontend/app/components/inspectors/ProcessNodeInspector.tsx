@@ -15,6 +15,7 @@ import type { OpencvParamValue } from '@/types/opencv';
 import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/opencv';
 import { Node } from '@xyflow/react';
 import styles from '../NodeInspector.module.css';
+import formStyles from '@/lib/styles/forms.module.css';
 
 interface ProcessNodeInspectorProps {
     selectedNode: Node;
@@ -73,7 +74,7 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
                     onChange={(e) => {
                         onUpdateNode(selectedNode.id, { label: e.target.value });
                     }}
-                    className={styles.input}
+                    className={formStyles['input-dark']}
                 />
             </div>
 
@@ -83,7 +84,7 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
                 <select
                     value={functionName}
                     onChange={(e) => handleFunctionChange(e.target.value as ProcessNodeFunctionName)}
-                    className={styles.select}
+                    className={`${formStyles['input-select']} ${formStyles.dark}`}
                 >
                     <option value="" disabled>Select a function</option>
                     {Object.keys(VISIONFY_FUNCTIONS_CONFIG).map((func) => (
@@ -115,10 +116,10 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
                             classNames={{
                                 field: styles.field,
                                 label: styles.label,
-                                input: styles.input,
-                                select: styles.select,
-                                tupleInput: styles.tupleInput,
-                                smallInput: styles.smallInput,
+                                input: formStyles['input-dark'],
+                                select: `${formStyles['input-select']} ${formStyles.dark}`,
+                                tupleInput: formStyles['tuple-input'],
+                                smallInput: formStyles['input-dark'],
                             }}
                         />
                     </div>

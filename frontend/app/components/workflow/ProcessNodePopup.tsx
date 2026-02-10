@@ -3,6 +3,7 @@ import { NODE_TYPE } from '@/constants/index';
 import type { NodeDataUpdate } from '@/types/node';
 import type { Node } from '@xyflow/react';
 import styles from './ProcessNodePopup.module.css';
+import buttonStyles from '@/lib/styles/buttons.module.css';
 
 type ProcessNodePopupProps = {
     selectedNode: Node | null;
@@ -20,7 +21,7 @@ export function ProcessNodePopup({ selectedNode, onUpdateNode, onClose }: Proces
             <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
                 <div className={styles.popupHeader}>
                     <h3 className={styles.popupTitle}>Inspector</h3>
-                    <button className={styles.closeButton} onClick={onClose}>✕</button>
+                    <button className={buttonStyles['btn-icon-sm']} onClick={onClose}>✕</button>
                 </div>
                 <div className={styles.popupBody}>
                     <ProcessNodeInspector selectedNode={selectedNode} onUpdateNode={onUpdateNode} />

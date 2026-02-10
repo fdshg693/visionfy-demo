@@ -33,25 +33,7 @@
   gap: 10px;
 }
 
-.addBtn {
-  padding: 8px 16px;
-  background: #ffff;
-  color: #374151;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  transition: all 0.2s;
-}
-
-.addBtn:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
+/* Removed - using unified button styles from buttons.module.css */
 
 .sidebar {
   width: 320px;
@@ -69,29 +51,7 @@
   padding: 16px 16px 0 16px;
 }
 
-.sidebarTab {
-  flex: 1;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-  color: #6b7280;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.sidebarTabActive {
-  flex: 1;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid #111827;
-  background: #111827;
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
+/* Removed - using unified button styles from buttons.module.css */
 
 .snapshotPanel {
   padding: 16px;
@@ -104,29 +64,7 @@
   margin-bottom: 12px;
 }
 
-.snapshotTab {
-  flex: 1;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-  color: #6b7280;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.snapshotTabActive {
-  flex: 1;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid #111827;
-  background: #111827;
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
+/* Removed - using unified button styles from buttons.module.css */
 
 .snapshotSavePanel {
   display: flex;
@@ -140,21 +78,7 @@
   color: #6b7280;
 }
 
-.snapshotSaveBtn {
-  padding: 6px 12px;
-  background: #111827;
-  color: #ffffff;
-  border: 1px solid #111827;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 12px;
-  transition: opacity 0.2s ease;
-}
-
-.snapshotSaveBtn:hover {
-  opacity: 0.85;
-}
+/* Removed - using unified button styles from buttons.module.css */
 
 .snapshotEmpty {
   margin: 0;
@@ -217,35 +141,7 @@
   gap: 6px;
 }
 
-.snapshotActionBtn {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #111827;
-  background: #111827;
-  color: #ffffff;
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.snapshotSecondaryBtn {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-  color: #374151;
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.snapshotDangerBtn {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #ef4444;
-  background: #ffffff;
-  color: #ef4444;
-  font-size: 11px;
-  cursor: pointer;
-}
+/* Removed - using unified button styles from buttons.module.css */
 
 .snapshotEditRow {
   display: flex;
@@ -288,13 +184,7 @@
   margin-top: 12px;
 }
 
-.snapshotInput {
-  flex: 1;
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-  font-size: 12px;
-}
+/* Snapshot input styles moved to forms.module.css */
 
 /* ===== コンテキストメニュー ===== */
 
@@ -317,22 +207,7 @@
   overflow: hidden;
 }
 
-.contextMenuItem {
-  display: block;
-  width: 100%;
-  padding: 8px 16px;
-  text-align: left;
-  border: none;
-  background: none;
-  color: #ef4444;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.contextMenuItem:hover {
-  background: #fee2e2;
-}
+/* Removed - using unified button styles from buttons.module.css */
 
 /* ===== AIチャットパネル ===== */
 
@@ -356,25 +231,9 @@
   color: #111827;
 }
 
+/* Removed - using unified button styles from buttons.module.css */
 .chatSettingsBtn {
   margin-left: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: transparent;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  color: #6b7280;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.chatSettingsBtn:hover {
-  background: #f3f4f6;
-  border-color: #d1d5db;
-  color: #374151;
 }
 
 .chatSettingsPanel {
@@ -392,23 +251,7 @@
   color: #374151;
 }
 
-.chatSettingsTextarea {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  font-size: 12px;
-  font-family: inherit;
-  line-height: 1.5;
-  color: #111827;
-  resize: vertical;
-  outline: none;
-  box-sizing: border-box;
-}
-
-.chatSettingsTextarea:focus {
-  border-color: #111827;
-}
+/* Textarea styles moved to forms.module.css */
 
 .chatSettingsBtnGroup {
   display: flex;
@@ -416,65 +259,9 @@
   justify-content: flex-end;
 }
 
-.chatSettingsSaveBtn {
-  padding: 4px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  background: #111827;
-  color: #ffffff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
+/* Removed - using unified button styles from buttons.module.css */
 
-.chatSettingsSaveBtn:hover {
-  opacity: 0.85;
-}
-
-.chatSettingsResetBtn {
-  padding: 4px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  background: transparent;
-  color: #6b7280;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.chatSettingsResetBtn:hover {
-  background: #f3f4f6;
-  border-color: #d1d5db;
-  color: #374151;
-}
-
-.chatClearBtn {
-  /* margin-left removed — settings button now pushes this */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: transparent;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  color: #6b7280;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.chatClearBtn:hover:not(:disabled) {
-  background: #fee2e2;
-  border-color: #fecaca;
-  color: #ef4444;
-}
-
-.chatClearBtn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
+/* Removed - using unified button styles from buttons.module.css */
 
 .chatMessages {
   flex: 1;
@@ -614,75 +401,16 @@
   align-items: flex-end;
 }
 
+/* Removed - using unified button styles from buttons.module.css */
 .chatAttachBtn {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  color: #6b7280;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: color 0.2s, border-color 0.2s;
 }
 
-.chatAttachBtn:hover {
-  color: #111827;
-  border-color: #111827;
-}
+/* Chat input field styles moved to forms.module.css */
 
-.chatAttachBtn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.chatInputField {
-  flex: 1;
-  padding: 8px 10px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 13px;
-  resize: none;
-  outline: none;
-  font-family: inherit;
-  line-height: 1.4;
-  color: #111827;
-}
-
-.chatInputField:focus {
-  border-color: #111827;
-}
-
-.chatInputField:disabled {
-  background: #f9fafb;
-  color: #6b7280;
-}
-
+/* Removed - using unified button styles from buttons.module.css */
 .chatSendBtn {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #111827;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.chatSendBtn:hover {
-  opacity: 0.85;
-}
-
-.chatSendBtn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
 }
 
 .chatResizeHandle {
@@ -721,20 +449,7 @@
   overflow: hidden;
 }
 
-.addNodeOption {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 10px 14px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.addNodeOption:hover {
-  background: #f3f4f6;
-}
+/* Removed - using unified button styles from buttons.module.css */
 
 .addNodeOptionName {
   display: block;
@@ -764,33 +479,7 @@
   position: relative;
 }
 
-.runButton {
-  padding: 10px 24px;
-  background: #3b82f6;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 14px;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.runButton:hover {
-  background: #2563eb;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-}
-
-.runButton:disabled {
-  background: #93c5fd;
-  cursor: not-allowed;
-  box-shadow: none;
-  opacity: 0.6;
-}
+/* Removed - using unified button styles from buttons.module.css */
 
 /* ===== Result Section (sidebar) ===== */
 

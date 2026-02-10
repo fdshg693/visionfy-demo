@@ -1,0 +1,285 @@
+/**
+ * Consolidated Animation Keyframes and Utilities
+ *
+ * Standardized animations for consistent UI behavior across the application.
+ * Timing: 0.15s-0.2s with ease-out for snappy, responsive feel.
+ */
+
+/* ============================================
+   KEYFRAME DEFINITIONS
+   ============================================ */
+
+/**
+ * Fade In Animation
+ * Simple opacity transition from invisible to visible
+ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/**
+ * Slide Up Animation
+ * Combines upward movement with fade-in for smooth entrance from below
+ */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/**
+ * Slide Down Animation
+ * Combines downward movement with fade-in for smooth entrance from above
+ */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/**
+ * Popup Animation
+ * Combines slight upward slide with fade-in, optimized for modals and overlays
+ * Uses slightly more travel distance (16px) for more pronounced effect
+ */
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/**
+ * Scale Fade In Animation
+ * Combines scale transformation with fade-in for emphasis
+ * Useful for buttons, badges, and attention-grabbing elements
+ */
+@keyframes scaleFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/**
+ * Slide In From Right
+ * For panels and sidebars entering from the right edge
+ */
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/**
+ * Slide In From Left
+ * For panels and sidebars entering from the left edge
+ */
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/**
+ * Fade In Utility
+ * Duration: 0.15s
+ * Timing: ease-out
+ */
+.animate-fade-in {
+  animation: fadeIn 0.15s ease-out;
+}
+
+/**
+ * Slide Up Utility
+ * Duration: 0.2s for smoother motion perception
+ * Timing: ease-out
+ */
+.animate-slide-up {
+  animation: slideUp 0.2s ease-out;
+}
+
+/**
+ * Slide Down Utility
+ * Duration: 0.2s for smoother motion perception
+ * Timing: ease-out
+ */
+.animate-slide-down {
+  animation: slideDown 0.2s ease-out;
+}
+
+/**
+ * Popup Utility
+ * Duration: 0.2s for modals and overlays
+ * Timing: ease-out
+ * Use for: Modals, tooltips, dropdowns, context menus
+ */
+.animate-popup {
+  animation: popupFadeIn 0.2s ease-out;
+}
+
+/**
+ * Scale Fade In Utility
+ * Duration: 0.15s for quick emphasis
+ * Timing: ease-out
+ */
+.animate-scale-fade-in {
+  animation: scaleFadeIn 0.15s ease-out;
+}
+
+/**
+ * Slide In From Right Utility
+ * Duration: 0.2s
+ * Timing: ease-out
+ */
+.animate-slide-in-right {
+  animation: slideInFromRight 0.2s ease-out;
+}
+
+/**
+ * Slide In From Left Utility
+ * Duration: 0.2s
+ * Timing: ease-out
+ */
+.animate-slide-in-left {
+  animation: slideInFromLeft 0.2s ease-out;
+}
+
+/* ============================================
+   TIMING VARIATIONS
+   ============================================ */
+
+/**
+ * Fast variants (0.1s) for micro-interactions
+ */
+.animate-fade-in-fast {
+  animation: fadeIn 0.1s ease-out;
+}
+
+.animate-slide-up-fast {
+  animation: slideUp 0.1s ease-out;
+}
+
+.animate-slide-down-fast {
+  animation: slideDown 0.1s ease-out;
+}
+
+/**
+ * Slow variants (0.3s) for emphasis or large elements
+ */
+.animate-fade-in-slow {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up-slow {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-popup-slow {
+  animation: popupFadeIn 0.3s ease-out;
+}
+
+/* ============================================
+   DELAY UTILITIES
+   ============================================ */
+
+/**
+ * Animation delay utilities for staggered entrances
+ */
+.animate-delay-50 {
+  animation-delay: 50ms;
+}
+
+.animate-delay-100 {
+  animation-delay: 100ms;
+}
+
+.animate-delay-150 {
+  animation-delay: 150ms;
+}
+
+.animate-delay-200 {
+  animation-delay: 200ms;
+}
+
+/* ============================================
+   FILL MODE UTILITIES
+   ============================================ */
+
+/**
+ * Fill mode utilities to control animation state retention
+ */
+.animate-fill-forwards {
+  animation-fill-mode: forwards;
+}
+
+.animate-fill-backwards {
+  animation-fill-mode: backwards;
+}
+
+.animate-fill-both {
+  animation-fill-mode: both;
+}
+
+/* ============================================
+   PREFERS REDUCED MOTION
+   ============================================ */
+
+/**
+ * Accessibility: Respect user's motion preferences
+ * Disables all animations for users who prefer reduced motion
+ */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-slide-down,
+  .animate-popup,
+  .animate-scale-fade-in,
+  .animate-slide-in-right,
+  .animate-slide-in-left,
+  .animate-fade-in-fast,
+  .animate-slide-up-fast,
+  .animate-slide-down-fast,
+  .animate-fade-in-slow,
+  .animate-slide-up-slow,
+  .animate-popup-slow {
+    animation: none;
+  }
+}

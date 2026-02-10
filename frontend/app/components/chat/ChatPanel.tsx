@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { MessageCircle, Paperclip, Send, Settings, Trash2, X } from 'lucide-react';
 
 import styles from '@/app/page.module.css';
+import buttonStyles from '@/lib/styles/buttons.module.css';
+import formStyles from '@/lib/styles/forms.module.css';
 import type { ChatMessage, ChatMessageImage } from '@/lib/chatService';
 import { storageService } from '@/lib/storageService';
 import { SYSTEM_PROMPT } from '@/lib/chatPrompts';
@@ -214,7 +216,7 @@ export function ChatPanel() {
         <ToolList />
         <button
           type="button"
-          className={styles.chatSettingsBtn}
+          className={`${buttonStyles['btn-icon-sm']} ${styles.chatSettingsBtn}`}
           onClick={() => setShowSettings((v) => !v)}
           aria-label="システムプロンプト設定"
           title="システムプロンプト設定"
@@ -223,7 +225,7 @@ export function ChatPanel() {
         </button>
         <button
           type="button"
-          className={styles.chatClearBtn}
+          className={buttonStyles['btn-icon-sm']}
           onClick={handleClear}
           disabled={messages.length === 0}
           aria-label="チャットをクリア"
@@ -237,7 +239,7 @@ export function ChatPanel() {
         <div className={styles.chatSettingsPanel}>
           <label className={styles.chatSettingsLabel}>システムプロンプト</label>
           <textarea
-            className={styles.chatSettingsTextarea}
+            className={formStyles['input-textarea']}
             value={customPrompt || SYSTEM_PROMPT}
             onChange={(e) => setCustomPrompt(e.target.value)}
             rows={6}
@@ -245,14 +247,14 @@ export function ChatPanel() {
           <div className={styles.chatSettingsBtnGroup}>
             <button
               type="button"
-              className={styles.chatSettingsResetBtn}
+              className={buttonStyles['btn-secondary-sm']}
               onClick={handleResetPrompt}
             >
               デフォルトに戻す
             </button>
             <button
               type="button"
-              className={styles.chatSettingsSaveBtn}
+              className={buttonStyles['btn-primary-sm']}
               onClick={handleSavePrompt}
             >
               保存
@@ -343,7 +345,7 @@ export function ChatPanel() {
           />
           <button
             type="button"
-            className={styles.chatAttachBtn}
+            className={`${buttonStyles['btn-icon-md']} ${styles.chatAttachBtn}`}
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading}
             aria-label="画像を添付"
@@ -352,7 +354,7 @@ export function ChatPanel() {
             <Paperclip size={16} />
           </button>
           <textarea
-            className={styles.chatInputField}
+            className={formStyles['input-textarea']}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -362,7 +364,7 @@ export function ChatPanel() {
           />
           <button
             type="button"
-            className={styles.chatSendBtn}
+            className={`${buttonStyles['btn-icon-md']} ${buttonStyles['btn-icon-primary']} ${styles.chatSendBtn}`}
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
             aria-label="送信"

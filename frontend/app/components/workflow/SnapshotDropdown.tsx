@@ -3,6 +3,7 @@ import { formatSnapshotDate } from '@/lib/formatDate';
 import { useState } from 'react';
 
 import styles from '@/app/page.module.css';
+import buttonStyles from '@/lib/styles/buttons.module.css';
 
 type SnapshotDropdownProps = {
     isOpen: boolean;
@@ -54,7 +55,7 @@ export function SnapshotDropdown({
                                         />
                                         <button
                                             type="button"
-                                            className={styles.snapshotActionBtn}
+                                            className={buttonStyles['btn-primary-sm']}
                                             onClick={() => {
                                                 const trimmed = draftName.trim();
                                                 if (trimmed) {
@@ -68,7 +69,7 @@ export function SnapshotDropdown({
                                         </button>
                                         <button
                                             type="button"
-                                            className={styles.snapshotSecondaryBtn}
+                                            className={buttonStyles['btn-secondary-sm']}
                                             onClick={() => {
                                                 setEditingId(null);
                                                 setDraftName('');
@@ -90,7 +91,7 @@ export function SnapshotDropdown({
                                         <div className={styles.snapshotActions}>
                                             <button
                                                 type="button"
-                                                className={styles.snapshotSecondaryBtn}
+                                                className={buttonStyles['btn-secondary-sm']}
                                                 onClick={() => {
                                                     setEditingId(entry.id);
                                                     setDraftName(entry.name);
@@ -100,7 +101,7 @@ export function SnapshotDropdown({
                                             </button>
                                             <button
                                                 type="button"
-                                                className={styles.snapshotDangerBtn}
+                                                className={buttonStyles['btn-danger-sm']}
                                                 onClick={() => onDeleteSnapshot(entry.id)}
                                             >
                                                 削除

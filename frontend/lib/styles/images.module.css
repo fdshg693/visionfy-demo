@@ -1,0 +1,230 @@
+/* Base image container with border */
+.image-box {
+  position: relative;
+  border: 1px solid rgb(226, 232, 240); /* slate-200 */
+  border-radius: 0.5rem; /* rounded-lg */
+  overflow: hidden;
+  background-color: rgb(248, 250, 252); /* slate-50 */
+}
+
+.image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Square aspect ratio (1:1) - used for thumbnails and previews */
+.image-box-square {
+  composes: image-box;
+  aspect-ratio: 1 / 1;
+}
+
+/* Small thumbnail size - used in node cards and lists */
+.image-box-thumbnail {
+  composes: image-box-square;
+  width: 3rem; /* 48px */
+  height: 3rem; /* 48px */
+}
+
+/* Large container - used for before/after comparisons */
+.image-box-large {
+  composes: image-box;
+  width: 100%;
+  max-width: 32rem; /* 512px */
+  aspect-ratio: 4 / 3;
+}
+
+/* Container with hover overlay effects */
+.image-box-hover {
+  composes: image-box;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.image-box-hover:hover {
+  border-color: rgb(148, 163, 184); /* slate-400 */
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* shadow-md */
+}
+
+.image-box-hover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0);
+  transition: background-color 0.2s ease-in-out;
+  pointer-events: none;
+}
+
+.image-box-hover:hover::after {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Empty state placeholder */
+.image-placeholder {
+  composes: image-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 12rem; /* 192px */
+  background-color: rgb(248, 250, 252); /* slate-50 */
+  color: rgb(148, 163, 184); /* slate-400 */
+}
+
+.image-placeholder-text {
+  text-align: center;
+  font-size: 0.875rem; /* text-sm */
+  color: rgb(100, 116, 139); /* slate-500 */
+}
+
+/* Loading state */
+.image-loading {
+  composes: image-box;
+  position: relative;
+}
+
+.image-loading::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgb(248, 250, 252) 0%,
+    rgb(241, 245, 249) 50%,
+    rgb(248, 250, 252) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Image with overlay content (e.g., labels, badges) */
+.image-box-with-overlay {
+  composes: image-box;
+  position: relative;
+}
+
+.image-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+  padding: 0.5rem;
+  color: white;
+  font-size: 0.75rem; /* text-xs */
+}
+
+/* Responsive container for before/after comparisons */
+.image-comparison-container {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.image-comparison-item {
+  flex: 1;
+  min-width: 15rem; /* 240px */
+}
+
+.image-comparison-item .image-box {
+  width: 100%;
+}
+
+.image-comparison-label {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500;
+  color: rgb(71, 85, 105); /* slate-600 */
+}
+
+/* Error state */
+.image-error {
+  composes: image-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 8rem; /* 128px */
+  background-color: rgb(254, 242, 242); /* red-50 */
+  border-color: rgb(254, 202, 202); /* red-200 */
+  color: rgb(153, 27, 27); /* red-800 */
+}
+
+.image-error-text {
+  text-align: center;
+  font-size: 0.875rem; /* text-sm */
+}
+
+/* Compact mode for dense layouts */
+.image-box-compact {
+  composes: image-box;
+  border-radius: 0.25rem; /* rounded */
+  width: 2rem; /* 32px */
+  height: 2rem; /* 32px */
+}
+
+/* Full width container */
+.image-box-full {
+  composes: image-box;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+/* Circular image container (for avatars, icons) */
+.image-box-circle {
+  position: relative;
+  border-radius: 9999px; /* rounded-full */
+  overflow: hidden;
+  background-color: rgb(248, 250, 252); /* slate-50 */
+  border: 1px solid rgb(226, 232, 240); /* slate-200 */
+}
+
+.image-box-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .image-box {
+    border-color: rgb(51, 65, 85); /* slate-700 */
+    background-color: rgb(30, 41, 59); /* slate-800 */
+  }
+
+  .image-placeholder {
+    background-color: rgb(30, 41, 59); /* slate-800 */
+    color: rgb(100, 116, 139); /* slate-500 */
+  }
+
+  .image-placeholder-text {
+    color: rgb(148, 163, 184); /* slate-400 */
+  }
+
+  .image-box-hover:hover {
+    border-color: rgb(71, 85, 105); /* slate-600 */
+  }
+
+  .image-comparison-label {
+    color: rgb(203, 213, 225); /* slate-300 */
+  }
+
+  .image-error {
+    background-color: rgb(127, 29, 29); /* red-900 */
+    border-color: rgb(153, 27, 27); /* red-800 */
+    color: rgb(254, 202, 202); /* red-200 */
+  }
+
+  .image-box-circle,
+  .image-box-compact {
+    border-color: rgb(51, 65, 85); /* slate-700 */
+    background-color: rgb(30, 41, 59); /* slate-800 */
+  }
+}
