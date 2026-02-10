@@ -6,6 +6,7 @@ import styles from '@/app/page.module.css';
 const TOOL_DISPLAY_NAMES: Record<string, string> = {
     get_workflow_context: 'ワークフロー状態を取得',
     get_available_nodes: '利用可能ノード一覧を取得',
+    generate_workflow: 'ワークフローを生成',
 };
 
 interface ToolCallIndicatorProps {

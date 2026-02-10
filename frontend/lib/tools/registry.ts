@@ -12,6 +12,10 @@ import {
   createAvailableNodesTool,
   isAvailableNodesToolEnabled,
 } from './availableNodesTool';
+import {
+  createGenerateWorkflowTool,
+  isGenerateWorkflowToolEnabled,
+} from './generateWorkflowTool';
 
 /**
  * 利用可能なすべてのツールのレジストリ
@@ -29,6 +33,12 @@ export const TOOL_REGISTRY: ToolRegistryEntry[] = [
     description: '利用可能な処理ノード一覧を取得',
     factory: createAvailableNodesTool,
     isEnabled: isAvailableNodesToolEnabled,
+  },
+  {
+    name: 'generate_workflow',
+    description: 'ワークフローを生成してキャンバスに適用',
+    factory: createGenerateWorkflowTool,
+    isEnabled: isGenerateWorkflowToolEnabled,
   },
 ];
 

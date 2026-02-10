@@ -55,6 +55,14 @@
 - 不正なフォーマットの場合は `WorkflowImportError`（コード: `'PARSE_ERROR'` / `'INVALID_FORMAT'`）をスロー
 - `frontend/app/components/workflow/JsonImportModal.tsx` でUIを提供
 
+## AIチャット経由のワークフロー生成
+
+- AIがユーザーの要求に基づき `generate_workflow` ツールを呼び出してワークフローを自動生成
+- AIはSimpleWorkflow形式のJSON（`processNodes` 配列）をツール入力として生成
+- サーバー側（`route.ts`）でバリデーション後、`<<WORKFLOW_DATA:base64>>` マーカーをストリームに埋め込み
+- フロントエンド（`ChatPanel`）がマーカーを検出し、`convertSimpleWorkflowToSnapshot()` で変換後にキャンバスに適用
+- ツール実装: `frontend/lib/tools/generateWorkflowTool.ts`
+
 ## バリデーション
 
 - `isSimpleWorkflow()` — `processNodes` が配列で各要素に文字列 `functionName` があることを検証
@@ -95,6 +103,10 @@
 - `frontend/hooks/useWorkflowImport.ts` — JSONインポートロジック（形式自動判定 + 変換）
 - `frontend/hooks/useSnapshotHistory.ts` — スナップショット履歴CRUD
 
+### ツール
+
+- `frontend/lib/tools/generateWorkflowTool.ts` — `generate_workflow` ツール実装（SimpleWorkflowバリデーション + JSON返却）
+
 ### UI
 
 - `frontend/app/components/workflow/JsonImportModal.tsx` — JSONインポートモーダル
@@ -102,3 +114,4 @@
 ## 関連ドキュメント
 
 - [スナップショット機能](./SNAPSHOT.md) — 履歴保存・復元のUI操作
+- [AIチャット機能](./AI.md) — `generate_workflow` ツールを含むAIツールシステム

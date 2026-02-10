@@ -8,11 +8,15 @@ import styles from '@/app/page.module.css';
 import type { ChatMessage, ChatMessageImage } from '@/lib/chatService';
 import { storageService } from '@/lib/storageService';
 import { useWorkflowContext } from '@/hooks/useWorkflowContext';
+import { useFlowStore } from '@/workflow/flowStore';
 import { useInspector } from '@/contexts/InspectorContext';
 import { useChatThreads } from '@/hooks/useChatThreads';
 import { useResizablePanel } from '@/hooks/useResizablePanel';
 import { useWorkflowImages } from '@/hooks/useWorkflowImages';
 import type { WorkflowImage } from '@/hooks/useWorkflowImages';
+import { convertSimpleWorkflowToSnapshot } from '@/workflow/workflowConverter';
+import { isSimpleWorkflow } from '@/types/simpleWorkflow';
+import { useToast } from '@/contexts/ToastContext';
 import { ThreadMenu } from './ThreadMenu';
 import { ToolList } from './ToolList';
 import { ChatSettingsPanel } from './ChatSettingsPanel';
@@ -27,7 +31,9 @@ import { ChatInputArea } from './ChatInputArea';
  */
 export function ChatPanel() {
   const { nodes, edges, nodeResults } = useWorkflowContext();
+  const { setNodes, setEdges, setViewport } = useFlowStore();
   const { files } = useInspector();
+  const { showSuccess } = useToast();
   const {
     threads,
     activeThreadId,
@@ -55,6 +61,35 @@ export function ChatPanel() {
     if (typeof window === 'undefined') return '';
     return storageService.getItem('visionfy-custom-system-prompt') || '';
   });
+
+  /**
+   * ストリームから<<WORKFLOW_DATA:base64>>マーカーを検出し、ワークフローをキャンバスに適用する
+   * @returns マーカーを除去した文字列
+   */
+  const applyWorkflowFromStream = useCallback((content: string): string => {
+    const marker = /<<WORKFLOW_DATA:(.+?)>>/;
+    const match = content.match(marker);
+    if (!match) return content;
+
+    try {
+      const base64Data = match[1];
+      const jsonString = atob(base64Data);
+      const parsed = JSON.parse(jsonString);
+
+      if (isSimpleWorkflow(parsed)) {
+        const snapshot = convertSimpleWorkflowToSnapshot(parsed);
+        setNodes(snapshot.nodes);
+        setEdges(snapshot.edges);
+        setViewport(snapshot.viewport);
+        showSuccess('ワークフロー生成', 'AIがワークフローをキャンバスに適用しました');
+      }
+    } catch {
+      // デコードやパースに失敗した場合は無視
+    }
+
+    // マーカーを除去して返す
+    return content.replace(marker, '');
+  }, [setNodes, setEdges, setViewport, showSuccess]);
 
   // ワークフロー画像選択時の処理
   const handleWorkflowImageSelect = useCallback((image: WorkflowImage) => {
@@ -128,10 +163,22 @@ export function ChatPanel() {
 
       addMessage({ role: 'assistant', content: '' });
 
+      let workflowApplied = false;
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         assistantContent += decoder.decode(value, { stream: true });
+
+        // ワークフローデータマーカーを検出して適用（1回のみ）
+        if (!workflowApplied && assistantContent.includes('<<WORKFLOW_DATA:')) {
+          const processed = applyWorkflowFromStream(assistantContent);
+          if (processed !== assistantContent) {
+            assistantContent = processed;
+            workflowApplied = true;
+          }
+        }
+
         updateLastAssistantMessage(assistantContent);
       }
 
@@ -143,7 +190,7 @@ export function ChatPanel() {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, messages, nodes, edges, files, nodeResults, customPrompt, attachedImages, addMessage, updateLastAssistantMessage, saveCurrentThread]);
+  }, [input, isLoading, messages, nodes, edges, files, nodeResults, customPrompt, attachedImages, addMessage, updateLastAssistantMessage, saveCurrentThread, applyWorkflowFromStream]);
 
   const handleClear = useCallback(() => {
     clearMessages();

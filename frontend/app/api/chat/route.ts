@@ -90,6 +90,17 @@ export async function POST(req: NextRequest) {
                 output: event.data?.output 
               }, 'Tool execution completed');
               controller.enqueue(encoder.encode(`<<TOOL_END:${event.name}>>`));
+
+              // generate_workflow ツールの場合、ワークフローデータをストリームに埋め込む
+              if (event.name === 'generate_workflow') {
+                const output = event.data?.output;
+                if (typeof output === 'string' && output.startsWith('WORKFLOW_JSON:')) {
+                  const workflowJson = output.slice('WORKFLOW_JSON:'.length);
+                  const base64Data = Buffer.from(workflowJson).toString('base64');
+                  controller.enqueue(encoder.encode(`<<WORKFLOW_DATA:${base64Data}>>`));
+                  logger.info('Workflow data embedded in stream');
+                }
+              }
             }
           }
           logger.info('AI stream completed successfully');

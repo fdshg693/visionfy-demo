@@ -4,7 +4,7 @@
 
 - Gemini 2.5 Pro を使用したAIチャット機能
 - スレッドごとに会話を整理し、localStorageで永続化
-- AIがツール（`get_workflow_context`, `get_available_nodes`）を自律的に呼び出し、ワークフローの状態を取得可能
+- AIがツール（`get_workflow_context`, `get_available_nodes`, `generate_workflow`）を自律的に呼び出し、ワークフローの状態取得やワークフロー生成が可能
 - ストリーミングレスポンス（`text/plain` の `ReadableStream`、SSEではない）
 - ストリーム内にツール呼び出しマーカー（`<<TOOL_START:name>>` / `<<TOOL_END:name>>`）を含む
 - マルチ画像添付に対応（base64エンコード、保存時にbase64を除去して軽量化）
@@ -31,6 +31,11 @@
 - **`get_available_nodes`** — 利用可能な全処理ノードの一覧（関数名・アイコン・説明・パラメータ・デフォルト値）を返す
   - 常に有効（コンテキスト不要）
   - `PROCESS_FUNCTIONS_BASE` から `NODE_DESCRIPTIONS` を導出（AIプロンプトとの共有データソース）
+- **`generate_workflow`** — SimpleWorkflow形式のJSONからワークフローを生成してキャンバスに適用する
+  - 常に有効
+  - AIが `processNodes` 配列（`functionName` + 任意の `params`）を指定
+  - サーバー側でバリデーション後、ストリーム経由でフロントエンドに `<<WORKFLOW_DATA:base64>>` マーカーを送信
+  - フロントエンド（`ChatPanel`）がマーカーを検出し、`convertSimpleWorkflowToSnapshot()` で変換後にキャンバスに適用
 
 ## チャットUIコンポーネント
 
@@ -65,6 +70,7 @@
 - `frontend/lib/tools/types.ts` — `ToolContext`（nodes, edges, originalImage, nodeResults）, `NodeResultEntry`, `ToolFactory`, `ToolRegistryEntry` 型定義
 - `frontend/lib/tools/workflowContextTool.ts` — `get_workflow_context` ツール実装
 - `frontend/lib/tools/availableNodesTool.ts` — `get_available_nodes` ツール実装 + `NODE_DESCRIPTIONS` エクスポート
+- `frontend/lib/tools/generateWorkflowTool.ts` — `generate_workflow` ツール実装（SimpleWorkflowバリデーション + JSON返却）
 
 ## 設計上の特徴
 
