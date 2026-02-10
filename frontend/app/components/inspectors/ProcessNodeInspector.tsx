@@ -68,7 +68,7 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
         <div className={styles.inspectorContent}>
             {/* Label Input */}
             <FormField
-                label="Label"
+                label="ラベル"
                 name="label"
                 value={label}
                 onChange={(e) => {
@@ -82,7 +82,7 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
 
             {/* Function Selection */}
             <FormField
-                label="Function"
+                label="関数"
                 type="select"
                 name="function"
                 value={functionName}
@@ -92,7 +92,7 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
                 labelClassName={styles.label}
                 inputClassName={`${formStyles['input-select']} ${formStyles.dark}`}
             >
-                <option value="" disabled>Select a function</option>
+                <option value="" disabled>関数を選択</option>
                 {Object.keys(VISIONFY_FUNCTIONS_CONFIG).map((func) => (
                     <option key={func} value={func}>
                         {func}
@@ -111,7 +111,7 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
             {currentFunctionConfig && (
                 <div className={styles.section}>
                     <label className={styles.sectionLabel}>
-                        Parameters
+                        パラメータ
                     </label>
                     <div className={styles.paramsList}>
                         <ProcessNodeParamInputs

@@ -104,7 +104,7 @@ export function FlowCanvas({
           variant="secondary"
           onClick={onResetCanvas}
         >
-          ↺ Reset
+          ↺ リセット
         </Button>
         <Dropdown
           trigger={(isOpen, toggle) => (
@@ -112,7 +112,7 @@ export function FlowCanvas({
               variant="secondary"
               onClick={toggle}
             >
-              ＋ Add Node
+              ＋ ノード追加
             </Button>
           )}
           overlay

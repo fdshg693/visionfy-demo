@@ -20,7 +20,7 @@ export function InputImagePanel() {
 
     return (
         <div className={styles.inputImagePanel}>
-            <h3 className={styles.inputImageTitle}>Input Image</h3>
+            <h3 className={styles.inputImageTitle}>入力画像</h3>
             <div className={styles.inputImageUpload}>
                 <FilePond
                     files={files as any}
@@ -28,7 +28,7 @@ export function InputImagePanel() {
                     allowMultiple={false}
                     maxFiles={1}
                     name="files"
-                    labelIdle='Drag & Drop your image or <span class="filepond--label-action">Browse</span>'
+                    labelIdle='画像をドラッグ＆ドロップ または <span class="filepond--label-action">参照</span>'
                     credits={false}
                 />
             </div>

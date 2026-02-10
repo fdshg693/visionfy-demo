@@ -13,15 +13,15 @@ export function ExecutionHistoryTab({ originalImage, executionHistory }: Executi
     return (
         <div className={styles.pipelineContainer}>
             {executionHistory.length === 0 ? (
-                <div className={styles.emptyState}>No execution history</div>
+                <div className={styles.emptyState}>実行履歴なし</div>
             ) : (
                 <>
                     {/* Original Image */}
                     {originalImage && (
                         <PipelineImage
                             src={originalImage}
-                            alt="Original"
-                            label="Original"
+                            alt="元画像"
+                            label="元画像"
                         />
                     )}
 
@@ -34,7 +34,7 @@ export function ExecutionHistoryTab({ originalImage, executionHistory }: Executi
                             />
                             <PipelineImage
                                 src={item.resultImage}
-                                alt={`Step ${index + 1} result`}
+                                alt={`ステップ ${index + 1} の結果`}
                             />
                         </div>
                     ))}

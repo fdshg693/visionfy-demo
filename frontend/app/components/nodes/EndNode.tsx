@@ -14,7 +14,7 @@ export function EndNode() {
             />
 
             <div className={styles.label}>
-                End
+                終了
             </div>
         </div>
     );

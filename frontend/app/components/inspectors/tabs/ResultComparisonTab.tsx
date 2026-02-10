@@ -10,16 +10,16 @@ type ResultComparisonTabProps = {
 export function ResultComparisonTab({ originalImage, resultImage }: ResultComparisonTabProps) {
     return (
         <div className={styles.field}>
-            <label className={styles.label}>Before / After</label>
+            <label className={styles.label}>変更前 / 変更後</label>
             <ImageComparison
                 beforeSrc={originalImage}
-                beforeAlt="Original"
+                beforeAlt="元画像"
                 afterSrc={resultImage}
-                afterAlt="Result"
-                beforeLabel="Before"
-                afterLabel="After"
-                beforeEmptyText="None"
-                afterEmptyText="No result"
+                afterAlt="結果"
+                beforeLabel="変更前"
+                afterLabel="変更後"
+                beforeEmptyText="なし"
+                afterEmptyText="結果なし"
                 theme="dark"
                 aspectRatio={1}
                 imageBoxClassName={styles.imageBox}

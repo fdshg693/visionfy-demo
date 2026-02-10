@@ -31,8 +31,8 @@ export function ResultInspector() {
             {/* Tab Headers */}
             <TabGroup
                 tabs={[
-                    { value: 'result', label: 'Result' },
-                    { value: 'history', label: 'History' }
+                    { value: 'result', label: '結果' },
+                    { value: 'history', label: '履歴' }
                 ]}
                 activeTab={activeTab}
                 onChange={setActiveTab}

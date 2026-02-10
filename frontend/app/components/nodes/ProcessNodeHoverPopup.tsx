@@ -13,22 +13,22 @@ export function ProcessNodeHoverPopup({ inputImage, resultImage }: ProcessNodeHo
         <div className={styles.hoverPopup}>
             <div className={styles.hoverPopupImages}>
                 <div className={styles.hoverPopupImageWrapper}>
-                    <span className={styles.hoverPopupLabel}>Input</span>
+                    <span className={styles.hoverPopupLabel}>入力</span>
                     <ImageBox
                         src={inputImage}
-                        alt="Input"
+                        alt="入力"
                         width={100}
                         height={100}
                         theme="light"
-                        emptyText="No input"
+                        emptyText="入力なし"
                     />
                 </div>
                 <div className={styles.hoverPopupArrow}>→</div>
                 <div className={styles.hoverPopupImageWrapper}>
-                    <span className={styles.hoverPopupLabel}>Output</span>
+                    <span className={styles.hoverPopupLabel}>出力</span>
                     <ImageBox
                         src={resultImage}
-                        alt="Output"
+                        alt="出力"
                         width={100}
                         height={100}
                         theme="light"

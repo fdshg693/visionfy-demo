@@ -19,7 +19,7 @@ export function ProcessNodePopup({ selectedNode, onUpdateNode, onClose }: Proces
         <Modal
             isOpen={!!selectedNode}
             onClose={onClose}
-            title="Inspector"
+            title="ノード設定"
         >
             <ProcessNodeInspector selectedNode={selectedNode} onUpdateNode={onUpdateNode} />
         </Modal>
