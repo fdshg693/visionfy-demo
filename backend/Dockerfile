@@ -1,6 +1,6 @@
 
 # ── Stage 1: Build wheels ──────────────────────────────────────────
-FROM python:3.12-slim AS builder
+FROM python:3.13-slim AS builder
 
 WORKDIR /build
 
@@ -24,7 +24,7 @@ RUN grep -viE '^\s*(torch|torchvision)\s*$' requirements.txt > requirements-filt
 
 
 # ── Stage 2: Runtime (no gcc, no build tools) ──────────────────────
-FROM python:3.12-slim
+FROM python:3.13-slim
 
 ENV PYTHONUNBUFFERED=True
 ENV APP_HOME=/app

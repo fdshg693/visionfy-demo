@@ -1,16 +1,16 @@
 from dataclasses import dataclass
 from typing import Optional
+import logging
 
-from flask import Request, Response
+from flask import Request
 import cv2
+import numpy as np
 
-from common.image_processing import (
-    validate_image_request,
-    decode_image,
-    encode_image_response,
-    create_error_response,
-)
+from common.pipeline import create_image_processing_pipeline
 from common.params import get_optional_float_param
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -24,26 +24,19 @@ def _parse_params(request: Request) -> GrayscaleParams:
     )
 
 
-def transform_grayscale(request: Request) -> Response:
-    error = validate_image_request(request)
-    if error is not None:
-        return error
+def _process_grayscale(img: np.ndarray, params: GrayscaleParams) -> np.ndarray:
+    logger.info("Converting image to grayscale")
+    result = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    try:
-        params = _parse_params(request)
-    except ValueError as exc:
-        return create_error_response(str(exc), 400)
+    if params.threshold is not None:
+        logger.info(f"Applying binary threshold: {params.threshold}")
+        _, result = cv2.threshold(result, params.threshold, 255, cv2.THRESH_BINARY)
 
-    try:
-        img = decode_image(request.files["file"])
+    logger.info("Grayscale processing completed successfully")
+    return result
 
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        if params.threshold is not None:
-            _, img = cv2.threshold(img, params.threshold, 255, cv2.THRESH_BINARY)
-
-        return encode_image_response(img)
-    except ValueError as exc:
-        return create_error_response(str(exc), 400)
-    except Exception as e:
-        return create_error_response(f"Internal Server Error: {str(e)}", 500)
+transform_grayscale = create_image_processing_pipeline(
+    param_parser=_parse_params,
+    processor=_process_grayscale,
+)

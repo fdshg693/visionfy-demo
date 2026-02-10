@@ -1,26 +1,21 @@
-from flask import Request, Response
+import logging
+
 import cv2
+import numpy as np
 
-from common.image_processing import (
-    validate_image_request,
-    decode_image,
-    encode_image_response,
-    create_error_response,
+from common.pipeline import create_image_processing_pipeline
+
+
+logger = logging.getLogger(__name__)
+
+
+def _process_remove_noise(img: np.ndarray, params) -> np.ndarray:
+    logger.info("Applying median blur filter (kernel size: 3)")
+    result = cv2.medianBlur(img, 3)
+    logger.info("Noise removal processing completed successfully")
+    return result
+
+
+remove_noise = create_image_processing_pipeline(
+    processor=_process_remove_noise,
 )
-
-
-def remove_noise(request: Request) -> Response:
-    error = validate_image_request(request)
-    if error is not None:
-        return error
-
-    try:
-        img = decode_image(request.files["file"])
-
-        img = cv2.medianBlur(img, 3)
-
-        return encode_image_response(img)
-    except ValueError as exc:
-        return create_error_response(str(exc), 400)
-    except Exception as e:
-        return create_error_response(f"Internal Server Error: {str(e)}", 500)

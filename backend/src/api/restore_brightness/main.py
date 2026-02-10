@@ -1,15 +1,14 @@
 from dataclasses import dataclass
+import logging
 
-from flask import Request, Response
+from flask import Request
 import numpy as np
 
-from common.image_processing import (
-    validate_image_request,
-    decode_image,
-    encode_image_response,
-    create_error_response,
-)
+from common.pipeline import create_image_processing_pipeline
 from common.params import get_int_param
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -23,27 +22,23 @@ def _parse_params(request: Request) -> RestoreBrightnessParams:
     )
 
 
-def restore_brightness(request: Request) -> Response:
-    error = validate_image_request(request)
-    if error is not None:
-        return error
+def _process_restore_brightness(
+    img: np.ndarray, params: RestoreBrightnessParams
+) -> np.ndarray:
+    beta = params.value
+    if beta != 0:
+        logger.info(f"Adjusting brightness with beta={beta}")
+        img_f = img.astype(np.float32)
+        img_f = img_f - beta
+        result = np.clip(img_f, 0, 255).astype(np.uint8)
+        logger.info("Brightness restoration completed successfully")
+        return result
+    else:
+        logger.info("Skipping brightness adjustment (beta=0)")
+        return img
 
-    try:
-        params = _parse_params(request)
-    except ValueError as exc:
-        return create_error_response(str(exc), 400)
 
-    try:
-        img = decode_image(request.files["file"])
-
-        beta = params.value
-        if beta != 0:
-            img_f = img.astype(np.float32)
-            img_f = img_f - beta
-            img = np.clip(img_f, 0, 255).astype(np.uint8)
-
-        return encode_image_response(img)
-    except ValueError as exc:
-        return create_error_response(str(exc), 400)
-    except Exception as e:
-        return create_error_response(f"Internal Server Error: {str(e)}", 500)
+restore_brightness = create_image_processing_pipeline(
+    param_parser=_parse_params,
+    processor=_process_restore_brightness,
+)

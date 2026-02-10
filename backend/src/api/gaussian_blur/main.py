@@ -1,15 +1,15 @@
 from dataclasses import dataclass
+import logging
 
-from flask import Request, Response
+from flask import Request
 import cv2
+import numpy as np
 
-from common.image_processing import (
-    validate_image_request,
-    decode_image,
-    encode_image_response,
-    create_error_response,
-)
+from common.pipeline import create_image_processing_pipeline
 from common.params import get_float_param, get_int_param
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -29,26 +29,28 @@ def _parse_params(request: Request) -> GaussianBlurParams:
     )
 
 
-def apply_gaussian_blur(request: Request) -> Response:
-    error = validate_image_request(request)
-    if error is not None:
-        return error
+def _process_gaussian_blur(img: np.ndarray, params: GaussianBlurParams) -> np.ndarray:
+    if params.ksize_x > 0 or params.ksize_y > 0 or params.sigma_x > 0:
+        ksize_x = params.ksize_x + (
+            1 if params.ksize_x > 0 and params.ksize_x % 2 == 0 else 0
+        )
+        ksize_y = params.ksize_y + (
+            1 if params.ksize_y > 0 and params.ksize_y % 2 == 0 else 0
+        )
+        logger.info(
+            f"Applying Gaussian blur with ksize=({ksize_x}, {ksize_y}), sigma=({params.sigma_x}, {params.sigma_y})"
+        )
+        result = cv2.GaussianBlur(
+            img, (ksize_x, ksize_y), params.sigma_x, sigmaY=params.sigma_y
+        )
+        logger.info("Gaussian blur processing completed successfully")
+        return result
+    else:
+        logger.info("Skipping Gaussian blur (all parameters are zero)")
+        return img
 
-    try:
-        params = _parse_params(request)
-    except ValueError as exc:
-        return create_error_response(str(exc), 400)
 
-    try:
-        img = decode_image(request.files["file"])
-
-        if params.ksize_x > 0 or params.ksize_y > 0 or params.sigma_x > 0:
-            ksize_x = params.ksize_x + (1 if params.ksize_x > 0 and params.ksize_x % 2 == 0 else 0)
-            ksize_y = params.ksize_y + (1 if params.ksize_y > 0 and params.ksize_y % 2 == 0 else 0)
-            img = cv2.GaussianBlur(img, (ksize_x, ksize_y), params.sigma_x, sigmaY=params.sigma_y)
-
-        return encode_image_response(img)
-    except ValueError as exc:
-        return create_error_response(str(exc), 400)
-    except Exception as e:
-        return create_error_response(f"Internal Server Error: {str(e)}", 500)
+apply_gaussian_blur = create_image_processing_pipeline(
+    param_parser=_parse_params,
+    processor=_process_gaussian_blur,
+)

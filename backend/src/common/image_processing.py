@@ -1,8 +1,11 @@
 """Common image processing utilities for all API endpoints."""
 
-from flask import Request, Response, make_response, jsonify
+from flask import Request, Response
 import cv2
 import numpy as np
+
+from common.response import create_error_response
+from common.validation import validate_image_file
 
 
 def validate_image_request(request: Request) -> Response | None:
@@ -11,13 +14,12 @@ def validate_image_request(request: Request) -> Response | None:
     Returns None if valid, or an error Response if invalid.
     """
     if "file" not in request.files:
-        return create_error_response("No file part", 400)
+        return create_error_response("No file part", 400, "MISSING_FILE")
 
     file = request.files["file"]
-    if file.filename == "":
-        return create_error_response("No selected file", 400)
 
-    return None
+    # 強化されたバリデーションを使用
+    return validate_image_file(file)
 
 
 def decode_image(file, flags: int = cv2.IMREAD_COLOR) -> np.ndarray:
@@ -32,25 +34,3 @@ def decode_image(file, flags: int = cv2.IMREAD_COLOR) -> np.ndarray:
         raise ValueError("Could not decode image")
 
     return img
-
-
-def encode_image_response(image: np.ndarray) -> Response:
-    """Encode image to JPEG and create Flask response.
-
-    Raises RuntimeError if encoding fails.
-    """
-    ret, buffer = cv2.imencode(".jpg", image)
-
-    if not ret:
-        raise RuntimeError("Could not encode image")
-
-    response = make_response(buffer.tobytes())
-    response.headers["Content-Type"] = "image/jpeg"
-    return response
-
-
-def create_error_response(message: str, status_code: int) -> Response:
-    """Create a standardized JSON error response."""
-    response = jsonify({"error": message})
-    response.status_code = status_code
-    return response

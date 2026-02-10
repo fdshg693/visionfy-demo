@@ -1,15 +1,15 @@
 from dataclasses import dataclass
+import logging
 
-from flask import Request, Response
+from flask import Request
 import cv2
+import numpy as np
 
-from common.image_processing import (
-    validate_image_request,
-    decode_image,
-    encode_image_response,
-    create_error_response,
-)
+from common.pipeline import create_image_processing_pipeline
 from common.params import get_float_param, get_int_param
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -27,27 +27,21 @@ def _parse_params(request: Request) -> CreateClaheParams:
     )
 
 
-def apply_clahe(request: Request) -> Response:
-    error = validate_image_request(request)
-    if error is not None:
-        return error
+def _process_clahe(img: np.ndarray, params: CreateClaheParams) -> np.ndarray:
+    logger.info(
+        f"Applying CLAHE with clipLimit={params.clip_limit}, tileGridSize=({params.tile_grid_x}, {params.tile_grid_y})"
+    )
+    clahe = cv2.createCLAHE(
+        clipLimit=params.clip_limit,
+        tileGridSize=(params.tile_grid_x, params.tile_grid_y),
+    )
+    result = clahe.apply(img)
+    logger.info("CLAHE processing completed successfully")
+    return result
 
-    try:
-        params = _parse_params(request)
-    except ValueError as exc:
-        return create_error_response(str(exc), 400)
 
-    try:
-        img = decode_image(request.files["file"], flags=0)
-
-        clahe = cv2.createCLAHE(
-            clipLimit=params.clip_limit,
-            tileGridSize=(params.tile_grid_x, params.tile_grid_y),
-        )
-        cl1 = clahe.apply(img)
-
-        return encode_image_response(cl1)
-    except ValueError as exc:
-        return create_error_response(str(exc), 400)
-    except Exception as e:
-        return create_error_response(f"Internal Server Error: {str(e)}", 500)
+apply_clahe = create_image_processing_pipeline(
+    param_parser=_parse_params,
+    processor=_process_clahe,
+    decode_flags=0,  # Grayscale decode for CLAHE
+)

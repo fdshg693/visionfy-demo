@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 import os
 import logging
+from werkzeug.exceptions import RequestEntityTooLarge
 
 # Import function modules
 from api.createclahe import main as createclahe
@@ -12,6 +13,8 @@ from api.restore_brightness import main as restore_brightness
 from api.model_inference import main as model_inference
 
 from common.decorators import image_endpoint
+from common.config import config
+from common.response import create_error_response
 
 from flask_cors import CORS
 
@@ -45,6 +48,9 @@ def log_env_vars():
 app = Flask(__name__, static_url_path="", static_folder="static")
 CORS(app)
 
+# ファイルサイズ制限を設定（configから読み込み）
+app.config["MAX_CONTENT_LENGTH"] = config.MAX_CONTENT_LENGTH
+
 # 起動時ログ出力（Gunicorn環境でも実行されるようモジュールレベルで呼び出し）
 log_env_vars()
 
@@ -68,6 +74,19 @@ def favicon():
 def health_check():
     """ヘルスチェック用エンドポイント"""
     return jsonify({"status": "healthy"}), 200
+
+
+@app.errorhandler(413)
+@app.errorhandler(RequestEntityTooLarge)
+def handle_file_too_large(error):
+    """ファイルサイズ超過時のエラーハンドリング"""
+    max_size_mb = config.MAX_CONTENT_LENGTH / (1024 * 1024)
+    logger.warning(f"File size exceeded: {error}")
+    return create_error_response(
+        f"File too large. Maximum size: {max_size_mb:.0f}MB",
+        413,
+        "FILE_TOO_LARGE",
+    )
 
 
 @app.route("/api/createclahe", methods=["POST"])
@@ -112,7 +131,22 @@ def route_model_inference():
     return model_inference.apply_model_inference(request)
 
 
+def validate_env_vars() -> None:
+    """必須環境変数の検証"""
+    # MODEL_GCS_BUCKETとMODEL_GCS_PATHは/api/model_inferenceでのみ必要
+    # 他のエンドポイントでは不要なので、ここでは警告のみ
+    env_vars_optional = ["MODEL_GCS_BUCKET", "MODEL_GCS_PATH"]
+
+    for var in env_vars_optional:
+        if not os.getenv(var):
+            logger.warning(
+                f"Optional environment variable {var} is not set. "
+                "Required for /api/model_inference endpoint."
+            )
+
+
 if __name__ == "__main__":
     # ローカル開発用
+    validate_env_vars()
     logger.info("Starting Flask server on 0.0.0.0:8080")
     app.run(host="0.0.0.0", port=8080, debug=True)
