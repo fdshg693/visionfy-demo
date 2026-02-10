@@ -22,6 +22,4 @@ BECAUSE in tha case there is no wrting conflicts.
 
 @../ai/overview/infrastructure.md
 
-## AI CHAT
-
-@../ai/overview/ai-chat.md
+It is possible that other convenient documents exist under `ai\overview` or `docs` folder.

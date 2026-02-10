@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google-cloud/logging-pino": "^6.0.0",
     "@langchain/core": "^1.1.18",
     "@langchain/google-genai": "^2.1.14",
     "@xyflow/react": "^12.10.0",

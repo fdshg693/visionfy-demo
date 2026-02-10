@@ -110,6 +110,11 @@ resource "google_cloud_run_v2_service" "frontend" {
         value = "info"
       }
 
+      env {
+        name  = "GCP_PROJECT"
+        value = google_project.main.project_id
+      }
+
       startup_probe {
         tcp_socket {
           port = 3000

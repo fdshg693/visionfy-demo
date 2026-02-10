@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ChatService, type ChatMessage } from "@/lib/chatService";
-import { createLogger, logEnvVar } from "@/lib/logger";
+import { createLogger, logEnvVar, withHttpContext } from "@/lib/logger";
 import type { Node, Edge } from '@xyflow/react';
 
-const logger = createLogger('ChatAPI');
+const baseLogger = createLogger('ChatAPI');
 
 /**
  * Gemini APIを使用してチャットメッセージに応答するエンドポイント
@@ -12,6 +12,9 @@ const logger = createLogger('ChatAPI');
  * @param req - 会話履歴とワークフロー情報を含むPOSTリクエスト
  */
 export async function POST(req: NextRequest) {
+  // HTTPコンテキストとトレースIDを含むロガーを作成
+  const logger = withHttpContext(baseLogger, req, 'POST', req.url);
+
   try {
     const { messages, nodes, edges, originalImage, nodeResults, customSystemPrompt } = (await req.json()) as {
       messages: ChatMessage[];
