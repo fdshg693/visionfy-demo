@@ -1,0 +1,20 @@
+.jsonTextarea {
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.hint {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}

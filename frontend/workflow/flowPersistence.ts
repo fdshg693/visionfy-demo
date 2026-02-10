@@ -24,7 +24,7 @@ type PersistedFlowHistory = {
   entries: FlowHistoryEntry[];
 };
 
-const isValidSnapshot = (value: unknown): value is FlowSnapshot => {
+export const isValidSnapshot = (value: unknown): value is FlowSnapshot => {
   if (!value || typeof value !== 'object') return false;
   const snapshot = value as FlowSnapshot;
   return (
@@ -40,7 +40,7 @@ const createDefaultName = (createdAt: string) => {
   return `スナップショット ${formatSnapshotDate(createdAt)}`;
 };
 
-const normalizeSnapshot = (snapshot: FlowSnapshot): FlowSnapshot => {
+export const normalizeSnapshot = (snapshot: FlowSnapshot): FlowSnapshot => {
   return {
     ...snapshot,
     nodes: snapshot.nodes.map((node) =>

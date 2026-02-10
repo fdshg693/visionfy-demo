@@ -14,9 +14,11 @@ import { useInspector } from '@/contexts/InspectorContext';
 import { Button, MenuButton } from '@/components/ui/Button';
 import { UsageGuidePanel } from './UsageGuidePanel';
 import { SnapshotDropdown } from './SnapshotDropdown';
+import { JsonImportModal } from './JsonImportModal';
 import { Dropdown } from '@/components/ui/Dropdown';
 import type { ProcessNodeFunctionName } from '@/types/node';
 import type { FlowHistoryEntry } from '@/workflow/flowPersistence';
+import type { FlowSnapshot } from '@/workflow/flowSerializer';
 import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/opencv';
 
 import styles from '@/app/page.module.css';
@@ -35,6 +37,7 @@ type FlowCanvasProps = {
   onRestoreSnapshot: (entry: FlowHistoryEntry) => void;
   onRenameSnapshot: (entryId: string, name: string) => void;
   onDeleteSnapshot: (entryId: string) => void;
+  onImportSnapshot: (snapshot: FlowSnapshot) => void;
 };
 
 /**
@@ -55,10 +58,12 @@ export function FlowCanvas({
   onRestoreSnapshot,
   onRenameSnapshot,
   onDeleteSnapshot,
+  onImportSnapshot,
 }: FlowCanvasProps) {
   const { nodes, edges, onNodesChange, onEdgesChange } = useFlowStore();
   const { files, executeWorkflow } = useInspector();
   const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const {
     containerRef,
     contextMenu,
@@ -130,9 +135,12 @@ export function FlowCanvas({
         </Dropdown>
       </div>
 
-      {/* Action buttons: Guide, History, Save, Run */}
+      {/* Action buttons: Guide, Import, History, Save, Run */}
       <div className={styles.runButtonArea}>
         <UsageGuidePanel />
+        <Button variant="secondary" onClick={() => setShowImportModal(true)}>
+          📥 JSONインポート
+        </Button>
         <div className={styles.actionButtonWrapper}>
           <Button variant="secondary" onClick={() => setShowHistoryDropdown((prev) => !prev)}>
             📋 履歴
@@ -149,6 +157,13 @@ export function FlowCanvas({
         <Button variant="secondary" onClick={onSaveSnapshot}>💾 保存</Button>
         <Button variant="blue" onClick={executeWorkflow} disabled={files.length === 0}>▶ Run</Button>
       </div>
+
+      {/* JSON Import Modal */}
+      <JsonImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImport={onImportSnapshot}
+      />
 
       {contextMenu && (
         <>

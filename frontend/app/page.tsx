@@ -18,8 +18,10 @@ import { initialEdges, initialNodes, nodeTypes } from '@/constants/flowConfig';
 import { getConnectionConstraintError } from '@/workflow/connectionConstraints';
 import {
   loadFlowHistory,
+  saveFlowSnapshot,
   type FlowHistoryEntry,
 } from '@/workflow/flowPersistence';
+import type { FlowSnapshot } from '@/workflow/flowSerializer';
 import {
   addEdge,
   type Connection,
@@ -74,7 +76,7 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     if (node.type !== NODE_TYPE.PROCESS) return;
     handleNodeClick(_event, node);
   }, [handleNodeClick]);
-  const { showError, showWarning } = useToast();
+  const { showError, showWarning, showSuccess } = useToast();
 
   // エラーハンドラ
   const handleExecutionError = useCallback((error: unknown) => {
@@ -155,6 +157,23 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     [edges, setEdges, showWarning]
   );
 
+  // JSONインポートハンドラ
+  const handleImportSnapshot = useCallback((snapshot: FlowSnapshot) => {
+    // Restore workflow to canvas
+    setNodes(snapshot.nodes);
+    setEdges(snapshot.edges);
+    setViewport(snapshot.viewport);
+
+    // Auto-save to history with custom name
+    const entry = saveFlowSnapshot(snapshot, 'インポートしたワークフロー');
+    // Note: historyEntries is managed by useSnapshotHistory hook internally
+    // The saved snapshot will appear after page reload, which is acceptable
+    // since the workflow is already restored to the canvas
+
+    // Show success toast
+    showSuccess('インポート成功', 'ワークフローが正常に復元されました');
+  }, [setNodes, setEdges, setViewport, showSuccess]);
+
   const inspectorValue = useMemo(() => ({
     files,
     setFiles,
@@ -183,6 +202,7 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
           onRestoreSnapshot={handleRestoreSnapshot}
           onRenameSnapshot={handleRenameSnapshot}
           onDeleteSnapshot={handleDeleteSnapshot}
+          onImportSnapshot={handleImportSnapshot}
         />
 
         <div className={styles.sidebar}>
