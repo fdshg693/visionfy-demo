@@ -7,3 +7,4 @@ export { TOOL_REGISTRY, createEnabledTools } from './registry';
 export { createWorkflowContextTool, isWorkflowContextToolEnabled } from './workflowContextTool';
 export { createAvailableNodesTool, isAvailableNodesToolEnabled } from './availableNodesTool';
 export { createGenerateWorkflowTool, isGenerateWorkflowToolEnabled } from './generateWorkflowTool';
+export { createGetImageTool, isGetImageToolEnabled } from './getImageTool';

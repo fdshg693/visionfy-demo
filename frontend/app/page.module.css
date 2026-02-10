@@ -287,7 +287,7 @@
   padding: 8px 12px;
   border-radius: 14px 14px 4px 14px;
   font-size: 13px;
-  max-width: 85%;
+  max-width: 90%;
   word-break: break-word;
   white-space: pre-wrap;
 }
@@ -299,8 +299,9 @@
   padding: 8px 12px;
   border-radius: 14px 14px 14px 4px;
   font-size: 13px;
-  max-width: 85%;
+  max-width: 90%;
   word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .chatMessageImages {

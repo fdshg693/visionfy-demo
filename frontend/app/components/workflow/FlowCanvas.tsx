@@ -137,11 +137,11 @@ export function FlowCanvas({
       {/* Action buttons: Guide, Import, History, Save, Run */}
       <div className={styles.runButtonArea}>
         <UsageGuidePanel />
-        <Button variant="secondary" onClick={() => setShowImportModal(true)}>
+        <Button variant="secondary" size="lg" onClick={() => setShowImportModal(true)}>
           📥 JSONインポート
         </Button>
         <div className={styles.actionButtonWrapper}>
-          <Button variant="secondary" onClick={() => setShowHistoryDropdown((prev) => !prev)}>
+          <Button variant="secondary" size="lg" onClick={() => setShowHistoryDropdown((prev) => !prev)}>
             📋 履歴
           </Button>
           <SnapshotDropdown
@@ -153,8 +153,8 @@ export function FlowCanvas({
             onDeleteSnapshot={onDeleteSnapshot}
           />
         </div>
-        <Button variant="secondary" onClick={onSaveSnapshot}>💾 保存</Button>
-        <Button variant="blue" onClick={executeWorkflow} disabled={files.length === 0}>▶ Run</Button>
+        <Button variant="secondary" size="lg" onClick={onSaveSnapshot}>💾 保存</Button>
+        <Button variant="blue" size="lg" onClick={executeWorkflow} disabled={files.length === 0}>▶ Run</Button>
       </div>
 
       {/* JSON Import Modal */}

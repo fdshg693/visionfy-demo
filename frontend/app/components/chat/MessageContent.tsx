@@ -15,7 +15,7 @@ export function MessageContent({ content }: MessageContentProps) {
     let lastIndex = 0;
 
     // 毎回新しいRegExpインスタンスを作成してlastIndex問題を回避
-    const pattern = /<<TOOL_START:(.+?)>>|<<TOOL_END:(.+?)>>|<<WORKFLOW_DATA:(.+?)>>/g;
+    const pattern = /<<TOOL_START:(.+?)>>|<<TOOL_END:(.+?)>>|\[WORKFLOW_SESSION:[^\]]+\]|\[IMAGE_SESSION:[^\]]+\]/g;
     let match;
 
     while ((match = pattern.exec(content)) !== null) {

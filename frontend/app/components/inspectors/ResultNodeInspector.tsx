@@ -36,6 +36,7 @@ export function ResultInspector() {
                 ]}
                 activeTab={activeTab}
                 onChange={setActiveTab}
+                size="lg"
                 fullWidth
             />
 

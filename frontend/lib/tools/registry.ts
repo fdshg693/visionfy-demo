@@ -16,6 +16,10 @@ import {
   createGenerateWorkflowTool,
   isGenerateWorkflowToolEnabled,
 } from './generateWorkflowTool';
+import {
+  createGetImageTool,
+  isGetImageToolEnabled,
+} from './getImageTool';
 
 /**
  * 利用可能なすべてのツールのレジストリ
@@ -39,6 +43,12 @@ export const TOOL_REGISTRY: ToolRegistryEntry[] = [
     description: 'ワークフローを生成してキャンバスに適用',
     factory: createGenerateWorkflowTool,
     isEnabled: isGenerateWorkflowToolEnabled,
+  },
+  {
+    name: 'get_image',
+    description: 'ワークフローの画像を取得して確認',
+    factory: createGetImageTool,
+    isEnabled: isGetImageToolEnabled,
   },
 ];
 

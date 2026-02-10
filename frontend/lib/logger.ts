@@ -8,6 +8,8 @@ import pino from "pino";
 const isServer = typeof window === "undefined";
 const isDevelopment = process.env.NODE_ENV === "development";
 const isProduction = process.env.NODE_ENV === "production";
+// ビルド時はCloud Loggingを無効化（環境変数で明示的に有効化された場合のみ使用）
+const enableCloudLogging = process.env.ENABLE_CLOUD_LOGGING === "true";
 
 // 環境変数のログレベル（デフォルト: development=debug, production=info）
 const logLevel = process.env.LOG_LEVEL || (isDevelopment ? "debug" : "info");
@@ -37,9 +39,10 @@ const serverConfig: pino.LoggerOptions = {
       },
     },
   }),
-  // 本番環境ではCloud Loggingトランスポートを使用
+  // 本番環境ではCloud Loggingトランスポートを使用（環境変数で明示的に有効化された場合）
   ...(isProduction &&
-    isServer && {
+    isServer &&
+    enableCloudLogging && {
       transport: {
         target: "@google-cloud/logging-pino",
         options: {

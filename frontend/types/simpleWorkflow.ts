@@ -29,18 +29,37 @@ export type SimpleWorkflow = {
  * 簡易ワークフロー形式の型ガード
  */
 export const isSimpleWorkflow = (value: unknown): value is SimpleWorkflow => {
-  if (!value || typeof value !== 'object') return false;
+  console.log('[isSimpleWorkflow] Checking value:', JSON.stringify(value, null, 2));
+
+  if (!value || typeof value !== 'object') {
+    console.log('[isSimpleWorkflow] Failed: value is not an object');
+    return false;
+  }
 
   const workflow = value as Partial<SimpleWorkflow>;
 
   // processNodesが配列であることをチェック
-  if (!Array.isArray(workflow.processNodes)) return false;
+  if (!Array.isArray(workflow.processNodes)) {
+    console.log('[isSimpleWorkflow] Failed: processNodes is not an array');
+    return false;
+  }
+
+  console.log('[isSimpleWorkflow] processNodes is array with length:', workflow.processNodes.length);
 
   // 各要素がSimpleProcessNodeの構造を持つかチェック
-  return workflow.processNodes.every(
-    (node) =>
+  const allValid = workflow.processNodes.every((node, index) => {
+    const isValid =
       node &&
       typeof node === 'object' &&
-      typeof (node as SimpleProcessNode).functionName === 'string'
-  );
+      typeof (node as SimpleProcessNode).functionName === 'string';
+
+    if (!isValid) {
+      console.log(`[isSimpleWorkflow] Failed: processNodes[${index}] is invalid:`, node);
+    }
+
+    return isValid;
+  });
+
+  console.log('[isSimpleWorkflow] All nodes valid:', allValid);
+  return allValid;
 };

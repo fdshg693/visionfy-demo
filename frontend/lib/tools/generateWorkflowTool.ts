@@ -26,31 +26,53 @@ export const createGenerateWorkflowTool: ToolFactory = () => {
               "処理関数名（例: createclahe, gaussianblur, grayscale, remove_noise, restore_brightness, restore_contrast, model_inference）"
             ),
           params: z
-            .record(
-              z.string(),
-              z.union([
-                z.number(),
-                z.string(),
-                z.boolean(),
-                z.array(z.number()),
-              ])
-            )
+            .any()
             .optional()
             .describe(
-              "処理パラメータ（省略時はデフォルト値が使用されます）"
+              "処理パラメータのオブジェクト（省略時はデフォルト値が使用されます）。例: {clipLimit: 2.0, tileGridSize: [8, 8]}"
             ),
         })
       ),
     }),
     func: async (input) => {
       try {
+        console.log('[generateWorkflowTool] Called with input:', JSON.stringify(input, null, 2));
+
+        // バリデーション
         for (const node of input.processNodes) {
           if (!validFunctionNames.includes(node.functionName)) {
             return `エラー: 不明な関数名「${node.functionName}」です。利用可能な関数名: ${validFunctionNames.join(', ')}`;
           }
         }
-        return `WORKFLOW_JSON:${JSON.stringify(input)}`;
+
+        console.log('[generateWorkflowTool] Validation passed');
+
+        // セッションIDを生成してワークフローデータを内部APIに保存
+        const sessionId = crypto.randomUUID();
+        const port = process.env.PORT || 3000;
+        const apiUrl = `http://localhost:${port}/api/apply-workflow`;
+
+        console.log('[generateWorkflowTool] Sending to API:', apiUrl);
+        console.log('[generateWorkflowTool] Payload:', JSON.stringify({ workflowData: input, sessionId }, null, 2));
+
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ workflowData: input, sessionId }),
+        });
+
+        console.log('[generateWorkflowTool] API response status:', response.status);
+
+        if (!response.ok) {
+          console.error('[generateWorkflowTool] API request failed with status:', response.status);
+          return 'ワークフローデータの保存に失敗しました。';
+        }
+
+        const successMessage = `ワークフローを生成しました。キャンバスに適用します。[WORKFLOW_SESSION:${sessionId}]`;
+        console.log('[generateWorkflowTool] Returning success message:', successMessage);
+        return successMessage;
       } catch (error) {
+        console.error('[generateWorkflowTool] Error:', error);
         return `ワークフロー生成に失敗しました: ${error instanceof Error ? error.message : String(error)}`;
       }
     },

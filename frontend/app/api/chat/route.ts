@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ChatService } from "@/lib/chatService";
+import { buildImageContext } from "@/lib/chatPrompts";
 import type { ChatMessage } from "@/types/chat";
 import { createLogger, logEnvVar, withHttpContext } from "@/lib/logger";
 import type { Node, Edge } from '@xyflow/react';
@@ -58,8 +59,11 @@ export async function POST(req: NextRequest) {
       nodeResults: nodeResults ? JSON.stringify(nodeResults) : undefined,
     } : undefined;
     
-    logger.info({ hasToolContext: !!toolContext, hasCustomPrompt: !!customSystemPrompt }, 'Starting AI stream');
-    const eventStream = await chatService.stream(messages, toolContext, customSystemPrompt);
+    // 画像コンテキストの構築（システムプロンプトに動的に付加）
+    const imageContext = buildImageContext(originalImage, nodeResults);
+
+    logger.info({ hasToolContext: !!toolContext, hasCustomPrompt: !!customSystemPrompt, hasImageContext: !!imageContext }, 'Starting AI stream');
+    const eventStream = await chatService.stream(messages, toolContext, customSystemPrompt, imageContext || undefined);
 
     const readableStream = new ReadableStream({
       async start(controller) {
@@ -85,22 +89,29 @@ export async function POST(req: NextRequest) {
             }
             // ツール実行終了
             else if (event.event === 'on_tool_end') {
-              logger.info({ 
-                tool: event.name, 
-                output: event.data?.output 
+              const output = event.data?.output;
+              logger.info({
+                tool: event.name,
+                output: output
               }, 'Tool execution completed');
-              controller.enqueue(encoder.encode(`<<TOOL_END:${event.name}>>`));
 
-              // generate_workflow ツールの場合、ワークフローデータをストリームに埋め込む
-              if (event.name === 'generate_workflow') {
-                const output = event.data?.output;
-                if (typeof output === 'string' && output.startsWith('WORKFLOW_JSON:')) {
-                  const workflowJson = output.slice('WORKFLOW_JSON:'.length);
-                  const base64Data = Buffer.from(workflowJson).toString('base64');
-                  controller.enqueue(encoder.encode(`<<WORKFLOW_DATA:${base64Data}>>`));
-                  logger.info('Workflow data embedded in stream');
+              // ツールの出力をログに記録（デバッグ用）
+              if (output) {
+                // ToolMessageオブジェクトの場合はcontentプロパティを取得
+                const outputContent = typeof output === 'object' && output !== null && 'content' in output
+                  ? String(output.content)
+                  : String(output);
+
+                logger.debug({ tool: event.name, outputContent }, 'Tool output content');
+
+                // ツールの出力がセッションマーカーを含む場合、それをストリームに含める
+                if (outputContent.includes('[WORKFLOW_SESSION:') || outputContent.includes('[IMAGE_SESSION:')) {
+                  logger.info({ tool: event.name, marker: 'Detected session marker in tool output', content: outputContent }, 'Including tool output in stream');
+                  controller.enqueue(encoder.encode(outputContent));
                 }
               }
+
+              controller.enqueue(encoder.encode(`<<TOOL_END:${event.name}>>`));
             }
           }
           logger.info('AI stream completed successfully');

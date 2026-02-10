@@ -28,7 +28,7 @@ export function InputImagePanel() {
                     allowMultiple={false}
                     maxFiles={1}
                     name="files"
-                    labelIdle='画像をドラッグ＆ドロップ または <span class="filepond--label-action">参照</span>'
+                    labelIdle='ドラッグ＆ドロップ または <span class="filepond--label-action">参照</span>'
                     credits={false}
                 />
             </div>

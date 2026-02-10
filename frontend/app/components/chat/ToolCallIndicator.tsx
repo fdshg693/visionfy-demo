@@ -7,6 +7,7 @@ const TOOL_DISPLAY_NAMES: Record<string, string> = {
     get_workflow_context: 'ワークフロー状態を取得',
     get_available_nodes: '利用可能ノード一覧を取得',
     generate_workflow: 'ワークフローを生成',
+    get_image: 'ワークフロー画像を取得',
 };
 
 interface ToolCallIndicatorProps {

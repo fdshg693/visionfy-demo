@@ -57,7 +57,6 @@ export function WorkflowImagePicker({
                     className={styles.triggerButton}
                 >
                     <Image size={16} />
-                    <span className={styles.triggerText}>ワークフロー画像</span>
                 </IconButton>
             )}
             className={styles.dropdown}
