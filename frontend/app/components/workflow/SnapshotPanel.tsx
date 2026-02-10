@@ -1,9 +1,10 @@
 import type { FlowHistoryEntry } from '@/workflow/flowPersistence';
 import { formatSnapshotDate } from '@/lib/formatDate';
 import { useState } from 'react';
+import { Button } from '@/components/ui/Button';
+import { FormField } from '@/components/ui/FormField';
 
 import styles from '@/app/page.module.css';
-import buttonStyles from '@/lib/styles/buttons.module.css';
 import formStyles from '@/lib/styles/forms.module.css';
 
 type SnapshotPanelProps = {
@@ -33,9 +34,9 @@ export function SnapshotPanel({
       {/* 保存セクション */}
       <div className={styles.snapshotSavePanel}>
         <p className={styles.snapshotHelp}>現在のフロー状態を保存します。</p>
-        <button type="button" onClick={onSaveSnapshot} className={buttonStyles['btn-primary-sm']}>
+        <Button variant="primary" size="sm" onClick={onSaveSnapshot}>
           保存する
-        </button>
+        </Button>
       </div>
 
       {/* 履歴セクション */}
@@ -49,15 +50,16 @@ export function SnapshotPanel({
               <li key={entry.id}>
                 {editingId === entry.id ? (
                   <div className={styles.snapshotEditRow}>
-                    <input
-                      className={formStyles['input-field']}
+                    <FormField
+                      name="snapshotName"
                       value={draftName}
                       onChange={(event) => setDraftName(event.target.value)}
                       placeholder="スナップショット名"
+                      inputClassName={formStyles['input-field']}
                     />
-                    <button
-                      type="button"
-                      className={buttonStyles['btn-primary-sm']}
+                    <Button
+                      variant="primary"
+                      size="sm"
                       onClick={() => {
                         const trimmed = draftName.trim();
                         if (trimmed) {
@@ -68,17 +70,17 @@ export function SnapshotPanel({
                       }}
                     >
                       保存
-                    </button>
-                    <button
-                      type="button"
-                      className={buttonStyles['btn-secondary-sm']}
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       onClick={() => {
                         setEditingId(null);
                         setDraftName('');
                       }}
                     >
                       キャンセル
-                    </button>
+                    </Button>
                   </div>
                 ) : (
                   <div className={styles.snapshotRow}>
@@ -91,23 +93,23 @@ export function SnapshotPanel({
                       <span className={styles.snapshotDate}>{formatSnapshotDate(entry.createdAt)}</span>
                     </button>
                     <div className={styles.snapshotActions}>
-                      <button
-                        type="button"
-                        className={buttonStyles['btn-secondary-sm']}
+                      <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={() => {
                           setEditingId(entry.id);
                           setDraftName(entry.name);
                         }}
                       >
                         編集
-                      </button>
-                      <button
-                        type="button"
-                        className={buttonStyles['btn-danger-sm']}
+                      </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
                         onClick={() => onDeleteSnapshot(entry.id)}
                       >
                         削除
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 )}

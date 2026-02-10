@@ -4,6 +4,7 @@ import type { OpencvParamDefinition, OpencvParamValue } from '@/types/opencv';
 import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/opencv';
 import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
 import type { ReactNode } from 'react';
+import { FormField } from '@/components/ui/FormField';
 import styles from './ProcessNode.module.css';
 import formStyles from '@/lib/styles/forms.module.css';
 
@@ -20,20 +21,6 @@ type Props = {
         smallInput: string;
     };
 };
-
-type ParamRowProps = {
-    label: string;
-    children: ReactNode;
-};
-
-function ParamRow({ label, children }: ParamRowProps) {
-    return (
-        <div className={styles.paramRow}>
-            <label>{label}</label>
-            {children}
-        </div>
-    );
-}
 
 type ParamFieldProps = {
     config: OpencvParamDefinition;
@@ -55,24 +42,29 @@ type ParamFieldRenderer = (args: ParamFieldRenderArgs) => React.ReactNode;
  * 各パラメータタイプに応じた入力フィールドレンダラーのマッピング。
  */
 const PARAM_FIELD_RENDERERS: Record<OpencvParamDefinition['type'], ParamFieldRenderer> = {
-    select: ({ config, currentValue, onChange, classNames }) => (
-        <select
-            value={String(currentValue ?? '')}
-            onChange={(e) => {
-                const selected = config.options?.find(
-                    (option) => String(option.value) === e.target.value
-                );
-                onChange((selected?.value ?? e.target.value) as OpencvParamValue);
-            }}
-            className={classNames?.select ?? `${formStyles['input-select']} ${formStyles.small} nodrag`}
-        >
-            {config.options?.map((opt) => (
-                <option key={String(opt.value)} value={String(opt.value)}>
-                    {opt.label}
-                </option>
-            ))}
-        </select>
-    ),
+    select: ({ config, currentValue, onChange, classNames }) => {
+        const options = config.options?.map((opt) => (
+            <option key={String(opt.value)} value={String(opt.value)}>
+                {opt.label}
+            </option>
+        ));
+
+        return (
+            <FormField
+                type="select"
+                value={String(currentValue ?? '')}
+                onChange={(e) => {
+                    const selected = config.options?.find(
+                        (option) => String(option.value) === e.target.value
+                    );
+                    onChange((selected?.value ?? e.target.value) as OpencvParamValue);
+                }}
+                inputClassName={classNames?.select ?? `${formStyles['input-select']} ${formStyles.small} nodrag`}
+            >
+                {options}
+            </FormField>
+        );
+    },
     tuple: ({ config, currentValue, onChange, classNames }) => {
         const tupleVal = Array.isArray(currentValue) ? currentValue : [0, 0];
         const handleTupleChange = (index: number, val: string) => {
@@ -116,29 +108,28 @@ const PARAM_FIELD_RENDERERS: Record<OpencvParamDefinition['type'], ParamFieldRen
         );
     },
     boolean: ({ currentValue, onChange, classNames }) => (
-        <input
+        <FormField
             type="checkbox"
             checked={Boolean(currentValue)}
             onChange={(e) => onChange(e.target.checked)}
-            className={classNames ? undefined : `${formStyles['input-checkbox']} nodrag`}
+            inputClassName={classNames ? undefined : `${formStyles['input-checkbox']} nodrag`}
         />
     ),
     number: ({ config, currentValue, onChange, classNames }) => (
-        <input
+        <FormField
             type="number"
             value={Number(currentValue ?? 0)}
             onChange={(e) => onChange(Number(e.target.value))}
-            className={classNames?.input ?? `${formStyles['input-small']} nodrag`}
+            inputClassName={classNames?.input ?? `${formStyles['input-small']} nodrag`}
             step={config.step}
             min={config.min}
         />
     ),
     text: ({ currentValue, onChange, classNames }) => (
-        <input
-            type="text"
+        <FormField
             value={String(currentValue ?? '')}
             onChange={(e) => onChange(e.target.value)}
-            className={classNames?.input ?? `${formStyles['input-small']} nodrag`}
+            inputClassName={classNames?.input ?? `${formStyles['input-small']} nodrag`}
         />
     ),
 };
@@ -155,13 +146,23 @@ function ParamField({ config, value, onChange, classNames }: ParamFieldProps) {
         // classNamesを指定することで、動的にスタイルを適用可能にする
         if (classNames) {
             return (
-                <div className={classNames.field}>
-                    <label className={classNames.label}>{fieldLabel}</label>
+                <FormField
+                    type="custom"
+                    label={fieldLabel}
+                    className={classNames.field}
+                    labelClassName={classNames.label}
+                >
                     {content}
-                </div>
+                </FormField>
             );
         }
-        return <ParamRow label={fieldLabel}>{content}</ParamRow>;
+        // Default: use ParamRow styling for canvas nodes
+        return (
+            <div className={styles.paramRow}>
+                <label>{fieldLabel}</label>
+                {content}
+            </div>
+        );
     };
 
     const render = PARAM_FIELD_RENDERERS[config.type];

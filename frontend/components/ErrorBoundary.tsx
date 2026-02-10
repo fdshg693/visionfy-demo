@@ -6,6 +6,7 @@
  */
 import { Component, type ReactNode } from 'react';
 import { categorizeError, type AppError } from '@/lib/errors';
+import { Button } from '@/components/ui/Button';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -122,18 +123,20 @@ function DefaultErrorFallback({
         </div>
 
         <div className="flex gap-3">
-          <button
+          <Button
+            variant="primary"
             onClick={reset}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition-colors"
+            className="flex-1"
           >
             再試行
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="secondary"
             onClick={() => window.location.href = '/'}
-            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded transition-colors"
+            className="flex-1"
           >
             ホームに戻る
-          </button>
+          </Button>
         </div>
       </div>
     </div>

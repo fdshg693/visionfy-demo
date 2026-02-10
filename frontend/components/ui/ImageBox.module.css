@@ -1,0 +1,40 @@
+.imageBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.imageBox.light {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.imageBox.dark {
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 4px;
+}
+
+.image {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+.empty {
+  font-size: 10px;
+  color: #9ca3af;
+  text-align: center;
+  padding: 8px;
+}
+
+.imageBox.light .empty {
+  color: #9ca3af;
+}
+
+.imageBox.dark .empty {
+  color: #6b7280;
+}

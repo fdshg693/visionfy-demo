@@ -21,19 +21,6 @@
 ### 不要なラッパー削除
 - InspectorPanel（10行、ロジックなし）を削除し、直接子コンポーネントをpage.tsxで配置
 
-### 共通UIコンポーネント作成
-- Buttonコンポーネントライブラリ（primary、secondary、danger、iconバリアント）
-- ImageHoverPopup/ImagePreviewTooltipコンポーネント
-- IconButtonコンポーネント（7箇所以上で使用）
-- Dropdownコンポーネント（4箇所以上で使用）
-- ImageBoxコンポーネント（5箇所以上で使用）
-- FormFieldコンポーネント（8箇所以上で使用）
-- TabGroupコンポーネント（3箇所以上で使用）
-
-### その他
-- アイコン/ラベルマッピングをconstants/iconMap.tsに集約
-- NodeContainerラッパーコンポーネントで一貫したnode構造を提供
-
 ## 2. 型定義とバリデーション
 
 ### 型安全性の向上
@@ -137,26 +124,6 @@
 - useCallbackラッパーで実行コールバックを安定化（FlowStore消費コンポーネントの再レンダー防止）
 - Context value再作成防止（executeWorkflow等のコールバック変更時のメモ化）
 
-## 6. UI一貫性とスタイリング
-
-### CSS変数・定数化
-- 40箇所以上のハードコードされた色値をCSS custom propertiesに統一（--color-border、--color-text-primary等）
-- spacing値（gap: 8px等100箇所以上）をスケール化（--space-1〜--space-10）
-- z-index階層整理（--z-dropdown: 50、--z-modal: 100等）
-- box-shadow値統一（--shadow-sm、--shadow-md、--shadow-lg、--shadow-xl）
-- typography scaleの定義（.text-xs、.text-sm、.text-base等）
-
-### スタイル重複の削減
-- 8箇所以上のボタンバリアントをlib/styles/buttons.module.cssに統一（.btn-primary、.btn-secondary、.btn-danger、.btn-icon等）
-- 5箇所以上のフォーム入力スタイルをlib/styles/forms.module.cssに統一（.input-field、.input-select、.input-textarea等）
-- 5箇所以上の画像コンテナをlib/styles/images.module.cssに統一（.image-box、.image-box--square、.image-box--thumbnail等）
-- 4箇所のドロップダウン/ポップアップ構造を統一（.dropdown-container、.dropdown-header、.dropdown-item等）
-- 7箇所以上のアイコンボタンパターンを統一（.icon-button-sm、.icon-button-md、.icon-button-lg）
-
-### アニメーションの整理
-- ProcessNode.module.css、ProcessNodePopup.module.cssに散在するkeyframesをanimations.module.cssに集約
-
 ### 推奨アプローチ
-- フェーズ1: CSS基盤（colors.module.css、spacing.module.css、animations.module.css、buttons.module.css、forms.module.css作成）
 - フェーズ2: 共通コンポーネント抽出（IconButton、Dropdown、ImageBox、FormField、Badge）
 - フェーズ3: 全コンポーネントでの共通スタイル適用、z-index一貫性確認、レスポンシブ検証

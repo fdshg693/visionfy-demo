@@ -190,32 +190,9 @@
     letter-spacing: 0.05em;
 }
 
-.hoverPopupImageBox {
-    width: 100px;
-    height: 100px;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f9fafb;
-}
-
-.hoverPopupImage {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-}
-
 .hoverPopupArrow {
     font-size: 16px;
     color: #9ca3af;
     font-weight: 600;
     padding: 0 2px;
-}
-
-.hoverPopupEmpty {
-    font-size: 9px;
-    color: #9ca3af;
 }

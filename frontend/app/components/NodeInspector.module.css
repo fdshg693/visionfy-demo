@@ -112,27 +112,14 @@
     font-weight: 600;
 }
 
+/* Used as className override for ImageBox in Result tab */
 .imageBox {
     width: 100%;
-    aspect-ratio: 1;
-    background: #111827;
-    border-radius: 4px;
-    border: 1px solid #374151;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
 }
 
+/* Used as imgClassName for images inside ImageBox */
 .resultImage {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-}
-
-.emptyResult {
-    font-size: 10px;
-    color: #6b7280;
+    /* ImageBox default styles are sufficient */
 }
 
 .arrow {
@@ -329,14 +316,7 @@
     font-weight: 600;
 }
 
+/* Used as className override for ImageBox in Pipeline view */
 .pipelineImageBox {
     width: 100%;
-    aspect-ratio: 1;
-    background: #111827;
-    border-radius: 4px;
-    border: 1px solid #374151;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
 }

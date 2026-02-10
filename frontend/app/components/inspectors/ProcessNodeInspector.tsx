@@ -14,6 +14,7 @@ import { isProcessNodeData } from '@/types/typeGuards';
 import type { OpencvParamValue } from '@/types/opencv';
 import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/opencv';
 import { Node } from '@xyflow/react';
+import { FormField } from '@/components/ui/FormField';
 import styles from '../NodeInspector.module.css';
 import formStyles from '@/lib/styles/forms.module.css';
 
@@ -66,34 +67,38 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
     return (
         <div className={styles.inspectorContent}>
             {/* Label Input */}
-            <div className={styles.field}>
-                <label className={styles.label}>Label</label>
-                <input
-                    type="text"
-                    value={label}
-                    onChange={(e) => {
-                        onUpdateNode(selectedNode.id, { label: e.target.value });
-                    }}
-                    className={formStyles['input-dark']}
-                />
-            </div>
+            <FormField
+                label="Label"
+                name="label"
+                value={label}
+                onChange={(e) => {
+                    onUpdateNode(selectedNode.id, { label: e.target.value });
+                }}
+                theme="dark"
+                className={styles.field}
+                labelClassName={styles.label}
+                inputClassName={formStyles['input-dark']}
+            />
 
             {/* Function Selection */}
-            <div className={styles.field}>
-                <label className={styles.label}>Function</label>
-                <select
-                    value={functionName}
-                    onChange={(e) => handleFunctionChange(e.target.value as ProcessNodeFunctionName)}
-                    className={`${formStyles['input-select']} ${formStyles.dark}`}
-                >
-                    <option value="" disabled>Select a function</option>
-                    {Object.keys(VISIONFY_FUNCTIONS_CONFIG).map((func) => (
-                        <option key={func} value={func}>
-                            {func}
-                        </option>
-                    ))}
-                </select>
-            </div>
+            <FormField
+                label="Function"
+                type="select"
+                name="function"
+                value={functionName}
+                onChange={(e) => handleFunctionChange(e.target.value as ProcessNodeFunctionName)}
+                theme="dark"
+                className={styles.field}
+                labelClassName={styles.label}
+                inputClassName={`${formStyles['input-select']} ${formStyles.dark}`}
+            >
+                <option value="" disabled>Select a function</option>
+                {Object.keys(VISIONFY_FUNCTIONS_CONFIG).map((func) => (
+                    <option key={func} value={func}>
+                        {func}
+                    </option>
+                ))}
+            </FormField>
 
             {/* Function Description */}
             {currentFunctionConfig && (

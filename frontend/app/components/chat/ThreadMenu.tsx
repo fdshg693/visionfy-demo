@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { Menu, Plus, Trash2, MessageSquare } from 'lucide-react';
+import { Dropdown } from '@/components/ui/Dropdown';
+import { IconButton, MenuButton } from '@/components/ui/Button';
 import styles from './ThreadMenu.module.css';
-import buttonStyles from '@/lib/styles/buttons.module.css';
 import type { ChatThread } from '@/lib/chatStorageService';
 
 type ThreadMenuProps = {
@@ -25,31 +26,6 @@ export function ThreadMenu({
     onSelectThread,
     onDeleteThread,
 }: ThreadMenuProps) {
-    const [isOpen, setIsOpen] = useState(false);
-    const menuRef = useRef<HTMLDivElement>(null);
-
-    // 外側クリックで閉じる
-    useEffect(() => {
-        if (!isOpen) return;
-        const handleClickOutside = (e: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [isOpen]);
-
-    const handleNewThread = useCallback(() => {
-        onNewThread();
-        setIsOpen(false);
-    }, [onNewThread]);
-
-    const handleSelect = useCallback((threadId: string) => {
-        onSelectThread(threadId);
-        setIsOpen(false);
-    }, [onSelectThread]);
-
     const handleDelete = useCallback((e: React.MouseEvent, threadId: string) => {
         e.stopPropagation();
         onDeleteThread(threadId);
@@ -66,69 +42,68 @@ export function ThreadMenu({
     };
 
     return (
-        <div className={styles.menuContainer} ref={menuRef}>
-            <button
-                type="button"
-                className={buttonStyles['btn-icon-sm']}
-                onClick={() => setIsOpen((prev) => !prev)}
-                aria-label="スレッドメニュー"
-                title="スレッドメニュー"
+        <Dropdown
+            trigger={(isOpen, toggle) => (
+                <IconButton
+                    size="sm"
+                    onClick={toggle}
+                    aria-label="スレッドメニュー"
+                    title="スレッドメニュー"
+                >
+                    <Menu size={16} />
+                </IconButton>
+            )}
+            className={styles.dropdown}
+            position="bottom-left"
+        >
+            <MenuButton
+                className={styles.newThreadBtn}
+                onClick={onNewThread}
             >
-                <Menu size={16} />
-            </button>
+                <Plus size={14} />
+                <span>新しいスレッド</span>
+            </MenuButton>
 
-            {isOpen && (
-                <div className={styles.dropdown}>
-                    <button
-                        type="button"
-                        className={`${buttonStyles['btn-menu']} ${styles.newThreadBtn}`}
-                        onClick={handleNewThread}
-                    >
-                        <Plus size={14} />
-                        <span>新しいスレッド</span>
-                    </button>
-
-                    {threads.length > 0 && (
-                        <div className={styles.threadList}>
-                            <div className={styles.threadListLabel}>履歴</div>
-                            {threads.map((thread) => (
-                                <div
-                                    key={thread.id}
-                                    className={`${styles.threadItem} ${thread.id === activeThreadId ? styles.threadItemActive : ''
-                                        }`}
-                                    onClick={() => handleSelect(thread.id)}
-                                    role="button"
-                                    tabIndex={0}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') handleSelect(thread.id);
-                                    }}
-                                >
-                                    <MessageSquare size={12} className={styles.threadIcon} />
-                                    <div className={styles.threadInfo}>
-                                        <span className={styles.threadTitle}>{thread.title}</span>
-                                        <span className={styles.threadDate}>
-                                            {formatDate(thread.updatedAt)}
-                                        </span>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        className={`${buttonStyles['btn-icon-sm']} ${buttonStyles['btn-icon-ghost']} ${styles.threadDeleteBtn}`}
-                                        onClick={(e) => handleDelete(e, thread.id)}
-                                        aria-label={`${thread.title}を削除`}
-                                        title="削除"
-                                    >
-                                        <Trash2 size={12} />
-                                    </button>
-                                </div>
-                            ))}
+            {threads.length > 0 && (
+                <div className={styles.threadList}>
+                    <div className={styles.threadListLabel}>履歴</div>
+                    {threads.map((thread) => (
+                        <div
+                            key={thread.id}
+                            className={`${styles.threadItem} ${thread.id === activeThreadId ? styles.threadItemActive : ''
+                                }`}
+                            onClick={() => onSelectThread(thread.id)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') onSelectThread(thread.id);
+                            }}
+                        >
+                            <MessageSquare size={12} className={styles.threadIcon} />
+                            <div className={styles.threadInfo}>
+                                <span className={styles.threadTitle}>{thread.title}</span>
+                                <span className={styles.threadDate}>
+                                    {formatDate(thread.updatedAt)}
+                                </span>
+                            </div>
+                            <IconButton
+                                size="sm"
+                                iconVariant="ghost"
+                                className={styles.threadDeleteBtn}
+                                onClick={(e) => handleDelete(e, thread.id)}
+                                aria-label={`${thread.title}を削除`}
+                                title="削除"
+                            >
+                                <Trash2 size={12} />
+                            </IconButton>
                         </div>
-                    )}
-
-                    {threads.length === 0 && (
-                        <p className={styles.emptyMessage}>スレッド履歴はありません</p>
-                    )}
+                    ))}
                 </div>
             )}
-        </div>
+
+            {threads.length === 0 && (
+                <p className={styles.emptyMessage}>スレッド履歴はありません</p>
+            )}
+        </Dropdown>
     );
 }

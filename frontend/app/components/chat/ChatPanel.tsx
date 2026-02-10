@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { MessageCircle, Paperclip, Send, Settings, Trash2, X } from 'lucide-react';
+import { Button, IconButton } from '@/components/ui/Button';
 
 import styles from '@/app/page.module.css';
-import buttonStyles from '@/lib/styles/buttons.module.css';
 import formStyles from '@/lib/styles/forms.module.css';
 import type { ChatMessage, ChatMessageImage } from '@/lib/chatService';
 import { storageService } from '@/lib/storageService';
@@ -16,6 +16,8 @@ import { useResizablePanel } from '@/hooks/useResizablePanel';
 import { MessageContent } from './MessageContent';
 import { ThreadMenu } from './ThreadMenu';
 import { ToolList } from './ToolList';
+import { ImageBox } from '@/components/ui/ImageBox';
+import { FormField } from '@/components/ui/FormField';
 
 /**
  * GEMINIとのチャットパネルコンポーネント
@@ -214,51 +216,53 @@ export function ChatPanel() {
         <MessageCircle size={16} />
         <span>AI チャット</span>
         <ToolList />
-        <button
-          type="button"
-          className={`${buttonStyles['btn-icon-sm']} ${styles.chatSettingsBtn}`}
+        <IconButton
+          size="sm"
+          className={styles.chatSettingsBtn}
           onClick={() => setShowSettings((v) => !v)}
           aria-label="システムプロンプト設定"
           title="システムプロンプト設定"
         >
           <Settings size={14} />
-        </button>
-        <button
-          type="button"
-          className={buttonStyles['btn-icon-sm']}
+        </IconButton>
+        <IconButton
+          size="sm"
           onClick={handleClear}
           disabled={messages.length === 0}
           aria-label="チャットをクリア"
           title="チャットをクリア"
         >
           <Trash2 size={14} />
-        </button>
+        </IconButton>
       </div>
 
       {showSettings && (
         <div className={styles.chatSettingsPanel}>
-          <label className={styles.chatSettingsLabel}>システムプロンプト</label>
-          <textarea
-            className={formStyles['input-textarea']}
+          <FormField
+            label="システムプロンプト"
+            type="textarea"
+            name="systemPrompt"
             value={customPrompt || SYSTEM_PROMPT}
             onChange={(e) => setCustomPrompt(e.target.value)}
             rows={6}
+            className={styles.chatSettingsLabel}
+            inputClassName={formStyles['input-textarea']}
           />
           <div className={styles.chatSettingsBtnGroup}>
-            <button
-              type="button"
-              className={buttonStyles['btn-secondary-sm']}
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={handleResetPrompt}
             >
               デフォルトに戻す
-            </button>
-            <button
-              type="button"
-              className={buttonStyles['btn-primary-sm']}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
               onClick={handleSavePrompt}
             >
               保存
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -286,18 +290,16 @@ export function ChatPanel() {
                   <div className={styles.chatMessageImages}>
                     {msg.images.map((img, j) => (
                       <div key={j} className={styles.chatMessageImageThumb}>
-                        {img.base64 ? (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img
-                            src={`data:${img.mimeType};base64,${img.base64}`}
-                            alt={img.name}
-                            className={styles.chatMessageImageImg}
-                          />
-                        ) : (
-                          <div className={styles.chatMessageImagePlaceholder}>
-                            <Paperclip size={16} />
-                          </div>
-                        )}
+                        <ImageBox
+                          src={img.base64 ? `data:${img.mimeType};base64,${img.base64}` : null}
+                          alt={img.name}
+                          width={64}
+                          height={64}
+                          objectFit="cover"
+                          theme="light"
+                          emptyContent={<Paperclip size={16} />}
+                          className={styles.chatMessageImageImg}
+                        />
                         <span className={styles.chatMessageImageName}>{img.name}</span>
                       </div>
                     ))}
@@ -316,20 +318,23 @@ export function ChatPanel() {
           <div className={styles.chatAttachmentPreview}>
             {attachedImages.map((img, i) => (
               <div key={i} className={styles.chatAttachmentThumb}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <ImageBox
                   src={`data:${img.mimeType};base64,${img.base64}`}
                   alt={img.name}
+                  width={52}
+                  height={52}
+                  objectFit="cover"
+                  theme="light"
                   className={styles.chatAttachmentImg}
                 />
-                <button
-                  type="button"
+                <IconButton
+                  size="sm"
                   className={styles.chatAttachmentRemove}
                   onClick={() => handleRemoveImage(i)}
                   aria-label={`${img.name} を削除`}
                 >
                   <X size={12} />
-                </button>
+                </IconButton>
               </div>
             ))}
           </div>
@@ -343,16 +348,16 @@ export function ChatPanel() {
             onChange={handleFileSelect}
             style={{ display: 'none' }}
           />
-          <button
-            type="button"
-            className={`${buttonStyles['btn-icon-md']} ${styles.chatAttachBtn}`}
+          <IconButton
+            size="md"
+            className={styles.chatAttachBtn}
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading}
             aria-label="画像を添付"
             title="画像を添付"
           >
             <Paperclip size={16} />
-          </button>
+          </IconButton>
           <textarea
             className={formStyles['input-textarea']}
             value={input}
@@ -362,15 +367,16 @@ export function ChatPanel() {
             rows={2}
             disabled={isLoading}
           />
-          <button
-            type="button"
-            className={`${buttonStyles['btn-icon-md']} ${buttonStyles['btn-icon-primary']} ${styles.chatSendBtn}`}
+          <IconButton
+            size="md"
+            iconVariant="primary"
+            className={styles.chatSendBtn}
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
             aria-label="送信"
           >
             <Send size={16} />
-          </button>
+          </IconButton>
         </div>
       </div>
 

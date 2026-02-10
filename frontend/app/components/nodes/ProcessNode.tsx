@@ -10,6 +10,7 @@ import { useCallback, useState, useMemo } from 'react';
 import { ProcessNodeParamInputs } from './ProcessNodeParamInputs';
 import { useInspector } from '@/contexts/InspectorContext';
 import { useObjectURL } from '@/hooks/useObjectURL';
+import { ImageBox } from '@/components/ui/ImageBox';
 import styles from './ProcessNode.module.css';
 
 /** 関数タイプに応じた背景色CSSクラスのマッピング */
@@ -141,22 +142,25 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
                     <div className={styles.hoverPopupImages}>
                         <div className={styles.hoverPopupImageWrapper}>
                             <span className={styles.hoverPopupLabel}>Input</span>
-                            <div className={styles.hoverPopupImageBox}>
-                                {effectiveInputImage ? (
-                                    /* eslint-disable-next-line @next/next/no-img-element */
-                                    <img src={effectiveInputImage} alt="Input" className={styles.hoverPopupImage} />
-                                ) : (
-                                    <span className={styles.hoverPopupEmpty}>No input</span>
-                                )}
-                            </div>
+                            <ImageBox
+                                src={effectiveInputImage}
+                                alt="Input"
+                                width={100}
+                                height={100}
+                                theme="light"
+                                emptyText="No input"
+                            />
                         </div>
                         <div className={styles.hoverPopupArrow}>→</div>
                         <div className={styles.hoverPopupImageWrapper}>
                             <span className={styles.hoverPopupLabel}>Output</span>
-                            <div className={styles.hoverPopupImageBox}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={nodeData.result as string} alt="Output" className={styles.hoverPopupImage} />
-                            </div>
+                            <ImageBox
+                                src={nodeData.result as string}
+                                alt="Output"
+                                width={100}
+                                height={100}
+                                theme="light"
+                            />
                         </div>
                     </div>
                 </div>

@@ -7,6 +7,8 @@ import { useInspector } from '@/contexts/InspectorContext';
 import { useFlowStore } from '@/workflow/flowStore';
 import { useObjectURL } from '@/hooks/useObjectURL';
 import { useExecutionHistory, type ExecutionHistoryItem } from '@/hooks/useExecutionHistory';
+import { ImageBox } from '@/components/ui/ImageBox';
+import { TabGroup, TabPanel } from '@/components/ui/TabGroup';
 
 /**
  * パイプラインの矢印と処理ノード名を表示するコンポーネント。
@@ -31,10 +33,14 @@ function PipelineImage({ src, alt, label }: { src: string; alt: string; label?: 
     return (
         <div className={styles.pipelineImageWrapper}>
             {label && <span className={styles.pipelineImageLabel}>{label}</span>}
-            <div className={styles.pipelineImageBox}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt={alt} className={styles.resultImage} />
-            </div>
+            <ImageBox
+                src={src}
+                alt={alt}
+                aspectRatio={1}
+                theme="dark"
+                className={styles.pipelineImageBox}
+                imgClassName={styles.resultImage}
+            />
         </div>
     );
 }
@@ -57,59 +63,52 @@ export function ResultInspector() {
     return (
         <div className={styles.inspectorContent}>
             {/* Tab Headers */}
-            <div className={styles.tabHeader}>
-                <button
-                    className={`${styles.tabButton} ${activeTab === 'result' ? styles.tabButtonActive : ''}`}
-                    onClick={() => setActiveTab('result')}
-                >
-                    Result
-                </button>
-                <button
-                    className={`${styles.tabButton} ${activeTab === 'history' ? styles.tabButtonActive : ''}`}
-                    onClick={() => setActiveTab('history')}
-                >
-                    History
-                </button>
-            </div>
+            <TabGroup
+                tabs={[
+                    { value: 'result', label: 'Result' },
+                    { value: 'history', label: 'History' }
+                ]}
+                activeTab={activeTab}
+                onChange={setActiveTab}
+                fullWidth
+            />
 
             {/* Result Tab */}
-            {activeTab === 'result' && (
+            <TabPanel value="result" activeTab={activeTab}>
                 <div className={styles.field}>
                     <label className={styles.label}>Before / After</label>
                     <div className={styles.comparisonContainer}>
                         <div className={styles.imageWrapper}>
                             <span className={styles.imageLabel}>Before</span>
-                            <div className={styles.imageBox}>
-                                {originalImage ? (
-                                    <>
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={originalImage} alt="Original" className={styles.resultImage} />
-                                    </>
-                                ) : (
-                                    <div className={styles.emptyResult}>None</div>
-                                )}
-                            </div>
+                            <ImageBox
+                                src={originalImage}
+                                alt="Original"
+                                aspectRatio={1}
+                                theme="dark"
+                                emptyText="None"
+                                className={styles.imageBox}
+                                imgClassName={styles.resultImage}
+                            />
                         </div>
                         <div className={styles.arrow}>↓</div>
                         <div className={styles.imageWrapper}>
                             <span className={styles.imageLabel}>After</span>
-                            <div className={styles.imageBox}>
-                                {resultImage ? (
-                                    <>
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={resultImage} alt="Result" className={styles.resultImage} />
-                                    </>
-                                ) : (
-                                    <div className={styles.emptyResult}>No result</div>
-                                )}
-                            </div>
+                            <ImageBox
+                                src={resultImage}
+                                alt="Result"
+                                aspectRatio={1}
+                                theme="dark"
+                                emptyText="No result"
+                                className={styles.imageBox}
+                                imgClassName={styles.resultImage}
+                            />
                         </div>
                     </div>
                 </div>
-            )}
+            </TabPanel>
 
             {/* History Tab - Pipeline View */}
-            {activeTab === 'history' && (
+            <TabPanel value="history" activeTab={activeTab}>
                 <div className={styles.pipelineContainer}>
                     {executionHistory.length === 0 ? (
                         <div className={styles.emptyState}>No execution history</div>
@@ -140,7 +139,7 @@ export function ResultInspector() {
                         </>
                     )}
                 </div>
-            )}
+            </TabPanel>
         </div>
     );
 }

@@ -11,14 +11,15 @@ import {
 import { useFlowStore } from '@/workflow/flowStore';
 import { useContextMenu } from '@/hooks/useContextMenu';
 import { useInspector } from '@/contexts/InspectorContext';
+import { Button, MenuButton } from '@/components/ui/Button';
 import { UsageGuidePanel } from './UsageGuidePanel';
 import { SnapshotDropdown } from './SnapshotDropdown';
+import { Dropdown } from '@/components/ui/Dropdown';
 import type { ProcessNodeFunctionName } from '@/types/node';
 import type { FlowHistoryEntry } from '@/workflow/flowPersistence';
 import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/opencv';
 
 import styles from '@/app/page.module.css';
-import buttonStyles from '@/lib/styles/buttons.module.css';
 
 type FlowCanvasProps = {
   nodeTypes: NodeTypes;
@@ -57,7 +58,6 @@ export function FlowCanvas({
 }: FlowCanvasProps) {
   const { nodes, edges, onNodesChange, onEdgesChange } = useFlowStore();
   const { files, executeWorkflow } = useInspector();
-  const [showAddNodeMenu, setShowAddNodeMenu] = useState(false);
   const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
   const {
     containerRef,
@@ -96,49 +96,47 @@ export function FlowCanvas({
       </ReactFlow>
 
       <div className={styles.toolbar}>
-        <button
+        <Button
+          variant="secondary"
           onClick={onResetCanvas}
-          className={buttonStyles['btn-secondary']}
         >
           ↺ Reset
-        </button>
-        <div className={styles.addNodeWrapper}>
-          <button
-            onClick={() => setShowAddNodeMenu((prev) => !prev)}
-            className={buttonStyles['btn-secondary']}
-          >
-            ＋ Add Node
-          </button>
-          {showAddNodeMenu && (
-            <>
-              <div className={styles.contextMenuOverlay} onClick={() => setShowAddNodeMenu(false)} />
-              <div className={styles.addNodeDropdown}>
-                {Object.entries(VISIONFY_FUNCTIONS_CONFIG).map(([name, config]) => (
-                  <button
-                    key={name}
-                    className={buttonStyles['btn-menu-with-icon']}
-                    onClick={() => {
-                      onAddNode(name as ProcessNodeFunctionName);
-                      setShowAddNodeMenu(false);
-                    }}
-                  >
-                    <span className={styles.addNodeOptionName}>{name}</span>
-                    <span className={styles.addNodeOptionDesc}>{config.description}</span>
-                  </button>
-                ))}
-              </div>
-            </>
+        </Button>
+        <Dropdown
+          trigger={(isOpen, toggle) => (
+            <Button
+              variant="secondary"
+              onClick={toggle}
+            >
+              ＋ Add Node
+            </Button>
           )}
-        </div>
+          overlay
+          containerClassName={styles.addNodeWrapper}
+          className={styles.addNodeDropdown}
+          zIndex={100}
+          closeOnClickInside
+        >
+          {Object.entries(VISIONFY_FUNCTIONS_CONFIG).map(([name, config]) => (
+            <MenuButton
+              key={name}
+              withIcon
+              onClick={() => onAddNode(name as ProcessNodeFunctionName)}
+            >
+              <span className={styles.addNodeOptionName}>{name}</span>
+              <span className={styles.addNodeOptionDesc}>{config.description}</span>
+            </MenuButton>
+          ))}
+        </Dropdown>
       </div>
 
       {/* Action buttons: Guide, History, Save, Run */}
       <div className={styles.runButtonArea}>
         <UsageGuidePanel />
         <div className={styles.actionButtonWrapper}>
-          <button className={buttonStyles['btn-secondary']} onClick={() => setShowHistoryDropdown((prev) => !prev)}>
+          <Button variant="secondary" onClick={() => setShowHistoryDropdown((prev) => !prev)}>
             📋 履歴
-          </button>
+          </Button>
           <SnapshotDropdown
             isOpen={showHistoryDropdown}
             onClose={() => setShowHistoryDropdown(false)}
@@ -148,8 +146,8 @@ export function FlowCanvas({
             onDeleteSnapshot={onDeleteSnapshot}
           />
         </div>
-        <button className={buttonStyles['btn-secondary']} onClick={onSaveSnapshot}>💾 保存</button>
-        <button className={buttonStyles['btn-blue']} onClick={executeWorkflow} disabled={files.length === 0}>▶ Run</button>
+        <Button variant="secondary" onClick={onSaveSnapshot}>💾 保存</Button>
+        <Button variant="blue" onClick={executeWorkflow} disabled={files.length === 0}>▶ Run</Button>
       </div>
 
       {contextMenu && (
@@ -159,9 +157,9 @@ export function FlowCanvas({
             className={styles.contextMenu}
             style={{ left: contextMenu.x, top: contextMenu.y }}
           >
-            <button className={buttonStyles['btn-menu-danger']} onClick={handleDelete}>
+            <MenuButton danger onClick={handleDelete}>
               削除
-            </button>
+            </MenuButton>
           </div>
         </>
       )}
