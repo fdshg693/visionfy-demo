@@ -1,9 +1,15 @@
 from dataclasses import dataclass
-from typing import Tuple, Union
 
-from flask import Request, Response, make_response
-import cv2
+from flask import Request, Response
 import numpy as np
+
+from common.image_processing import (
+    validate_image_request,
+    decode_image,
+    encode_image_response,
+    create_error_response,
+)
+from common.params import get_int_param
 
 
 @dataclass(frozen=True)
@@ -12,56 +18,32 @@ class RestoreBrightnessParams:
 
 
 def _parse_params(request: Request) -> RestoreBrightnessParams:
+    return RestoreBrightnessParams(
+        value=get_int_param(request, "value", -30),
+    )
+
+
+def restore_brightness(request: Request) -> Response:
+    error = validate_image_request(request)
+    if error is not None:
+        return error
+
     try:
-        value = int(request.form.get("value", -30))
+        params = _parse_params(request)
     except ValueError as exc:
-        raise ValueError("Invalid parameters: value must be int") from exc
-    return RestoreBrightnessParams(value=value)
-
-
-def restore_brightness(request: Request) -> Union[Response, Tuple[str, int]]:
-    """
-    画像を受け取り、明るさを調整して返す
-    """
-    if request.method != "POST":
-        return "Method not allowed", 405
-
-    if "file" not in request.files:
-        return "No file part", 400
-
-    file = request.files["file"]
-    if file.filename == "":
-        return "No selected file", 400
+        return create_error_response(str(exc), 400)
 
     try:
-        try:
-            params = _parse_params(request)
-        except ValueError as exc:
-            return (str(exc), 400)
+        img = decode_image(request.files["file"])
 
-        # Read image
-        file_bytes = np.frombuffer(file.read(), np.uint8)
-        img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
-
-        if img is None:
-            return "Could not decode image", 400
-
-        # Apply brightness restoration
         beta = params.value
         if beta != 0:
             img_f = img.astype(np.float32)
             img_f = img_f - beta
             img = np.clip(img_f, 0, 255).astype(np.uint8)
 
-        # Encode back to format (JPG)
-        ret, buffer = cv2.imencode(".jpg", img)
-
-        if not ret:
-            return "Could not encode image", 500
-
-        response = make_response(buffer.tobytes())
-        response.headers["Content-Type"] = "image/jpeg"
-        return response
-
+        return encode_image_response(img)
+    except ValueError as exc:
+        return create_error_response(str(exc), 400)
     except Exception as e:
-        return f"Internal Server Error: {str(e)}", 500
+        return create_error_response(f"Internal Server Error: {str(e)}", 500)

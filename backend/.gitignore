@@ -14,3 +14,5 @@ sa-key.json
 
 # 推論結果
 *.png
+
+.venv/

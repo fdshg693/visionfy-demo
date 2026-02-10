@@ -3,7 +3,6 @@ import os
 import logging
 
 # Import function modules
-# api package is assumed to be in the same directory
 from api.createclahe import main as createclahe
 from api.grayscale import main as grayscale
 from api.gaussian_blur import main as gaussian_blur
@@ -11,6 +10,8 @@ from api.remove_noise import main as remove_noise
 from api.restore_contrast import main as restore_contrast
 from api.restore_brightness import main as restore_brightness
 from api.model_inference import main as model_inference
+
+from common.decorators import image_endpoint
 
 from flask_cors import CORS
 
@@ -21,6 +22,7 @@ log_level = os.environ.get(
 logging.basicConfig(
     level=getattr(logging, log_level.upper(), logging.INFO),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    force=True,  # Gunicorn環境でも既存ハンドラを上書き
 )
 logger = logging.getLogger(__name__)
 
@@ -43,6 +45,9 @@ def log_env_vars():
 app = Flask(__name__, static_url_path="", static_folder="static")
 CORS(app)
 
+# 起動時ログ出力（Gunicorn環境でも実行されるようモジュールレベルで呼び出し）
+log_env_vars()
+
 
 @app.route("/")
 def index():
@@ -52,7 +57,6 @@ def index():
 @app.route("/favicon.ico")
 def favicon():
     """backend/imgs/favicon.ico を配信"""
-    # main.pyと同じディレクトリ(src)のimgsディレクトリを取得
     base_dir = os.path.dirname(os.path.abspath(__file__))
     imgs_dir = os.path.join(base_dir, "imgs")
     return send_from_directory(
@@ -67,126 +71,48 @@ def health_check():
 
 
 @app.route("/api/createclahe", methods=["POST"])
+@image_endpoint("createclahe")
 def route_createclahe():
-    """
-    createclahe/main.py の apply_clahe を呼び出すラッパー
-    """
-    logger.info(
-        f"[createclahe] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}"
-    )
-    try:
-        result = createclahe.apply_clahe(request)
-        logger.info("[createclahe] Processing completed successfully")
-        return result
-    except Exception as e:
-        logger.error(f"[createclahe] Error: {str(e)}", exc_info=True)
-        raise
+    return createclahe.apply_clahe(request)
 
 
 @app.route("/api/grayscale", methods=["POST"])
+@image_endpoint("grayscale")
 def route_grayscale():
-    """
-    grayscale/main.py の transform_grayscale を呼び出すラッパー
-    """
-    logger.info(
-        f"[grayscale] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}"
-    )
-    try:
-        result = grayscale.transform_grayscale(request)
-        logger.info("[grayscale] Processing completed successfully")
-        return result
-    except Exception as e:
-        logger.error(f"[grayscale] Error: {str(e)}", exc_info=True)
-        raise
+    return grayscale.transform_grayscale(request)
 
 
 @app.route("/api/gaussian_blur", methods=["POST"])
+@image_endpoint("gaussian_blur")
 def route_gaussian_blur():
-    """
-    gaussian_blur/main.py の apply_gaussian_blur を呼び出すラッパー
-    """
-    logger.info(
-        f"[gaussian_blur] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}"
-    )
-    try:
-        result = gaussian_blur.apply_gaussian_blur(request)
-        logger.info("[gaussian_blur] Processing completed successfully")
-        return result
-    except Exception as e:
-        logger.error(f"[gaussian_blur] Error: {str(e)}", exc_info=True)
-        raise
+    return gaussian_blur.apply_gaussian_blur(request)
 
 
 @app.route("/api/remove_noise", methods=["POST"])
+@image_endpoint("remove_noise")
 def route_remove_noise():
-    """
-    remove_noise/main.py の remove_noise を呼び出すラッパー
-    """
-    logger.info(
-        f"[remove_noise] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}"
-    )
-    try:
-        result = remove_noise.remove_noise(request)
-        logger.info("[remove_noise] Processing completed successfully")
-        return result
-    except Exception as e:
-        logger.error(f"[remove_noise] Error: {str(e)}", exc_info=True)
-        raise
+    return remove_noise.remove_noise(request)
 
 
 @app.route("/api/restore_contrast", methods=["POST"])
+@image_endpoint("restore_contrast")
 def route_restore_contrast():
-    """
-    restore_contrast/main.py の restore_contrast を呼び出すラッパー
-    """
-    logger.info(
-        f"[restore_contrast] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}"
-    )
-    try:
-        result = restore_contrast.restore_contrast(request)
-        logger.info("[restore_contrast] Processing completed successfully")
-        return result
-    except Exception as e:
-        logger.error(f"[restore_contrast] Error: {str(e)}", exc_info=True)
-        raise
+    return restore_contrast.restore_contrast(request)
 
 
 @app.route("/api/restore_brightness", methods=["POST"])
+@image_endpoint("restore_brightness")
 def route_restore_brightness():
-    """
-    restore_brightness/main.py の restore_brightness を呼び出すラッパー
-    """
-    logger.info(
-        f"[restore_brightness] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}"
-    )
-    try:
-        result = restore_brightness.restore_brightness(request)
-        logger.info("[restore_brightness] Processing completed successfully")
-        return result
-    except Exception as e:
-        logger.error(f"[restore_brightness] Error: {str(e)}", exc_info=True)
-        raise
+    return restore_brightness.restore_brightness(request)
 
 
 @app.route("/api/model_inference", methods=["POST"])
+@image_endpoint("model_inference")
 def route_model_inference():
-    """
-    model_inference/main.py の apply_model_inference を呼び出すラッパー
-    """
-    logger.info(
-        f"[model_inference] Request received - form: {dict(request.form)}, files: {list(request.files.keys())}"
-    )
-    try:
-        result = model_inference.apply_model_inference(request)
-        logger.info("[model_inference] Processing completed successfully")
-        return result
-    except Exception as e:
-        logger.error(f"[model_inference] Error: {str(e)}", exc_info=True)
-        raise
+    return model_inference.apply_model_inference(request)
 
 
 if __name__ == "__main__":
     # ローカル開発用
-    log_env_vars()
     logger.info("Starting Flask server on 0.0.0.0:8080")
     app.run(host="0.0.0.0", port=8080, debug=True)

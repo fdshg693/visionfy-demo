@@ -1,13 +1,21 @@
 from dataclasses import dataclass
-from typing import Union, Tuple, Optional
+from typing import Optional
 import os
 import logging
 
-from flask import Request, Response, make_response
+from flask import Request, Response
 import cv2
 import numpy as np
 import torch
 from anomalib.models import Patchcore
+
+from common.image_processing import (
+    validate_image_request,
+    decode_image,
+    encode_image_response,
+    create_error_response,
+)
+from common.params import get_float_param
 
 
 logger = logging.getLogger(__name__)
@@ -21,21 +29,15 @@ _MODEL_DEVICE: str = "cpu"
 class ModelInferenceParams:
     """Parameters for model inference"""
 
-    overlay_alpha: float = 0.6  # Weight for original image in overlay
-    heatmap_alpha: float = 0.4  # Weight for heatmap in overlay
+    overlay_alpha: float = 0.6
+    heatmap_alpha: float = 0.4
 
 
 def _parse_params(request: Request) -> ModelInferenceParams:
-    """Parse optional parameters from request"""
-    overlay_alpha = request.form.get("overlayAlpha", "0.6")
-    heatmap_alpha = request.form.get("heatmapAlpha", "0.4")
-
-    try:
-        return ModelInferenceParams(
-            overlay_alpha=float(overlay_alpha), heatmap_alpha=float(heatmap_alpha)
-        )
-    except ValueError as exc:
-        raise ValueError("Invalid parameter values") from exc
+    return ModelInferenceParams(
+        overlay_alpha=get_float_param(request, "overlayAlpha", 0.6),
+        heatmap_alpha=get_float_param(request, "heatmapAlpha", 0.4),
+    )
 
 
 def _download_from_gcs(bucket_name: str, blob_path: str, dest_path: str) -> None:
@@ -228,43 +230,31 @@ def _create_heatmap_overlay(
     return overlay
 
 
-def apply_model_inference(request: Request) -> Union[Response, Tuple[str, int]]:
+def apply_model_inference(request: Request) -> Response:
     """
     Receive an image, run model inference, and return heatmap overlay.
     """
-    if request.method != "POST":
-        return "Method not allowed", 405
-
-    if "file" not in request.files:
-        return "No file part", 400
-
-    file = request.files["file"]
-    if file.filename == "":
-        return "No selected file", 400
+    error = validate_image_request(request)
+    if error is not None:
+        return error
 
     try:
-        # Parse parameters
-        try:
-            params = _parse_params(request)
-        except ValueError as exc:
-            return str(exc), 400
+        params = _parse_params(request)
+    except ValueError as exc:
+        return create_error_response(str(exc), 400)
 
-        # Read image
-        file_bytes = np.frombuffer(file.read(), np.uint8)
-        img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
-
-        if img is None:
-            return "Could not decode image", 400
+    try:
+        img = decode_image(request.files["file"])
 
         # Load model (cached after first call)
         try:
             model = _load_model()
         except FileNotFoundError as exc:
             logger.error(f"Model not found: {exc}")
-            return f"Model file not found: {str(exc)}", 500
+            return create_error_response(f"Model file not found: {str(exc)}", 500)
         except Exception as exc:
             logger.error(f"Failed to load model: {exc}", exc_info=True)
-            return f"Failed to load model: {str(exc)}", 500
+            return create_error_response(f"Failed to load model: {str(exc)}", 500)
 
         # Run inference
         logger.info("Running model inference...")
@@ -277,19 +267,15 @@ def apply_model_inference(request: Request) -> Union[Response, Tuple[str, int]]:
         )
 
         # Encode to JPEG
-        ret, buffer = cv2.imencode(".jpg", overlay)
-
-        if not ret:
-            return "Could not encode image", 500
-
-        response = make_response(buffer.tobytes())
-        response.headers["Content-Type"] = "image/jpeg"
+        response = encode_image_response(overlay)
 
         # Add anomaly score to response header
         response.headers["X-Anomaly-Score"] = str(result["pred_score"])
 
         return response
 
+    except ValueError as exc:
+        return create_error_response(str(exc), 400)
     except Exception as e:
         logger.error(f"Error in model inference: {str(e)}", exc_info=True)
-        return f"Internal Server Error: {str(e)}", 500
+        return create_error_response(f"Internal Server Error: {str(e)}", 500)

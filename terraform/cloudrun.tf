@@ -35,6 +35,11 @@ resource "google_cloud_run_v2_service" "backend" {
         value = "models/model.ckpt"
       }
 
+      env {
+        name  = "LOG_LEVEL"
+        value = "INFO"
+      }
+
       startup_probe {
         http_get {
           path = "/health"

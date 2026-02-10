@@ -1,139 +1,222 @@
-# Visionfy Demo — Copilot Instructions
+# Project Overview
 
-## Big picture
+Visionfy Demo is a visual image processing workflow application. Users build node-based workflows (Start → Process nodes → End) to apply OpenCV transformations and ML-based anomaly detection to images, with results displayed in real-time. An AI chat assistant (Gemini) helps users understand and configure workflows.
 
-- Two services: Next.js frontend in frontend/ (Firebase App Hosting) and Flask backend in backend/src/ (Cloud Run). See README.md.
-- Frontend App Router entry and orchestration live in frontend/app/page.tsx; UI components in frontend/app/components/.
-- Backend entrypoint is backend/src/main.py; API routes are implemented under backend/src/api/.
+## Tech Stack
 
-## Core data flow (workflow execution)
+- **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS 4, React Flow (@xyflow/react)
+- **Backend**: Python Flask, OpenCV (headless), Gunicorn
+- **AI Chat**: Google Gemini 2.5 Pro via LangChain
+- **ML Model**: anomalib Patchcore (PyTorch) for anomaly detection
+- **Infrastructure**: Google Cloud Run, Terraform, Docker multi-stage builds
+- **Storage**: Google Cloud Storage (model checkpoints), Secret Manager (API keys)
 
-- UI builds a node graph (Start → Process → End). Execution is handled by the hook in frontend/hooks/useWorkflowExecution.ts.
-- The hook calls the Next.js route frontend/app/api/process-node/route.ts, which proxies to BackendApiService.
-- BackendApiService (frontend/lib/backendApiService.ts) selects a request adapter from frontend/lib/backendApiAdapters.ts to match backend expectations.
-- Adapters send FormData with image files; keep backend route names (note the typo: /api/createclane) in sync with adapters.
+## Directory Structure
 
-## Key domain structure
+```
+visionfy-demo/
+├── frontend/          # Next.js application
+├── backend/           # Flask API server
+├── terraform/         # GCP infrastructure as code
+├── docs/features/     # Feature documentation (AI, API, Canvas, Snapshot)
+├── ai/overview/       # Architecture overview for AI assistants
+└── .claude/           # Claude Code configuration
+```
 
-- Node types/params and defaults are defined in frontend/types/; constants in frontend/constants/.
-- Workflow state, persistence, and snapshots live in frontend/workflow/ and use local storage via storageService.
-- Inspector UIs are per node type under frontend/app/components/inspectors/.
+## Key Features
 
-## Dev workflows
+- **Node-based Workflow**: Drag-and-drop image processing pipeline with React Flow
+- **7 Processing Functions**: CLAHE, Gaussian Blur, Grayscale, Remove Noise, Restore Brightness, Restore Contrast, Model Inference (Patchcore)
+- **AI Chat Assistant**: Gemini-powered chat with workflow context tools
+- **Snapshot History**: Save/restore workflow configurations (max 20, localStorage)
+- **Before/After Preview**: Hover over nodes to compare input vs output images
 
-- Frontend (pnpm): pnpm install, pnpm dev, pnpm lint (see frontend/package.json).
-- Backend: pip install -r backend/requirements.txt, then python backend/src/main.py (listens on 0.0.0.0:8080).
-- Optional Docker local run: see backend/DOCKER.md.
-- Static backend test UI: run python -m http.server 8000 from backend/test (see backend/src/static/README.md).
+## Environment Variables
 
-## Integration points & conventions
+### Frontend (`frontend/.env`)
+- `API_BASE_URL` - Backend URL (default: `http://localhost:8080`)
+- `GEMINI_API_KEY` - Google Gemini API key (server-side only, required for `/api/chat`)
+- `LOG_LEVEL` - Logging level (default: `debug` for dev, `info` for prod)
 
-- Frontend-to-backend URL is controlled by API_BASE_URL; default is http://localhost:8080 (frontend/lib/backendApiService.ts).
-- If you add a new ProcessNode function, update:
-  - frontend/types/node.ts (function names/params)
-  - frontend/lib/backendApiAdapters.ts (request formatting)
-  - backend/src/api/\* and backend/src/main.py (route wiring)
-- For grayscale and gaussian blur, adapters expect specific parameter names (tileGridSize, threshold, ksize, sigma) — check backendApiAdapters before changing payloads.
+### Backend (set via Terraform in production)
+- `PORT` - Server port (default: `8080`)
+- `LOG_LEVEL` - Logging level (default: `INFO`)
+- `FLASK_DEBUG` - Enable debug mode
+- `MODEL_GCS_BUCKET` - GCS bucket for model checkpoint
+- `MODEL_GCS_PATH` - GCS path to model file (e.g., `models/model.ckpt`)
 
-# Frontend — Non-Obvious Internals
+Details: `terraform/terraform.tfvars.example`, `frontend/.env.example`
 
-## Hydration & SSR Guard
+# Architecture
 
-- `page.tsx` renders `null` until `isHydrated` flips to `true` via a no-dep `useEffect`
-- Reason: SSR has no `window`, so `loadFlowHistory()` returns `[]` server-side; the client would hydrate with stale initial state and React would warn about mismatched markup
-- `initialHistoryEntries` uses a lazy `useState` initializer — reads localStorage exactly once, synchronously, on first client mount
-- `latestSnapshot` is `initialHistoryEntries[0]` — history is always stored newest-first; index 0 is the restore target
-- `FlowStoreProvider` only mounts after hydration, so its `initialNodes`/`initialEdges` are guaranteed to match localStorage
+## Data Flow
 
-## Two-Layer Context Architecture
+### Image Processing Pipeline
+1. User uploads image and configures workflow nodes in the React Flow canvas
+2. `useWorkflowExecution` hook traverses the node graph (Start → Process → End)
+3. For each Process node, frontend calls `/api/process-node` (Next.js API route)
+4. Next.js route uses `BackendApiService` + adapter pattern to call Flask backend
+5. Backend applies OpenCV/ML transformation and returns image (JPEG)
+6. Result propagates to next node until End node displays final output
 
-- **FlowStoreContext**: global mutation surface — nodes, edges, viewport, and all updaters (`updateNodeData`, `resetNodeExecutionStatuses`, etc.)
-- **InspectorContext**: read/execute-only — `files`, `setFiles`, `resultImage`, `executeWorkflow`, `nodes`
-- InspectorContext exists purely to avoid prop drilling through `InspectorPanel → InputImagePanel/ResultInspector` and `ProcessNodePopup → ProcessNodeInspector`
-- It re-exposes `nodes` from FlowStore so `ResultInspector` can iterate process nodes for execution history without additional prop chains
-- `FlowStoreContext` value is wrapped in `useMemo` — any node data change (including per-node `executionStatus`) produces a new value object and re-renders every consumer
+### AI Chat Flow
+1. User sends message (with optional image) via ChatPanel
+2. Frontend calls `/api/chat` (Next.js API route) with messages + workflow context
+3. `ChatService` creates LangChain agent with Gemini 2.5 Pro + tools
+4. Agent streams response token-by-token, invoking tools as needed
+5. Frontend renders streamed markdown with tool execution indicators
 
-## What Is and Isn't Persisted
+Details: `docs/features/AI.md`, `frontend/lib/tools/README.md`
 
-- Serializer (`flowSerializer`) explicitly picks only: `label`, `functionName`, `params` for process nodes; `label` for others
-- Stripped on save: `executionStatus`, `result`, `resultParams`, `icon` — all runtime/transient
-- `resultParams` is a separate field from `params` — stores the exact params used at execution time
-- `ResultInspector` history uses `resultParams ?? params` — correctly shows stale execution params if the user edited params post-run without re-executing
+## Frontend Structure
 
-## Snapshot Migration & Validation
+**State Management**: `workflow/flowStore.tsx` provides React Context for nodes, edges, viewport, and execution status.
 
-- `normalizeSnapshot()` rewrites any node with `type: 'custom'` to `type: 'processNode'` — applied on both save and load for backward compat
-- Validation (`isValidSnapshot`) is shallow: checks that `nodes` and `edges` are arrays and `viewport` is an object — no deep node-data checks
-- Snapshot IDs are `snapshot-${Date.now()}` — collision risk if two saves happen in the same millisecond
-- Max 20 entries; new snapshots prepend to the array, then slice
+**Key Files**:
+- `app/page.tsx` - Main workflow editor, orchestrates all panels and modals
+- `app/api/process-node/route.ts` - API route proxying to Flask backend
+- `app/api/chat/route.ts` - AI chat API route (Gemini streaming)
+- `hooks/useWorkflowExecution.ts` - Workflow execution logic (traversal + API calls)
+- `lib/backendApiService.ts` - Backend API client with adapter pattern
+- `lib/backendApiAdapters.ts` - 7 function-specific request adapters (multipart/form-data)
+- `lib/chatService.ts` - LangChain Gemini wrapper with tool integration
+- `types/node.ts` - Type definitions for process nodes and parameters
+- `types/typeGuards.ts` - Runtime type validation functions
+- `types/opencv.ts` - OpenCV function configurations (UI generation, defaults)
 
-## Backend Adapter Layer
+**Node Types**:
+- `startNode` - Entry point, holds uploaded image
+- `processNode` - Image transformation (7 functions, see Backend Endpoints)
+- `endNode` - Workflow termination, displays result
 
-- All adapters use `multipart/form-data` — image as `file` blob, numeric params as string fields; this matches Flask's `request.files` + `request.form` parsing
-- No fallback/default adapter exists; if `functionName` has no registered adapter `BackendApiService` throws `ProcessingError` before the fetch
-- **GaussianBlur**: sends `ksizeX`, `ksizeY`, `sigmaX`, `sigmaY` as separate fields; odd-enforcement on ksize happens on the backend (even values are rounded up)
-- **Grayscale**: `threshold` is omitted from FormData entirely when `enableThreshold` is `false`; backend treats its absence as "no threshold"
-- `base64ToBlob` is passed as an argument to each adapter — it lives on `BackendApiService` but adapters are plain functions, so it's injected via the args object
+**Custom Hooks** (10 total in `hooks/`):
+- `useWorkflowExecution` - Pipeline orchestration and API calls
+- `useSnapshotHistory` - Snapshot CRUD (max 20 entries in localStorage)
+- `useSelectedNode` - Node selection tracking for inspector popup
+- `useChatThreads` - Multi-thread chat management with persistence
+- `useWorkflowContext` - Stripped workflow data for AI context
+- `useProcessNodeParams` - Memoized parameter extraction
+- `useContextMenu` - Right-click node/edge deletion
+- `useResizablePanel` - Drag-to-resize chat panel
+- `useExecutionHistory` - Before/after image extraction
+- `useObjectURL` - Blob URL lifecycle management
 
-## Two-Hop API Proxying
+**Contexts** (`contexts/`):
+- `InspectorContext` - Image upload state + execution trigger
+- `ToastContext` - Global toast notifications (error/warning/info/success)
 
-- Browser POSTs to `/api/process-node` (Next.js API route, runs in Node.js on the server)
-- That route instantiates `BackendApiService`, which then POSTs to the Flask backend
-- `base64ToBlob` and `blobToBase64` each have dual code paths: `Buffer`-based for Node.js, `atob`/`FileReader`-based for browser — because the service class is used on the server side
-- Response normalization in `BackendApiService` handles two patterns: (1) direct binary image response, (2) JSON with `{ ok: true, data: { url } }` where a second fetch retrieves the actual image
+## Type Safety & Code Organization
 
-## Chat API & Streaming
+### Type System Architecture
 
-- `POST /api/chat` accepts `{ messages: ChatMessage[] }` — full conversation history on every request; no server-side session state
-- `GEMINI_API_KEY` is read from `process.env` server-side only — never exposed to the client
-- `ChatService` wraps LangChain's `ChatGoogleGenerativeAI` (`gemini-2.5-pro`); system prompt is prepended server-side from `chatPrompts.ts`, not sent by the client
-- Response is a raw `text/plain` stream, not SSE — `ChatPanel` reads it directly via `ReadableStream` reader and incrementally updates the last assistant message in state
-- Mid-stream errors are caught inside the `ReadableStream` `start()` and appended as plain text into the same stream; the HTTP status remains 200, so the client cannot distinguish a mid-stream failure from a successful response
-- `ChatMessage` type is exported from `chatService.ts` and imported via `import type` in `ChatPanel.tsx` — `import type` erases at compile time, so LangChain dependencies in `chatService.ts` are not pulled into the client bundle
+**Type Definitions** (`types/node.ts`):
+- `ProcessNodeData` discriminated union with 7 variants:
+  CLAHE, GaussianBlur, Grayscale, RemoveNoise, RestoreBrightness, RestoreContrast, ModelInference
+- Parameter type mappings and `DEFAULT_NODE_PARAMS`
 
-## Execution Error — Node Status Attribution
+**Type Guards** (`types/typeGuards.ts`):
+- Runtime type validation functions (`is*Data`, `assert*Data`)
+- Centralized type checking, used across components, hooks, and serialization
 
-- `executeWorkflow` sets `currentNodeId = startNode.id`, then delegates to `traverseAndExecuteNodes`
-- `currentNodeId` itself is never reassigned inside the traversal loop
-- Catch block resolves the failed node via `ProcessingError.nodeId` first, falling back to `currentNodeId` — so API failures correctly mark the failing process node
-- `ValidationError` thrown inside `executeProcessNode` (invalid node data) does not carry `nodeId`, so that case still falls back to `currentNodeId`
-- Per-node RUNNING status is set correctly inside `executeProcessNode` before the API call
+**OpenCV Config** (`types/opencv.ts`):
+- `VISIONFY_FUNCTIONS_CONFIG` - UI generation config (types, ranges, defaults)
+- Used by `ProcessNodeParamInputs` for dynamic form rendering
 
-## Graph Topology & Traversal Edge Cases
+### Workflow Persistence Layers
 
-- Connection constraints enforce exactly 1 outgoing and 1 incoming edge per node — strict linear pipeline, no branching
-- Traversal uses a `Set` of visited IDs to prevent infinite loops — though the linear constraint makes cycles impossible via the UI
-- If the chain ends at a process node with no outgoing edge (no End node connected), traversal exits the loop silently and returns the last processed image — no error is raised
-- `initialEdges` in `flowConfig` is an empty array — the default canvas has three disconnected nodes; the user must wire them manually
+```
+types/typeGuards.ts → (Runtime type validation)
+    ↓
+workflow/flowSerializer.ts → (Strip runtime data for persistence)
+    ↓
+workflow/flowPersistence.ts → (localStorage operations, max 20 snapshots)
+```
 
-## FlowCanvas Subtleties
+- **flowSerializer.ts**: Strips `executionStatus`, `result`, `resultParams`, `icon`
+- **flowPersistence.ts**: localStorage CRUD, snapshot versioning, legacy normalization
+- **flowStore.tsx**: React Context state management with type-safe updates
+- **connectionConstraints.ts**: Edge validation (linear pipeline, no branching)
+- **workflowChain.ts**: Build ordered node chain for execution traversal
 
-- `fitView` is enabled on `ReactFlow` — this auto-fits the viewport on mount and **overrides** `defaultViewport`, meaning a restored snapshot's viewport position/zoom is lost on page load
-- Deleting a node via context menu requires explicit edge removal — React Flow does not automatically remove edges connected to a deleted node; `FlowCanvas` filters and removes them manually
-- Context menu position is calculated via `getBoundingClientRect` on the container div — canvas-internal scroll/zoom does not affect menu placement
+# Infrastructure
 
-## Memory Concerns
+## Overview
 
-- `ResultInspector` creates a blob URL for the "Before" image inside a `useEffect` keyed on `files`; the cleanup function calls `URL.revokeObjectURL` so the URL is revoked when `files` changes or the component unmounts
-- Execution results (`result` field) are base64-encoded full images stored directly in React node state — large images inflate the size of every FlowStore context value and every snapshot
+All resources are deployed on Google Cloud Platform (GCP), managed by Terraform.
+Default region: `asia-northeast1` (Tokyo).
 
-## Type System Decisions
+```
+                    ┌─────────────────┐
+                    │  Artifact        │
+                    │  Registry        │
+                    │  (Docker images) │
+                    └────────┬────────┘
+                             │
+              ┌──────────────┼──────────────┐
+              ▼                              ▼
+    ┌──────────────────┐          ┌──────────────────┐
+    │  Cloud Run        │          │  Cloud Run        │
+    │  visionfy-frontend│ ──API──▶ │  visionfy-backend │
+    │  (Next.js, 3000)  │          │  (Flask, 8080)    │
+    └──────────────────┘          └────────┬──────────┘
+              │                              │
+              ▼                              ▼
+    ┌──────────────────┐          ┌──────────────────┐
+    │  Secret Manager   │          │  Cloud Storage    │
+    │  (GEMINI_API_KEY) │          │  (model.ckpt)     │
+    └──────────────────┘          └──────────────────┘
+```
 
-- `BaseProcessNodeData extends Record<string, unknown>` — the index signature is required to satisfy React Flow's `Node<TData>` generic constraint
-- `ProcessNodeData` is a discriminated union keyed on `functionName` — enables type narrowing in switch statements
-- `NodeDataUpdate` is `Partial<BaseProcessNodeData>` augmented with optional `functionName` and `params` — enables partial node updates without full replacement
-- Assertion functions (`assertProcessNodeData`, etc.) throw on failure; type guards (`isProcessNodeData`, etc.) return booleans — both patterns coexist; guards are used for conditional logic, assertions for "must not fail" paths
+## Cloud Run Services
 
-## Error Classification Heuristics
+| Service | Port | CPU | Memory | Scaling | Image |
+|---------|------|-----|--------|---------|-------|
+| `visionfy-frontend` | 3000 | 1 | 512Mi | 0-5 | `frontend:latest` |
+| `visionfy-backend`  | 8080 | 2 | 4Gi   | 0-3 | `backend:latest`  |
 
-- `categorizeError()` classifies unknown errors by scanning the message string for keywords: "network"/"fetch"/"timeout" → Network, "invalid"/"validation"/"not found" → Validation, "failed" → Processing
-- "failed" is an extremely broad match — many unrelated errors will be categorized as ProcessingError
-- `createErrorFromStatus()` maps 5xx to `NetworkError`, not `ProcessingError` — semantically, server errors are treated as connectivity issues
-- All `AppError` subclasses call `Object.setPrototypeOf(this, Xxx.prototype)` — necessary for `instanceof` to work correctly when TypeScript compiles to ES5
+- Both services are publicly accessible (`allUsers`)
+- Frontend dynamically receives `API_BASE_URL` pointing to backend Cloud Run URL
+- Backend reads model from GCS on first inference request (lazy loading, cached)
 
-## Small But Important Details
+## Docker
 
-- New nodes added via the toolbar always default to `createclahe` — the function name, params, and icon are hardcoded in `handleAddNode`; there is no config-driven default
-- `storageService` wraps `localStorage` — currently a thin pass-through with no additional logic, but serves as an abstraction point
-- React Flow's `applyNodeChanges` / `applyEdgeChanges` handle all internal change types (position, selection, add, remove) — `onNodesChange` / `onEdgesChange` in `flowStore` simply delegate to these
-- `GaussianBlurParams.ksize` has a comment noting values must be odd — frontend sends raw values; the backend rounds even values up to the next odd number
+Both services use multi-stage builds to minimize image size.
+
+**Frontend** (`frontend/Dockerfile`):
+- 3 stages: deps → builder → runner
+- Base: `node:22-alpine`, standalone output mode
+- Non-root user (`nextjs:nodejs`)
+
+**Backend** (`backend/Dockerfile`):
+- 2 stages: builder → runtime
+- Base: `python:3.12-slim`, CPU-only PyTorch wheels
+- System deps: `libglib2.0-0`, `libgl1`, `libxcb1` (OpenCV headless)
+- Gunicorn: 1 worker, 8 threads
+
+## GCP Resources (Terraform)
+
+| Resource | Purpose | Config File |
+|----------|---------|-------------|
+| Artifact Registry | Docker image storage | `terraform/artifact_registry.tf` |
+| Cloud Run (x2) | Frontend + Backend hosting | `terraform/cloudrun.tf` |
+| Cloud Storage | ML model checkpoint storage | `terraform/storage.tf` |
+| Secret Manager | Gemini API key | `terraform/secrets.tf` |
+| Service Accounts | IAM for each service | `terraform/iam.tf` |
+
+### IAM
+
+- **Backend SA** (`backend-cloudrun`): `roles/storage.objectViewer` on models bucket
+- **Frontend SA** (`frontend-cloudrun`): `roles/secretmanager.secretAccessor` for Gemini key
+
+## Deployment
+
+Terraform manages all GCP resources. Manual Docker build + push is required before `terraform apply`.
+
+```
+1. docker build & push (backend + frontend)
+2. terraform apply
+3. terraform output (get service URLs)
+```
+
+Details: `terraform/DEPLOY.md`, `terraform/README.md`, `terraform/terraform.tfvars.example`
+
