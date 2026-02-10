@@ -1,4 +1,4 @@
-import type { ChatMessage } from '@/lib/chatService';
+import type { ChatMessage } from '@/types/chat';
 import { storageService } from '@/lib/storageService';
 
 const STORAGE_KEY = 'visionfy-chat-threads';

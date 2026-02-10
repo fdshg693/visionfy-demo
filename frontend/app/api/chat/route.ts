@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ChatService, type ChatMessage } from "@/lib/chatService";
+import { ChatService } from "@/lib/chatService";
+import type { ChatMessage } from "@/types/chat";
 import { createLogger, logEnvVar, withHttpContext } from "@/lib/logger";
 import type { Node, Edge } from '@xyflow/react';
 

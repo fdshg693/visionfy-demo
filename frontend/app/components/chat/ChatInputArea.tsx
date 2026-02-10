@@ -4,10 +4,19 @@ import { useCallback } from 'react';
 import { Send } from 'lucide-react';
 import { IconButton } from '@/components/ui/Button';
 import { FileAttachmentManager } from './FileAttachmentManager';
+import { WorkflowImagePicker } from './WorkflowImagePicker';
 import type { ChatMessageImage } from '@/lib/chatService';
 
 import styles from '@/app/page.module.css';
 import formStyles from '@/lib/styles/forms.module.css';
+
+export interface WorkflowImage {
+  id: string;
+  label: string;
+  description: string;
+  base64: string;
+  mimeType: string;
+}
 
 export interface ChatInputAreaProps {
   input: string;
@@ -16,6 +25,8 @@ export interface ChatInputAreaProps {
   onAttachedImagesChange: (images: ChatMessageImage[]) => void;
   onSend: () => void;
   disabled?: boolean;
+  workflowImages?: WorkflowImage[];
+  onWorkflowImageSelect?: (image: WorkflowImage) => void;
 }
 
 /**
@@ -29,6 +40,8 @@ export function ChatInputArea({
   onAttachedImagesChange,
   onSend,
   disabled = false,
+  workflowImages,
+  onWorkflowImageSelect,
 }: ChatInputAreaProps) {
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -43,11 +56,20 @@ export function ChatInputArea({
   return (
     <div className={styles.chatInputArea}>
       <div className={styles.chatInputRow}>
-        <FileAttachmentManager
-          attachedImages={attachedImages}
-          onImagesChange={onAttachedImagesChange}
-          disabled={disabled}
-        />
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <FileAttachmentManager
+            attachedImages={attachedImages}
+            onImagesChange={onAttachedImagesChange}
+            disabled={disabled}
+          />
+          {workflowImages && onWorkflowImageSelect && (
+            <WorkflowImagePicker
+              images={workflowImages}
+              onImageSelect={onWorkflowImageSelect}
+              disabled={disabled}
+            />
+          )}
+        </div>
         <textarea
           className={formStyles['input-textarea']}
           value={input}

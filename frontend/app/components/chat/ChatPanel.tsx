@@ -11,6 +11,8 @@ import { useWorkflowContext } from '@/hooks/useWorkflowContext';
 import { useInspector } from '@/contexts/InspectorContext';
 import { useChatThreads } from '@/hooks/useChatThreads';
 import { useResizablePanel } from '@/hooks/useResizablePanel';
+import { useWorkflowImages } from '@/hooks/useWorkflowImages';
+import type { WorkflowImage } from '@/hooks/useWorkflowImages';
 import { ThreadMenu } from './ThreadMenu';
 import { ToolList } from './ToolList';
 import { ChatSettingsPanel } from './ChatSettingsPanel';
@@ -44,6 +46,7 @@ export function ChatPanel() {
     maxWidth: 600,
     storageKey: 'visionfy-chat-panel-width',
   });
+  const workflowImages = useWorkflowImages();
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [attachedImages, setAttachedImages] = useState<ChatMessageImage[]>([]);
@@ -52,6 +55,20 @@ export function ChatPanel() {
     if (typeof window === 'undefined') return '';
     return storageService.getItem('visionfy-custom-system-prompt') || '';
   });
+
+  // ワークフロー画像選択時の処理
+  const handleWorkflowImageSelect = useCallback((image: WorkflowImage) => {
+    // data:image/jpeg;base64, プレフィックスを除去
+    const base64WithoutPrefix = image.base64.split(',')[1] || image.base64;
+
+    const newImage: ChatMessageImage = {
+      name: image.description,
+      base64: base64WithoutPrefix,
+      mimeType: image.mimeType,
+    };
+
+    setAttachedImages((prev) => [...prev, newImage]);
+  }, []);
 
   // チャット内容をAIに送信
   const handleSend = useCallback(async () => {
@@ -185,6 +202,8 @@ export function ChatPanel() {
         onAttachedImagesChange={setAttachedImages}
         onSend={handleSend}
         disabled={isLoading}
+        workflowImages={workflowImages}
+        onWorkflowImageSelect={handleWorkflowImageSelect}
       />
 
       {/* リサイズハンドル */}

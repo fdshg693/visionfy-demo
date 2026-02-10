@@ -13,20 +13,11 @@ import { createAgent } from "langchain";
 import { SYSTEM_PROMPT } from "./chatPrompts";
 import { createLogger } from "./logger";
 import { createEnabledTools, type ToolContext } from "./tools";
+import type { ChatMessage, ChatMessageImage } from "@/types/chat";
 
 const logger = createLogger('ChatService');
 
-export type ChatMessageImage = {
-  name: string;
-  base64: string;
-  mimeType: string;
-};
-
-export type ChatMessage = {
-  role: "user" | "assistant";
-  content: string;
-  images?: ChatMessageImage[];
-};
+export type { ChatMessage, ChatMessageImage };
 
 export class ChatService {
   private model: ChatGoogleGenerativeAI;
