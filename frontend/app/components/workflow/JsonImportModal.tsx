@@ -4,10 +4,8 @@ import { useState, useCallback } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { FormField } from '@/components/ui/FormField';
 import { Button } from '@/components/ui/Button';
-import { isValidSnapshot, normalizeSnapshot } from '@/workflow/flowPersistence';
-import type { FlowSnapshot } from '@/workflow/flowSerializer';
-import { isSimpleWorkflow } from '@/types/simpleWorkflow';
-import { convertSimpleWorkflowToSnapshot } from '@/workflow/simpleWorkflowConverter';
+import { useWorkflowImport, WorkflowImportError } from '@/hooks/useWorkflowImport';
+import type { FlowSnapshot } from '@/types/workflowPersistence';
 import styles from './JsonImportModal.module.css';
 
 type JsonImportModalProps = {
@@ -30,45 +28,27 @@ type JsonImportModalProps = {
 export function JsonImportModal({ isOpen, onClose, onImport }: JsonImportModalProps) {
   const [jsonInput, setJsonInput] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
+  const { importWorkflow } = useWorkflowImport();
 
   const handleImport = useCallback(() => {
     try {
-      // Step 1: Parse JSON
-      const parsed = JSON.parse(jsonInput);
+      const snapshot = importWorkflow(jsonInput);
 
-      let snapshot: FlowSnapshot;
-
-      // Step 2: Check if it's a simple workflow format
-      if (isSimpleWorkflow(parsed)) {
-        // Convert simple format to full FlowSnapshot
-        snapshot = convertSimpleWorkflowToSnapshot(parsed);
-      } else if (isValidSnapshot(parsed)) {
-        // Use existing FlowSnapshot format
-        snapshot = normalizeSnapshot(parsed);
-      } else {
-        setValidationError(
-          '無効なワークフロー構造です。以下のいずれかの形式が必要です:\n' +
-          '簡易形式: { "processNodes": [{ "functionName": "...", "params": {...} }] }\n' +
-          '完全形式: { "nodes": [...], "edges": [...], "viewport": {...} }'
-        );
-        return;
-      }
-
-      // Step 3: Clear error and pass to parent
+      // Clear error and pass to parent
       setValidationError(null);
       onImport(snapshot);
 
-      // Step 4: Reset form and close modal
+      // Reset form and close modal
       setJsonInput('');
       onClose();
     } catch (error) {
-      if (error instanceof SyntaxError) {
-        setValidationError('無効なJSON形式です。構文を確認してください。');
+      if (error instanceof WorkflowImportError) {
+        setValidationError(error.message);
       } else {
-        setValidationError('ワークフローのインポートに失敗しました。JSON構造を確認してください。');
+        setValidationError('ワークフローのインポートに失敗しました。');
       }
     }
-  }, [jsonInput, onImport, onClose]);
+  }, [jsonInput, importWorkflow, onImport, onClose]);
 
   const handleClose = useCallback(() => {
     setJsonInput('');

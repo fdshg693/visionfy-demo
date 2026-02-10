@@ -1,5 +1,5 @@
 // 役割: Number型パラメータの入力フィールドコンポーネント
-import type { OpencvParamDefinition, OpencvParamValue } from '@/types/opencv';
+import type { OpencvParamDefinition, OpencvParamValue } from '@/types/processFunction';
 import { FormField } from '@/components/ui/FormField';
 import formStyles from '@/lib/styles/forms.module.css';
 

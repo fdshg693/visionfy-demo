@@ -1,5 +1,5 @@
 // 役割: Tuple型パラメータの入力フィールドコンポーネント
-import type { OpencvParamDefinition, OpencvParamValue } from '@/types/opencv';
+import type { OpencvParamDefinition, OpencvParamValue } from '@/types/processFunction';
 import formStyles from '@/lib/styles/forms.module.css';
 
 type TupleParamFieldProps = {

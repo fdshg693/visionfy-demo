@@ -15,7 +15,7 @@ import type {
   RestoreContrastData,
   ModelInferenceData,
   BaseProcessNodeData,
-} from './node';
+} from './processNode';
 
 /**
  * Checks if the given data is BaseProcessNodeData

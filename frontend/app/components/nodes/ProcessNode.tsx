@@ -1,8 +1,8 @@
 // 役割: 処理ノードの見た目とパラメータ入力UIを表示し、入力変更をReactFlow状態に反映する。
 // 依存: ProcessNodeHeader、ProcessNodeBody、ProcessNodeHoverPopup
 import { useProcessNodeParams } from '@/hooks/useProcessNodeParams';
-import type { ProcessNodeParams } from '@/types/node';
-import type { OpencvParamValue } from '@/types/opencv';
+import type { ProcessNodeParams } from '@/types/processNode';
+import type { OpencvParamValue } from '@/types/processFunction';
 import { useFlowStore } from '@/workflow/flowStore';
 import { isProcessNodeData } from '@/types/typeGuards';
 import { Handle, Node, NodeProps, Position } from '@xyflow/react';
@@ -33,7 +33,7 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
     const { updateNodeData, nodes, edges } = useFlowStore();
     const { files } = useInspector();
     const isValid = isProcessNodeData(nodeData);
-    const { params } = useProcessNodeParams(nodeData as import('@/types/node').BaseProcessNodeData);
+    const { params } = useProcessNodeParams(nodeData as import('@/types/processNode').BaseProcessNodeData);
     const [isHovered, setIsHovered] = useState(false);
 
     // 入力画像を取得: 前のprocessノードのresult、なければnull

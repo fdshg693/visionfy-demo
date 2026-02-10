@@ -7,7 +7,7 @@ import type {
   NodeDataUpdate,
   ProcessNodeParams,
   BaseProcessNodeData,
-} from '@/types/node';
+} from '@/types/processNode';
 import type { ExecutionStatusValue } from '@/constants/index';
 import { EXECUTION_STATUS } from '@/constants/index';
 import { isBaseProcessNodeData } from '@/types/typeGuards';

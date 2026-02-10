@@ -10,7 +10,7 @@ import { ProcessNodePopup } from '@/app/components/workflow/ProcessNodePopup';
 import { useWorkflowExecution } from '@/hooks/useWorkflowExecution';
 import { useSnapshotHistory } from '@/hooks/useSnapshotHistory';
 import { useSelectedNode } from '@/hooks/useSelectedNode';
-import { DEFAULT_NODE_PARAMS, DEFAULT_NODE_ICONS, type ProcessNodeData, type ProcessNodeFunctionName, type NodeDataUpdate } from '@/types/node';
+import { DEFAULT_NODE_PARAMS, DEFAULT_NODE_ICONS, type ProcessNodeData, type ProcessNodeFunctionName, type NodeDataUpdate } from '@/types/processNode';
 import { NODE_TYPE, EXECUTION_STATUS } from '@/constants/index';
 import type { WorkflowFile } from '@/types/workflow';
 import { FlowStoreProvider, useFlowStore } from '@/workflow/flowStore';
@@ -19,9 +19,8 @@ import { getConnectionConstraintError } from '@/workflow/connectionConstraints';
 import {
   loadFlowHistory,
   saveFlowSnapshot,
-  type FlowHistoryEntry,
 } from '@/workflow/flowPersistence';
-import type { FlowSnapshot } from '@/workflow/flowSerializer';
+import type { FlowHistoryEntry, FlowSnapshot } from '@/types/workflowPersistence';
 import {
   addEdge,
   type Connection,

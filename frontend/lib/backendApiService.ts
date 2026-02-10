@@ -7,7 +7,7 @@ import {
     createBackendAdapters,
     type RequestAdapter,
 } from "./backendApiAdapters";
-import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
+import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/processNode';
 import { NetworkError, ProcessingError, createErrorFromStatus } from './errors';
 import { createLogger, logEnvVar } from './logger';
 

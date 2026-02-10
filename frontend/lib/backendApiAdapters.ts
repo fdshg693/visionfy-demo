@@ -12,7 +12,7 @@ import type {
     ModelInferenceParams,
     ProcessNodeFunctionName,
     ProcessNodeParams,
-} from '@/types/node';
+} from '@/types/processNode';
 
 export type RequestAdapterResult = {
     url: string;

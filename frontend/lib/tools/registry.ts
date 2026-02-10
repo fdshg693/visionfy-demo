@@ -9,10 +9,6 @@ import {
   isWorkflowContextToolEnabled
 } from './workflowContextTool';
 import {
-  createExecutionImagesTool,
-  isExecutionImagesToolEnabled,
-} from './executionImagesTool';
-import {
   createAvailableNodesTool,
   isAvailableNodesToolEnabled,
 } from './availableNodesTool';
@@ -27,12 +23,6 @@ export const TOOL_REGISTRY: ToolRegistryEntry[] = [
     description: 'ワークフローの現在の状態を取得',
     factory: createWorkflowContextTool,
     isEnabled: isWorkflowContextToolEnabled,
-  },
-  {
-    name: 'get_execution_images',
-    description: '直前の実行結果の元画像・処理前後画像を取得',
-    factory: createExecutionImagesTool,
-    isEnabled: isExecutionImagesToolEnabled,
   },
   {
     name: 'get_available_nodes',

@@ -1,5 +1,5 @@
 import { useFlowStore } from '@/workflow/flowStore';
-import { stripRuntimeNodeData } from '@/workflow/flowSerializer';
+import { stripRuntimeNodeData } from '@/workflow/workflowConverter';
 import { buildNodeChain } from '@/workflow/workflowChain';
 import { isProcessNodeData } from '@/types/typeGuards';
 import { NODE_TYPE } from '@/constants/index';

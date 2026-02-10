@@ -1,52 +1,17 @@
 // ワークフローのスナップショット保存・復元機能
-import type { FlowSnapshot } from '@/workflow/flowSerializer';
+// 責務: localStorage操作のみに特化
+import type { FlowSnapshot, FlowHistoryEntry, PersistedFlowHistory } from '@/types/workflowPersistence';
+import { validateHistoryEntry } from '@/workflow/workflowValidator';
+import { normalizeSnapshot } from '@/workflow/workflowConverter';
 import { formatSnapshotDate } from '@/lib/formatDate';
 import { storageService } from '@/lib/storageService';
 
 const FLOW_HISTORY_STORAGE_KEY = 'visionfy.flow.history';
 const MAX_HISTORY_ENTRIES = 20;
 
-/**
- * ワークフロー履歴エントリの型定義
- */
-export type FlowHistoryEntry = {
-  id: string;
-  createdAt: string;
-  name: string;
-  snapshot: FlowSnapshot;
-};
-
-/** 
- * ワークフロー履歴全体の型定義 
- * この値がLocalStorageに保存される内容に対応する 
-*/
-type PersistedFlowHistory = {
-  entries: FlowHistoryEntry[];
-};
-
-export const isValidSnapshot = (value: unknown): value is FlowSnapshot => {
-  if (!value || typeof value !== 'object') return false;
-  const snapshot = value as FlowSnapshot;
-  return (
-    Array.isArray(snapshot.nodes) &&
-    Array.isArray(snapshot.edges) &&
-    typeof snapshot.viewport === 'object' &&
-    snapshot.viewport !== null
-  );
-};
-
 /** スナップショット名のデフォルト生成 */
 const createDefaultName = (createdAt: string) => {
   return `スナップショット ${formatSnapshotDate(createdAt)}`;
-};
-
-export const normalizeSnapshot = (snapshot: FlowSnapshot): FlowSnapshot => {
-  return {
-    ...snapshot,
-    nodes: snapshot.nodes.map((node) =>
-      node.type === 'custom' ? { ...node, type: 'processNode' } : node
-    ),
-  };
 };
 
 // ====================== 単一スナップショットの保存・読み込み・削除 ======================
@@ -90,19 +55,15 @@ export const loadFlowHistory = (): FlowHistoryEntry[] => {
     try {
       const parsed = JSON.parse(rawHistory) as PersistedFlowHistory;
       if (!Array.isArray(parsed.entries)) return [];
+
       return parsed.entries
-        .filter(
-        (entry) =>
-          typeof entry.id === 'string' &&
-          typeof entry.createdAt === 'string' &&
-          isValidSnapshot(entry.snapshot)
-        )
+        .filter(validateHistoryEntry)  // 検証ロジックを validator に委譲
         .map((entry) => ({
           ...entry,
           name: entry.name?.trim()
             ? entry.name.trim()
             : createDefaultName(entry.createdAt),
-          snapshot: normalizeSnapshot(entry.snapshot),
+          snapshot: normalizeSnapshot(entry.snapshot),  // 正規化を converter に委譲
         }));
     } catch {
       return [];

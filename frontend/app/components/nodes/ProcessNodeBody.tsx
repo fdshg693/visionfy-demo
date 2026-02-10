@@ -1,8 +1,8 @@
 // 役割: ProcessNodeのボディ部分（パラメータ入力UI）を表示する
 // 依存: ProcessNodeParamInputs、ProcessNode.module.css
 import { ProcessNodeParamInputs } from './ProcessNodeParamInputs';
-import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
-import type { OpencvParamValue } from '@/types/opencv';
+import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/processNode';
+import type { OpencvParamValue } from '@/types/processFunction';
 import styles from './ProcessNode.module.css';
 
 type ProcessNodeBodyProps = {

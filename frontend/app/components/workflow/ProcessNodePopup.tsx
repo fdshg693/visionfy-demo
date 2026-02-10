@@ -1,6 +1,6 @@
 import { ProcessNodeInspector } from '@/app/components/inspectors/ProcessNodeInspector';
 import { NODE_TYPE } from '@/constants/index';
-import type { NodeDataUpdate } from '@/types/node';
+import type { NodeDataUpdate } from '@/types/processNode';
 import type { Node } from '@xyflow/react';
 import { Modal } from '@/components/ui/Modal';
 

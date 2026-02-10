@@ -9,10 +9,10 @@ import {
     type NodeDataUpdate,
     type ProcessNodeFunctionName,
     type ProcessNodeParams,
-} from '@/types/node';
+} from '@/types/processNode';
 import { isProcessNodeData } from '@/types/typeGuards';
-import type { OpencvParamValue } from '@/types/opencv';
-import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/opencv';
+import type { OpencvParamValue } from '@/types/processFunction';
+import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/processFunction';
 import { Node } from '@xyflow/react';
 import { FormField } from '@/components/ui/FormField';
 import styles from '../NodeInspector.module.css';
@@ -25,7 +25,7 @@ interface ProcessNodeInspectorProps {
 
 export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNodeInspectorProps) {
     // Hooks must be called before any early returns (Rules of Hooks)
-    const { resolvedFunctionName, params } = useProcessNodeParams(selectedNode.data as import('@/types/node').BaseProcessNodeData);
+    const { resolvedFunctionName, params } = useProcessNodeParams(selectedNode.data as import('@/types/processNode').BaseProcessNodeData);
 
     // Type-safe data extraction with runtime validation
     if (!isProcessNodeData(selectedNode.data)) {

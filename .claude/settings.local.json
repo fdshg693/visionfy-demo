@@ -18,7 +18,10 @@
       "Bash(timeout 10 pnpm run lint:*)",
       "Bash(npx tsc:*)",
       "Bash(timeout:*)",
-      "Bash(pnpm exec tsc:*)"
+      "Bash(pnpm exec tsc:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npx eslint:*)",
+      "Bash(pnpm lint:*)"
     ]
   }
 }

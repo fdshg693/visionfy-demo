@@ -5,7 +5,7 @@
  * 省略された情報（ノード位置、エッジ、viewport等）は自動補完される。
  */
 
-import type { ProcessNodeFunctionName, ProcessNodeParamsMap } from './node';
+import type { ProcessNodeFunctionName, ProcessNodeParamsMap } from './processNode';
 
 /**
  * 簡易プロセスノード定義

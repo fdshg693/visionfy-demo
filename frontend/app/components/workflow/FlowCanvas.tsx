@@ -16,10 +16,9 @@ import { UsageGuidePanel } from './UsageGuidePanel';
 import { SnapshotDropdown } from './SnapshotDropdown';
 import { JsonImportModal } from './JsonImportModal';
 import { Dropdown } from '@/components/ui/Dropdown';
-import type { ProcessNodeFunctionName } from '@/types/node';
-import type { FlowHistoryEntry } from '@/workflow/flowPersistence';
-import type { FlowSnapshot } from '@/workflow/flowSerializer';
-import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/opencv';
+import type { ProcessNodeFunctionName } from '@/types/processNode';
+import type { FlowHistoryEntry, FlowSnapshot } from '@/types/workflowPersistence';
+import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/processFunction';
 
 import styles from '@/app/page.module.css';
 

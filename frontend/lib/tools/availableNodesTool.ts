@@ -4,8 +4,8 @@
  */
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
-import { DEFAULT_NODE_PARAMS, DEFAULT_NODE_ICONS } from '@/types/node';
-import type { ProcessNodeFunctionName } from '@/types/node';
+import { DEFAULT_NODE_PARAMS, DEFAULT_NODE_ICONS } from '@/types/processNode';
+import type { ProcessNodeFunctionName } from '@/types/processNode';
 import type { ToolFactory } from './types';
 
 /**

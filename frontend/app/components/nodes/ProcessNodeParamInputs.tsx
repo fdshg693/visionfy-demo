@@ -1,8 +1,8 @@
 // 役割: 処理ノードのパラメータ入力UIを関数定義に沿って表示する。
 // 依存: VISIONFY_FUNCTIONS_CONFIGの定義に合わせて入力を生成する。
-import type { OpencvParamDefinition, OpencvParamValue } from '@/types/opencv';
-import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/opencv';
-import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
+import type { OpencvParamDefinition, OpencvParamValue } from '@/types/processFunction';
+import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/processFunction';
+import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/processNode';
 import { FormField } from '@/components/ui/FormField';
 import { SelectParamField } from './paramFields/SelectParamField';
 import { TupleParamField } from './paramFields/TupleParamField';

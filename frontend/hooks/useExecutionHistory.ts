@@ -4,7 +4,7 @@
  */
 import { useMemo } from 'react';
 import type { Node } from '@xyflow/react';
-import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
+import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/processNode';
 import { isProcessNodeData } from '@/types/typeGuards';
 
 export interface ExecutionHistoryItem {

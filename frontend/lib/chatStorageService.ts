@@ -1,4 +1,5 @@
 import type { ChatMessage } from '@/lib/chatService';
+import { storageService } from '@/lib/storageService';
 
 const STORAGE_KEY = 'visionfy-chat-threads';
 
@@ -10,13 +11,9 @@ export type ChatThread = {
   updatedAt: number;
 };
 
-const canUseStorage = () =>
-  typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
-
 export function loadThreads(): ChatThread[] {
-  if (!canUseStorage()) return [];
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = storageService.getItem(STORAGE_KEY);
     if (!raw) return [];
     const threads: ChatThread[] = JSON.parse(raw);
     return threads.sort((a, b) => b.updatedAt - a.updatedAt);
@@ -44,7 +41,6 @@ function stripImageData(messages: ChatMessage[]): ChatMessage[] {
 }
 
 export function saveThread(thread: ChatThread): void {
-  if (!canUseStorage()) return;
   try {
     const threadToSave = {
       ...thread,
@@ -57,16 +53,15 @@ export function saveThread(thread: ChatThread): void {
     } else {
       threads.push(threadToSave);
     }
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(threads));
+    storageService.setItem(STORAGE_KEY, JSON.stringify(threads));
   } catch {}
 }
 
 export function deleteThread(threadId: string): void {
-  if (!canUseStorage()) return;
   try {
     const threads = loadThreads();
     const filtered = threads.filter((t) => t.id !== threadId);
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    storageService.setItem(STORAGE_KEY, JSON.stringify(filtered));
   } catch {}
 }
 

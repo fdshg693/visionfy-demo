@@ -1,5 +1,5 @@
 import { backendApiService } from "@/lib/backendApiService";
-import type { ProcessNodeFunctionName, ProcessNodeParams } from "@/types/node";
+import type { ProcessNodeFunctionName, ProcessNodeParams } from "@/types/processNode";
 import { NextRequest, NextResponse } from "next/server";
 import { createLogger, withHttpContext } from "@/lib/logger";
 

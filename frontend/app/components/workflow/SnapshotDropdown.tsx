@@ -1,4 +1,4 @@
-import type { FlowHistoryEntry } from '@/workflow/flowPersistence';
+import type { FlowHistoryEntry } from '@/types/workflowPersistence';
 import { useState } from 'react';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { SnapshotListItem } from '@/components/ui/SnapshotListItem';

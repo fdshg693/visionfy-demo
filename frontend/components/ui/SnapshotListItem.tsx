@@ -1,4 +1,4 @@
-import type { FlowHistoryEntry } from '@/workflow/flowPersistence';
+import type { FlowHistoryEntry } from '@/types/workflowPersistence';
 import { formatSnapshotDate } from '@/lib/formatDate';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
