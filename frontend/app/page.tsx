@@ -1,10 +1,11 @@
 'use client';
 
-// 役割: ワークフロー画面のルート。FlowCanvasとInspectorPanelを束ねて状態と実行を管理する。
+// 役割: ワークフロー画面のルート。FlowCanvasとサイドバーを束ねて状態と実行を管理する。
 // 依存: useWorkflowExecutionで実行、flowConfigで初期ノード/エッジ定義。
 import { ChatPanel } from '@/app/components/chat/ChatPanel';
 import { FlowCanvas } from '@/app/components/workflow/FlowCanvas';
-import { InspectorPanel } from '@/app/components/workflow/InspectorPanel';
+import { InputImagePanel } from '@/app/components/workflow/InputImagePanel';
+import { ResultInspector } from '@/app/components/inspectors/ResultNodeInspector';
 import { ProcessNodePopup } from '@/app/components/workflow/ProcessNodePopup';
 import { useWorkflowExecution } from '@/hooks/useWorkflowExecution';
 import { useSnapshotHistory } from '@/hooks/useSnapshotHistory';
@@ -41,10 +42,10 @@ type WorkflowContentProps = {
 };
 
 /**
- * ページは以下の三つの要素で構成されている
- * - FlowCanvas: ノードとエッジの表示と編集を担当。ツールバーでスナップショット管理も提供。
- * - InspectorPanel: 入力画像の表示と実行結果の常時表示を担当。
+ * ページは以下の要素で構成されている
  * - ChatPanel: AIチャットインターフェースを担当。
+ * - FlowCanvas: ノードとエッジの表示と編集を担当。ツールバーでスナップショット管理も提供。
+ * - Sidebar: 入力画像の表示と実行結果の表示を担当（InputImagePanel + ResultInspector）。
  * - ProcessNodePopup: ProcessNodeの設定編集用のポップアップUI。
  */
 function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
@@ -184,7 +185,12 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
           onDeleteSnapshot={handleDeleteSnapshot}
         />
 
-        <InspectorPanel />
+        <div className={styles.sidebar}>
+          <InputImagePanel />
+          <div className={styles.resultSection}>
+            <ResultInspector />
+          </div>
+        </div>
 
         <ProcessNodePopup
           selectedNode={selectedNode}

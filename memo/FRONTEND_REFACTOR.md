@@ -1,26 +1,5 @@
 # フロントエンドリファクタリング項目
 
-## 1. コンポーネント構造
-
-### 重複ロジックの統合
-- SnapshotPanelとSnapshotDropdownのスナップショットリスト描画ロジック統合（SnapshotListItemコンポーネント抽出）
-- 複数箇所のBefore/After画像比較レイアウト統合（ImageComparisonコンポーネント作成）
-- ProcessNodePopup、ChatPanel、ThreadMenuなどのモーダル/ドロップダウンパターン統合（Modalコンポーネント作成）
-- dropdown outside-clickパターンを3箇所で重複実装（useOutsideClickDropdownフック作成）
-
-### 大規模コンポーネントの分割
-- ChatPanel（387行）を4つのサブコンポーネントに分割
-  - ChatInputArea（テキストエリア、ファイル入力、プレビュー）
-  - ChatSettingsPanel（カスタムプロンプトUI）
-  - ChatMessageList（メッセージレンダリング、スクロール）
-  - FileAttachmentManager（ファイル選択、base64変換）
-- ProcessNodeParamInputsのPARAM_FIELD_RENDERERSを個別コンポーネントに分割（SelectParamField、TupleParamField等）
-- ResultNodeInspectorをタブ別コンポーネントに分割（ResultComparisonTab、ExecutionHistoryTab）
-- ProcessNodeをヘッダー・ボディ・ホバーポップアップに分割
-
-### 不要なラッパー削除
-- InspectorPanel（10行、ロジックなし）を削除し、直接子コンポーネントをpage.tsxで配置
-
 ## 2. 型定義とバリデーション
 
 ### 型安全性の向上
@@ -123,7 +102,3 @@
 - InspectorContext型をread/execute-onlyに整理
 - useCallbackラッパーで実行コールバックを安定化（FlowStore消費コンポーネントの再レンダー防止）
 - Context value再作成防止（executeWorkflow等のコールバック変更時のメモ化）
-
-### 推奨アプローチ
-- フェーズ2: 共通コンポーネント抽出（IconButton、Dropdown、ImageBox、FormField、Badge）
-- フェーズ3: 全コンポーネントでの共通スタイル適用、z-index一貫性確認、レスポンシブ検証

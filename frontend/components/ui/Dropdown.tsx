@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+import { useOutsideClickDropdown } from '@/hooks/useOutsideClickDropdown';
 import styles from './Dropdown.module.css';
 
 export type DropdownPosition = 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
@@ -92,7 +93,6 @@ export function Dropdown({
     closeOnClickInside = false,
 }: DropdownProps) {
     const [internalIsOpen, setInternalIsOpen] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
 
     // Use controlled state if provided, otherwise use internal state
     const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
@@ -105,33 +105,12 @@ export function Dropdown({
 
     const toggle = () => setIsOpen(!isOpen);
 
-    // Outside click detection
-    useEffect(() => {
-        if (!isOpen) return;
-
-        const handleClickOutside = (e: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [isOpen]);
-
-    // Close on Escape key
-    useEffect(() => {
-        if (!isOpen) return;
-
-        const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                setIsOpen(false);
-            }
-        };
-
-        document.addEventListener('keydown', handleEscape);
-        return () => document.removeEventListener('keydown', handleEscape);
-    }, [isOpen]);
+    // Use the extracted hook for outside-click and escape key detection
+    const containerRef = useOutsideClickDropdown({
+        isOpen,
+        onClose: () => setIsOpen(false),
+        enableEscapeKey: true,
+    });
 
     const handleContentClick = () => {
         if (closeOnClickInside) {

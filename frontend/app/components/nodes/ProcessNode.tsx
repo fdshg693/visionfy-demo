@@ -1,5 +1,5 @@
 // 役割: 処理ノードの見た目とパラメータ入力UIを表示し、入力変更をReactFlow状態に反映する。
-// 依存: ProcessNodeParamInputsとアイコン定義(processNodeIcons)。
+// 依存: ProcessNodeHeader、ProcessNodeBody、ProcessNodeHoverPopup
 import { useProcessNodeParams } from '@/hooks/useProcessNodeParams';
 import type { ProcessNodeParams } from '@/types/node';
 import type { OpencvParamValue } from '@/types/opencv';
@@ -7,10 +7,11 @@ import { useFlowStore } from '@/workflow/flowStore';
 import { isProcessNodeData } from '@/types/typeGuards';
 import { Handle, Node, NodeProps, Position } from '@xyflow/react';
 import { useCallback, useState, useMemo } from 'react';
-import { ProcessNodeParamInputs } from './ProcessNodeParamInputs';
 import { useInspector } from '@/contexts/InspectorContext';
 import { useObjectURL } from '@/hooks/useObjectURL';
-import { ImageBox } from '@/components/ui/ImageBox';
+import { ProcessNodeHeader } from './ProcessNodeHeader';
+import { ProcessNodeBody } from './ProcessNodeBody';
+import { ProcessNodeHoverPopup } from './ProcessNodeHoverPopup';
 import styles from './ProcessNode.module.css';
 
 /** 関数タイプに応じた背景色CSSクラスのマッピング */
@@ -22,22 +23,6 @@ const FUNCTION_TYPE_CLASS_MAP: Record<string, string> = {
     'restore_brightness': styles['fn-restore_brightness'],
     'restore_contrast': styles['fn-restore_contrast'],
     'model_inference': styles['fn-model_inference'],
-};
-
-import { ChartNoAxesColumn, CheckCircle, Image as ImageIcon, Paintbrush, Palette, Play, ScanSearch, Settings } from 'lucide-react';
-import type { FC } from 'react';
-
-type ProcessNodeIcon = FC<{ size?: number; className?: string }>;
-
-const PROCESS_NODE_ICON_MAP: Record<string, ProcessNodeIcon> = {
-    'histogram': ChartNoAxesColumn,
-    'settings': Settings,
-    'image': ImageIcon,
-    'check': CheckCircle,
-    'play': Play,
-    'brush': Paintbrush,
-    'palette': Palette,
-    'scan': ScanSearch,
 };
 
 /**
@@ -98,8 +83,6 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
     }
 
     const status = nodeData.executionStatus || 'idle';
-
-    const IconComponent = nodeData.icon ? PROCESS_NODE_ICON_MAP[nodeData.icon] : null;
     const hasResult = !!nodeData.result;
 
     return (
@@ -114,21 +97,13 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
                 className={styles.handle}
             />
 
-            <div className={styles.header}>
-                {/* Dynamic Icon */}
-                {IconComponent && (
-                    <IconComponent size={16} className={styles.icon} />
-                )}
-                <span className={styles.title}>{nodeData.label || 'Process'}</span>
-            </div>
+            <ProcessNodeHeader icon={nodeData.icon} label={nodeData.label} />
 
-            <div className={styles.body}>
-                <ProcessNodeParamInputs
-                    functionName={nodeData.functionName}
-                    params={params}
-                    onParamChange={handleParamChange}
-                />
-            </div>
+            <ProcessNodeBody
+                functionName={nodeData.functionName}
+                params={params}
+                onParamChange={handleParamChange}
+            />
 
             <Handle
                 type="source"
@@ -138,32 +113,10 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
 
             {/* Hover popup: shows input/output images when result exists */}
             {hasResult && isHovered && (
-                <div className={styles.hoverPopup}>
-                    <div className={styles.hoverPopupImages}>
-                        <div className={styles.hoverPopupImageWrapper}>
-                            <span className={styles.hoverPopupLabel}>Input</span>
-                            <ImageBox
-                                src={effectiveInputImage}
-                                alt="Input"
-                                width={100}
-                                height={100}
-                                theme="light"
-                                emptyText="No input"
-                            />
-                        </div>
-                        <div className={styles.hoverPopupArrow}>→</div>
-                        <div className={styles.hoverPopupImageWrapper}>
-                            <span className={styles.hoverPopupLabel}>Output</span>
-                            <ImageBox
-                                src={nodeData.result as string}
-                                alt="Output"
-                                width={100}
-                                height={100}
-                                theme="light"
-                            />
-                        </div>
-                    </div>
-                </div>
+                <ProcessNodeHoverPopup
+                    inputImage={effectiveInputImage}
+                    resultImage={nodeData.result as string}
+                />
             )}
         </div>
     );

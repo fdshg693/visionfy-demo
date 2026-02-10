@@ -3,10 +3,13 @@
 import type { OpencvParamDefinition, OpencvParamValue } from '@/types/opencv';
 import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/opencv';
 import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/node';
-import type { ReactNode } from 'react';
 import { FormField } from '@/components/ui/FormField';
+import { SelectParamField } from './paramFields/SelectParamField';
+import { TupleParamField } from './paramFields/TupleParamField';
+import { BooleanParamField } from './paramFields/BooleanParamField';
+import { NumberParamField } from './paramFields/NumberParamField';
+import { TextParamField } from './paramFields/TextParamField';
 import styles from './ProcessNode.module.css';
-import formStyles from '@/lib/styles/forms.module.css';
 
 type Props = {
     functionName?: ProcessNodeFunctionName;
@@ -29,110 +32,67 @@ type ParamFieldProps = {
     classNames?: Props['classNames'];
 };
 
-type ParamFieldRenderArgs = {
-    config: OpencvParamDefinition;
-    currentValue: OpencvParamValue | undefined;
-    onChange: (value: OpencvParamValue) => void;
-    classNames?: Props['classNames'];
-};
-
-type ParamFieldRenderer = (args: ParamFieldRenderArgs) => React.ReactNode;
-
 /**
- * 各パラメータタイプに応じた入力フィールドレンダラーのマッピング。
+ * 各パラメータタイプに応じた入力フィールドコンポーネントのマッピング。
  */
-const PARAM_FIELD_RENDERERS: Record<OpencvParamDefinition['type'], ParamFieldRenderer> = {
-    select: ({ config, currentValue, onChange, classNames }) => {
-        const options = config.options?.map((opt) => (
-            <option key={String(opt.value)} value={String(opt.value)}>
-                {opt.label}
-            </option>
-        ));
-
-        return (
-            <FormField
-                type="select"
-                value={String(currentValue ?? '')}
-                onChange={(e) => {
-                    const selected = config.options?.find(
-                        (option) => String(option.value) === e.target.value
-                    );
-                    onChange((selected?.value ?? e.target.value) as OpencvParamValue);
-                }}
-                inputClassName={classNames?.select ?? `${formStyles['input-select']} ${formStyles.small} nodrag`}
-            >
-                {options}
-            </FormField>
-        );
-    },
-    tuple: ({ config, currentValue, onChange, classNames }) => {
-        const tupleVal = Array.isArray(currentValue) ? currentValue : [0, 0];
-        const handleTupleChange = (index: number, val: string) => {
-            let parsed = Number.parseFloat(val);
-            if (Number.isNaN(parsed)) parsed = 0;
-            // Enforce step/min constraints (e.g. odd-only for ksize)
-            if (config.min !== undefined && parsed < config.min) {
-                parsed = config.min;
-            }
-            if (config.step && config.min !== undefined) {
-                parsed = Math.round((parsed - config.min) / config.step) * config.step + config.min;
-            }
-            const newTuple: [number, number] = [
-                index === 0 ? parsed : tupleVal[0],
-                index === 1 ? parsed : tupleVal[1],
-            ];
-            onChange(newTuple);
-        };
-
-        return (
-            <div className={classNames?.tupleInput ?? formStyles['tuple-input']}>
-                <input
-                    type="number"
-                    value={tupleVal[0]}
-                    onChange={(e) => handleTupleChange(0, e.target.value)}
-                    className={classNames?.smallInput ?? `${formStyles['input-small']} nodrag`}
-                    placeholder="x"
-                    step={config.step}
-                    min={config.min}
+function renderParamField(
+    type: OpencvParamDefinition['type'],
+    config: OpencvParamDefinition,
+    currentValue: OpencvParamValue | undefined,
+    onChange: (value: OpencvParamValue) => void,
+    classNames?: Props['classNames']
+): React.ReactNode {
+    switch (type) {
+        case 'select':
+            return (
+                <SelectParamField
+                    config={config}
+                    currentValue={currentValue}
+                    onChange={onChange}
+                    classNames={{ select: classNames?.select }}
                 />
-                <input
-                    type="number"
-                    value={tupleVal[1]}
-                    onChange={(e) => handleTupleChange(1, e.target.value)}
-                    className={classNames?.smallInput ?? `${formStyles['input-small']} nodrag`}
-                    placeholder="y"
-                    step={config.step}
-                    min={config.min}
+            );
+        case 'tuple':
+            return (
+                <TupleParamField
+                    config={config}
+                    currentValue={currentValue}
+                    onChange={onChange}
+                    classNames={{
+                        tupleInput: classNames?.tupleInput,
+                        smallInput: classNames?.smallInput,
+                    }}
                 />
-            </div>
-        );
-    },
-    boolean: ({ currentValue, onChange, classNames }) => (
-        <FormField
-            type="checkbox"
-            checked={Boolean(currentValue)}
-            onChange={(e) => onChange(e.target.checked)}
-            inputClassName={classNames ? undefined : `${formStyles['input-checkbox']} nodrag`}
-        />
-    ),
-    number: ({ config, currentValue, onChange, classNames }) => (
-        <FormField
-            type="number"
-            value={Number(currentValue ?? 0)}
-            onChange={(e) => onChange(Number(e.target.value))}
-            inputClassName={classNames?.input ?? `${formStyles['input-small']} nodrag`}
-            step={config.step}
-            min={config.min}
-        />
-    ),
-    text: ({ currentValue, onChange, classNames }) => (
-        <FormField
-            value={String(currentValue ?? '')}
-            onChange={(e) => onChange(e.target.value)}
-            inputClassName={classNames?.input ?? `${formStyles['input-small']} nodrag`}
-        />
-    ),
-};
+            );
+        case 'boolean':
+            return (
+                <BooleanParamField
+                    currentValue={currentValue}
+                    onChange={onChange}
+                    classNames={{ checkbox: classNames?.input }}
+                />
+            );
+        case 'number':
+            return (
+                <NumberParamField
+                    config={config}
+                    currentValue={currentValue}
+                    onChange={onChange}
+                    classNames={{ input: classNames?.input }}
+                />
+            );
+        case 'text':
+            return (
+                <TextParamField
+                    currentValue={currentValue}
+                    onChange={onChange}
+                    classNames={{ input: classNames?.input }}
+                />
+            );
+        default:
+            return null;
+    }
+}
 
 /**
  * config.typeに応じた動的なパラメータ入力フィールド生成コンポーネント。
@@ -165,9 +125,9 @@ function ParamField({ config, value, onChange, classNames }: ParamFieldProps) {
         );
     };
 
-    const render = PARAM_FIELD_RENDERERS[config.type];
+    const field = renderParamField(config.type, config, currentValue, onChange, classNames);
 
-    return <>{renderField(render({ config, currentValue, onChange, classNames }))}</>;
+    return <>{renderField(field)}</>;
 }
 
 /**

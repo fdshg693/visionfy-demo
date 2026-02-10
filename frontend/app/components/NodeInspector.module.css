@@ -90,28 +90,6 @@
     opacity: 0.5;
 }
 
-.comparisonContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-}
-
-.imageWrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    width: 100%;
-    align-items: center;
-}
-
-.imageLabel {
-    font-size: 10px;
-    color: #9ca3af;
-    text-transform: uppercase;
-    font-weight: 600;
-}
-
 /* Used as className override for ImageBox in Result tab */
 .imageBox {
     width: 100%;
@@ -120,12 +98,6 @@
 /* Used as imgClassName for images inside ImageBox */
 .resultImage {
     /* ImageBox default styles are sufficient */
-}
-
-.arrow {
-    font-size: 16px;
-    color: #6b7280;
-    margin: 0;
 }
 
 /* Tab Styles */
