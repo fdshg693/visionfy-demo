@@ -135,6 +135,10 @@ class ApiClient {
     async postModelInference(data) {
         return this.request('/api/model_inference', 'POST', data);
     }
+
+    async postGenerateCode(data) {
+        return this.request('/api/generate_code', 'POST', data);
+    }
 }
 
 export const api = new ApiClient(config.baseURL);

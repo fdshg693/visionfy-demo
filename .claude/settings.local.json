@@ -21,7 +21,10 @@
       "Bash(pnpm exec tsc:*)",
       "Bash(npm run lint:*)",
       "Bash(npx eslint:*)",
-      "Bash(pnpm lint:*)"
+      "Bash(pnpm lint:*)",
+      "Bash(python src/main.py:*)",
+      "Bash(curl:*)",
+      "Bash(python -m json.tool:*)"
     ]
   }
 }

@@ -86,6 +86,9 @@
           </div>
           <div class="card-body">
             <p class="description">Upload an image to apply CLAHE.</p>
+            <p class="description" style="font-size: 0.9em; color: #666;">
+              💡 サンプル画像: <a href="img/sample.jpg" target="_blank">sample.jpg</a> をダウンロードしてお試しください
+            </p>
 
             <div class="input-group">
               <label for="file-createclane">Image File</label>
@@ -126,6 +129,9 @@
           </div>
           <div class="card-body">
             <p class="description">Upload an image to convert to Grayscale.</p>
+            <p class="description" style="font-size: 0.9em; color: #666;">
+              💡 サンプル画像: <a href="img/sample.jpg" target="_blank">sample.jpg</a>
+            </p>
 
             <div class="input-group">
               <label for="file-grayscale">Image File</label>
@@ -167,6 +173,9 @@
           </div>
           <div class="card-body">
             <p class="description">Upload an image to apply Gaussian Blur.</p>
+            <p class="description" style="font-size: 0.9em; color: #666;">
+              💡 サンプル画像: <a href="img/sample.jpg" target="_blank">sample.jpg</a>
+            </p>
 
             <div class="input-group">
               <label for="file-gaussian">Image File</label>
@@ -178,15 +187,16 @@
               <input
                 type="number"
                 id="gaussian-ksize"
-                value="0"
-                step="1"
-                placeholder="Odd number (e.g., 3, 5). 0 to Auto"
+                value="5"
+                step="2"
+                min="0"
+                placeholder="Odd number (e.g., 3, 5, 7)"
               />
             </div>
 
             <div class="input-group">
-              <label for="gaussian-sigma">Sigma</label>
-              <input type="number" id="gaussian-sigma" value="0" step="0.1" />
+              <label for="gaussian-sigma">Sigma (Standard Deviation)</label>
+              <input type="number" id="gaussian-sigma" value="1.0" step="0.1" min="0" />
             </div>
 
             <button id="btn-gaussian" class="btn primary">
@@ -212,6 +222,9 @@
           </div>
           <div class="card-body">
             <p class="description">Upload an image to remove noise (Median Filter).</p>
+            <p class="description" style="font-size: 0.9em; color: #666;">
+              💡 サンプル画像: <a href="img/sample.jpg" target="_blank">sample.jpg</a>
+            </p>
 
             <div class="input-group">
               <label for="file-remove-noise">Image File</label>
@@ -242,6 +255,9 @@
           </div>
           <div class="card-body">
             <p class="description">Upload an image to restore contrast (Gamma Correction).</p>
+            <p class="description" style="font-size: 0.9em; color: #666;">
+              💡 サンプル画像: <a href="img/sample.jpg" target="_blank">sample.jpg</a>
+            </p>
 
             <div class="input-group">
               <label for="file-restore-contrast">Image File</label>
@@ -277,6 +293,9 @@
           </div>
           <div class="card-body">
             <p class="description">Upload an image to adjust brightness.</p>
+            <p class="description" style="font-size: 0.9em; color: #666;">
+              💡 サンプル画像: <a href="img/sample.jpg" target="_blank">sample.jpg</a>
+            </p>
 
             <div class="input-group">
               <label for="file-restore-brightness">Image File</label>
@@ -312,6 +331,9 @@
           </div>
           <div class="card-body">
             <p class="description">Upload an image to perform anomaly detection with heatmap overlay.</p>
+            <p class="description" style="font-size: 0.9em; color: #666;">
+              💡 サンプル画像: <a href="img/sample.jpg" target="_blank">sample.jpg</a>
+            </p>
 
             <div class="input-group">
               <label for="file-model-inference">Image File</label>
@@ -339,6 +361,50 @@
               <div class="result-section">
                 <h4 class="section-title">Response</h4>
                 <pre><code class="res-content"></code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Generate Code API Section -->
+        <section class="card">
+          <div class="card-header">
+            <h2>Generate Code</h2>
+            <span class="badge post">POST</span>
+          </div>
+          <div class="card-body">
+            <p class="description">Generate standalone Python code from workflow definition.</p>
+            <p class="description" style="font-size: 0.9em; color: #666;">
+              💡 サンプルワークフロー: 下のボタンを押すとサンプルのワークフローでコードを生成します
+            </p>
+
+            <div class="input-group">
+              <label for="workflow-json">Workflow JSON</label>
+              <textarea
+                id="workflow-json"
+                rows="10"
+                placeholder='{"processNodes": [{"functionName": "grayscale", "params": {}}, {"functionName": "createclahe", "params": {"clipLimit": 2.0, "tileGridSize": [8, 8]}}]}'
+                style="font-family: monospace; font-size: 0.9em; padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 100%; resize: vertical;"
+              ></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+              <button id="btn-generate-code" class="btn primary">
+                Generate Code
+              </button>
+              <button id="btn-load-sample-workflow" class="btn secondary">
+                Load Sample Workflow
+              </button>
+            </div>
+
+            <div id="res-generate-code" class="response-area hidden">
+              <div class="result-section">
+                <h4 class="section-title">Request</h4>
+                <pre><code class="req-content"></code></pre>
+              </div>
+              <div class="result-section">
+                <h4 class="section-title">Generated Code</h4>
+                <pre><code class="res-content" style="white-space: pre-wrap;"></code></pre>
               </div>
             </div>
           </div>

@@ -117,8 +117,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('ksize', ksize);
-        formData.append('sigma', sigma);
+        formData.append('ksizeX', ksize);
+        formData.append('ksizeY', ksize);
+        formData.append('sigmaX', sigma);
+        formData.append('sigmaY', sigma);
 
         UI.setLoading('btn-gaussian', true);
         const res = await api.postGaussianBlur(formData);
@@ -211,5 +213,65 @@ document.addEventListener('DOMContentLoaded', () => {
         const res = await api.postModelInference(formData);
         UI.showResponse('res-model-inference', res);
         UI.setLoading('btn-model-inference', false);
+    });
+
+    // Load Sample Workflow
+    document.getElementById('btn-load-sample-workflow').addEventListener('click', () => {
+        const sampleWorkflow = {
+            processNodes: [
+                {
+                    functionName: "grayscale",
+                    params: {
+                        enableThreshold: true,
+                        threshold: 128
+                    }
+                },
+                {
+                    functionName: "createclahe",
+                    params: {
+                        clipLimit: 2.0,
+                        tileGridSize: [8, 8]
+                    }
+                },
+                {
+                    functionName: "gaussianblur",
+                    params: {
+                        ksize: [5, 5],
+                        sigmaX: 1.0,
+                        sigmaY: 1.0
+                    }
+                },
+                {
+                    functionName: "restore_contrast",
+                    params: {
+                        gamma: 1.7
+                    }
+                }
+            ]
+        };
+        document.getElementById('workflow-json').value = JSON.stringify(sampleWorkflow, null, 2);
+    });
+
+    // Generate Code
+    document.getElementById('btn-generate-code').addEventListener('click', async () => {
+        const workflowJson = document.getElementById('workflow-json').value.trim();
+
+        if (!workflowJson) {
+            alert('Please enter a workflow JSON.');
+            return;
+        }
+
+        let workflowData;
+        try {
+            workflowData = JSON.parse(workflowJson);
+        } catch (e) {
+            alert('Invalid JSON format: ' + e.message);
+            return;
+        }
+
+        UI.setLoading('btn-generate-code', true);
+        const res = await api.postGenerateCode(workflowData);
+        UI.showResponse('res-generate-code', res);
+        UI.setLoading('btn-generate-code', false);
     });
 });
