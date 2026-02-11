@@ -171,6 +171,9 @@
   padding-bottom: 8px;
   border-bottom: 1px solid #e5e7eb;
   margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .snapshotHistoryTitle {
@@ -178,6 +181,28 @@
   font-size: 13px;
   font-weight: 600;
   color: #111827;
+}
+
+.snapshotActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.snapshotListItemWrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.snapshotCheckbox {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 10px;
+  cursor: pointer;
+  accent-color: #3b82f6;
+  border-radius: 4px;
 }
 
 .snapshotHistorySection {
