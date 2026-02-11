@@ -24,7 +24,11 @@
       "Bash(pnpm lint:*)",
       "Bash(python src/main.py:*)",
       "Bash(curl:*)",
-      "Bash(python -m json.tool:*)"
+      "Bash(python -m json.tool:*)",
+      "Bash(node -e:*)",
+      "Bash(node test-tools.mjs:*)",
+      "Bash(findstr:*)",
+      "Bash(del \"c:\\\\CodeRoot\\\\visionfy-demo\\\\frontend\\\\test-tools.mjs\")"
     ]
   }
 }

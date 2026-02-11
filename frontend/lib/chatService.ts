@@ -25,10 +25,10 @@ export class ChatService {
   constructor(apiKey: string) {
     logger.debug('Initializing ChatGoogleGenerativeAI model');
     this.model = new ChatGoogleGenerativeAI({
-      model: "gemini-2.5-pro",
+      model: "gemini-3-pro-preview",
       apiKey,
     });
-    logger.info('ChatService initialized with model: gemini-2.5-pro');
+    logger.info('ChatService initialized with model: gemini-3-pro-preview');
   }
 
   /**

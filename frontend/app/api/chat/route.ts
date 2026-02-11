@@ -71,11 +71,26 @@ export async function POST(req: NextRequest) {
         try {
           // streamEventsから返されるイベントを処理
           for await (const event of eventStream) {
+            // 未処理のイベントタイプを検出するためにログ出力
+            if (
+              event.event !== 'on_chat_model_stream' &&
+              event.event !== 'on_tool_start' &&
+              event.event !== 'on_tool_end'
+            ) {
+              logger.debug({ eventType: event.event, eventName: event.name }, 'Unhandled stream event');
+            }
+
             // LLMからのトークンストリーム
             if (event.event === 'on_chat_model_stream') {
-              const content = event.data?.chunk?.content;
+              const chunk = event.data?.chunk;
+              const content = chunk?.content;
+              // ツールコールチャンクの検出（LLMがfunction callingで返した場合）
+              const toolCallChunks = chunk?.tool_call_chunks;
+              if (toolCallChunks && toolCallChunks.length > 0) {
+                logger.info({ toolCallChunks }, 'Tool call chunks detected in stream');
+              }
               if (content) {
-                logger.debug({ content: String(content).substring(0, 50) }, 'Streaming token');
+                logger.debug({ content: String(content).substring(0, 80) }, 'Streaming token');
                 controller.enqueue(encoder.encode(String(content)));
               }
             }
