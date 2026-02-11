@@ -33,25 +33,7 @@
   gap: 10px;
 }
 
-.addBtn {
-  padding: 8px 16px;
-  background: #ffff;
-  color: #374151;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  transition: all 0.2s;
-}
-
-.addBtn:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
+/* Removed - using unified button styles from buttons.module.css */
 
 .sidebar {
   width: 320px;
@@ -59,7 +41,8 @@
   border-left: 1px solid #e5e7eb;
   overflow-y: auto;
   box-shadow: -4px 0 15px -3px rgba(0, 0, 0, 0.05);
-  /* Subtle shadow from right */
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebarTabs {
@@ -68,29 +51,7 @@
   padding: 16px 16px 0 16px;
 }
 
-.sidebarTab {
-  flex: 1;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-  color: #6b7280;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.sidebarTabActive {
-  flex: 1;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid #111827;
-  background: #111827;
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
+/* Removed - using unified button styles from buttons.module.css */
 
 .snapshotPanel {
   padding: 16px;
@@ -103,29 +64,7 @@
   margin-bottom: 12px;
 }
 
-.snapshotTab {
-  flex: 1;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-  color: #6b7280;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.snapshotTabActive {
-  flex: 1;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid #111827;
-  background: #111827;
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
+/* Removed - using unified button styles from buttons.module.css */
 
 .snapshotSavePanel {
   display: flex;
@@ -139,21 +78,7 @@
   color: #6b7280;
 }
 
-.snapshotSaveBtn {
-  padding: 6px 12px;
-  background: #111827;
-  color: #ffffff;
-  border: 1px solid #111827;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 12px;
-  transition: opacity 0.2s ease;
-}
-
-.snapshotSaveBtn:hover {
-  opacity: 0.85;
-}
+/* Removed - using unified button styles from buttons.module.css */
 
 .snapshotEmpty {
   margin: 0;
@@ -216,35 +141,7 @@
   gap: 6px;
 }
 
-.snapshotActionBtn {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #111827;
-  background: #111827;
-  color: #ffffff;
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.snapshotSecondaryBtn {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-  color: #374151;
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.snapshotDangerBtn {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #ef4444;
-  background: #ffffff;
-  color: #ef4444;
-  font-size: 11px;
-  cursor: pointer;
-}
+/* Removed - using unified button styles from buttons.module.css */
 
 .snapshotEditRow {
   display: flex;
@@ -252,13 +149,67 @@
   align-items: center;
 }
 
-.snapshotInput {
-  flex: 1;
-  padding: 6px 8px;
-  border-radius: 6px;
+/* ===== Snapshot Dropdown (on canvas) ===== */
+
+.snapshotDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: #ffffff;
   border: 1px solid #e5e7eb;
-  font-size: 12px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  padding: 12px;
 }
+
+.snapshotDropdownHeader {
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.snapshotHistoryTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.snapshotActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.snapshotListItemWrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.snapshotCheckbox {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 10px;
+  cursor: pointer;
+  accent-color: #3b82f6;
+  border-radius: 4px;
+}
+
+.snapshotHistorySection {
+  margin-top: 12px;
+}
+
+/* Snapshot input styles moved to forms.module.css */
 
 /* ===== コンテキストメニュー ===== */
 
@@ -281,22 +232,7 @@
   overflow: hidden;
 }
 
-.contextMenuItem {
-  display: block;
-  width: 100%;
-  padding: 8px 16px;
-  text-align: left;
-  border: none;
-  background: none;
-  color: #ef4444;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.contextMenuItem:hover {
-  background: #fee2e2;
-}
+/* Removed - using unified button styles from buttons.module.css */
 
 /* ===== AIチャットパネル ===== */
 
@@ -320,31 +256,37 @@
   color: #111827;
 }
 
-.chatClearBtn {
+/* Removed - using unified button styles from buttons.module.css */
+.chatSettingsBtn {
   margin-left: auto;
+}
+
+.chatSettingsPanel {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: transparent;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  color: #6b7280;
-  cursor: pointer;
-  transition: all 0.2s;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.chatClearBtn:hover:not(:disabled) {
-  background: #fee2e2;
-  border-color: #fecaca;
-  color: #ef4444;
+.chatSettingsLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
 }
 
-.chatClearBtn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+/* Textarea styles moved to forms.module.css */
+
+.chatSettingsBtnGroup {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
 }
+
+/* Removed - using unified button styles from buttons.module.css */
+
+/* Removed - using unified button styles from buttons.module.css */
 
 .chatMessages {
   flex: 1;
@@ -370,7 +312,7 @@
   padding: 8px 12px;
   border-radius: 14px 14px 4px 14px;
   font-size: 13px;
-  max-width: 85%;
+  max-width: 90%;
   word-break: break-word;
   white-space: pre-wrap;
 }
@@ -382,62 +324,102 @@
   padding: 8px 12px;
   border-radius: 14px 14px 14px 4px;
   font-size: 13px;
-  max-width: 85%;
+  max-width: 90%;
   word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.chatMessageImages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.chatMessageImageThumb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Used as className override for ImageBox in chat messages */
+.chatMessageImageImg {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.chatMessageImageName {
+  font-size: 10px;
+  opacity: 0.8;
+  max-width: 64px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chatInputArea {
   padding: 10px 12px;
   border-top: 1px solid #e5e7eb;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chatAttachmentPreview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chatAttachmentThumb {
+  position: relative;
+  width: 52px;
+  height: 52px;
+}
+
+/* Used as className override for ImageBox in chat attachments */
+.chatAttachmentImg {
+  border: 1px solid #e5e7eb;
+}
+
+.chatAttachmentRemove {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.chatAttachmentRemove:hover {
+  background: #dc2626;
+}
+
+.chatInputRow {
+  display: flex;
   gap: 8px;
   align-items: flex-end;
 }
 
-.chatInputField {
-  flex: 1;
-  padding: 8px 10px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 13px;
-  resize: none;
-  outline: none;
-  font-family: inherit;
-  line-height: 1.4;
-  color: #111827;
+/* Removed - using unified button styles from buttons.module.css */
+.chatAttachBtn {
+  flex-shrink: 0;
 }
 
-.chatInputField:focus {
-  border-color: #111827;
-}
+/* Chat input field styles moved to forms.module.css */
 
-.chatInputField:disabled {
-  background: #f9fafb;
-  color: #6b7280;
-}
-
+/* Removed - using unified button styles from buttons.module.css */
 .chatSendBtn {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #111827;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.chatSendBtn:hover {
-  opacity: 0.85;
-}
-
-.chatSendBtn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
 }
 
 .chatResizeHandle {
@@ -454,4 +436,172 @@
 
 .chatResizeHandle:hover {
   background-color: #c7d2fe;
+}
+
+/* ===== Add Node ドロップダウン ===== */
+
+.addNodeWrapper {
+  position: relative;
+}
+
+.addNodeDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  min-width: 260px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  overflow: hidden;
+}
+
+/* Removed - using unified button styles from buttons.module.css */
+
+.addNodeOptionName {
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+  color: #111827;
+}
+
+.addNodeOptionDesc {
+  display: block;
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.runButtonArea {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.actionButtonWrapper {
+  position: relative;
+}
+
+/* Removed - using unified button styles from buttons.module.css */
+
+/* ===== Result Section (sidebar) ===== */
+
+.resultSection {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* ===== Input Image Panel ===== */
+
+.inputImagePanel {
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.inputImageTitle {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.inputImageUpload {
+  /* Constrain FilePond height for compact display */
+}
+
+.inputImageUpload :global(.filepond--root) {
+  margin-bottom: 0;
+}
+
+/* Tool Call Indicator */
+.toolCallIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  margin: 4px 0;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 12px;
+  font-size: 11px;
+  color: #0369a1;
+  font-weight: 500;
+}
+
+/* Tool List */
+.toolListContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.toolListBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.toolListBtn:hover {
+  color: #111827;
+  background: #f3f4f6;
+}
+
+.toolListDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  min-width: 220px;
+  z-index: 50;
+}
+
+.toolListTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  padding: 2px 4px 6px;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 4px;
+}
+
+.toolListItem {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.toolListItem:hover {
+  background: #f9fafb;
+}
+
+.toolListName {
+  font-size: 11px;
+  font-weight: 500;
+  color: #111827;
+  font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+}
+
+.toolListDesc {
+  font-size: 10px;
+  color: #6b7280;
 }

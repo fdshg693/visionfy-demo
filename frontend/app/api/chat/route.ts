@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ChatService, type ChatMessage } from "@/lib/chatService";
-import { createLogger, logEnvVar } from "@/lib/logger";
+import { ChatService } from "@/lib/chatService";
+import { buildImageContext } from "@/lib/chatPrompts";
+import type { ChatMessage } from "@/types/chat";
+import { createLogger, logEnvVar, withHttpContext } from "@/lib/logger";
 import type { Node, Edge } from '@xyflow/react';
 
-const logger = createLogger('ChatAPI');
+const baseLogger = createLogger('ChatAPI');
 
 /**
  * Gemini APIを使用してチャットメッセージに応答するエンドポイント
@@ -12,13 +14,17 @@ const logger = createLogger('ChatAPI');
  * @param req - 会話履歴とワークフロー情報を含むPOSTリクエスト
  */
 export async function POST(req: NextRequest) {
+  // HTTPコンテキストとトレースIDを含むロガーを作成
+  const logger = withHttpContext(baseLogger, req, 'POST', req.url);
+
   try {
-    const { messages, nodes, edges, originalImage, nodeResults } = (await req.json()) as {
+    const { messages, nodes, edges, originalImage, nodeResults, customSystemPrompt } = (await req.json()) as {
       messages: ChatMessage[];
       nodes?: Node[];
       edges?: Edge[];
       originalImage?: string;
       nodeResults?: { nodeId: string; functionName: string; result: string }[];
+      customSystemPrompt?: string;
     };
 
     logger.info({
@@ -53,8 +59,11 @@ export async function POST(req: NextRequest) {
       nodeResults: nodeResults ? JSON.stringify(nodeResults) : undefined,
     } : undefined;
     
-    logger.info({ hasToolContext: !!toolContext }, 'Starting AI stream');
-    const eventStream = await chatService.stream(messages, toolContext);
+    // 画像コンテキストの構築（システムプロンプトに動的に付加）
+    const imageContext = buildImageContext(originalImage, nodeResults);
+
+    logger.info({ hasToolContext: !!toolContext, hasCustomPrompt: !!customSystemPrompt, hasImageContext: !!imageContext }, 'Starting AI stream');
+    const eventStream = await chatService.stream(messages, toolContext, customSystemPrompt, imageContext || undefined);
 
     const readableStream = new ReadableStream({
       async start(controller) {
@@ -62,11 +71,26 @@ export async function POST(req: NextRequest) {
         try {
           // streamEventsから返されるイベントを処理
           for await (const event of eventStream) {
+            // 未処理のイベントタイプを検出するためにログ出力
+            if (
+              event.event !== 'on_chat_model_stream' &&
+              event.event !== 'on_tool_start' &&
+              event.event !== 'on_tool_end'
+            ) {
+              logger.debug({ eventType: event.event, eventName: event.name }, 'Unhandled stream event');
+            }
+
             // LLMからのトークンストリーム
             if (event.event === 'on_chat_model_stream') {
-              const content = event.data?.chunk?.content;
+              const chunk = event.data?.chunk;
+              const content = chunk?.content;
+              // ツールコールチャンクの検出（LLMがfunction callingで返した場合）
+              const toolCallChunks = chunk?.tool_call_chunks;
+              if (toolCallChunks && toolCallChunks.length > 0) {
+                logger.info({ toolCallChunks }, 'Tool call chunks detected in stream');
+              }
               if (content) {
-                logger.debug({ content: String(content).substring(0, 50) }, 'Streaming token');
+                logger.debug({ content: String(content).substring(0, 80) }, 'Streaming token');
                 controller.enqueue(encoder.encode(String(content)));
               }
             }
@@ -76,15 +100,33 @@ export async function POST(req: NextRequest) {
                 tool: event.name, 
                 input: event.data?.input 
               }, 'Tool execution started');
-              // オプション: ツール実行中のメッセージをクライアントに送信
-              // controller.enqueue(encoder.encode(`\n[${event.name}を実行中...]\n`));
+              controller.enqueue(encoder.encode(`<<TOOL_START:${event.name}>>`));
             }
             // ツール実行終了
             else if (event.event === 'on_tool_end') {
-              logger.info({ 
-                tool: event.name, 
-                output: event.data?.output 
+              const output = event.data?.output;
+              logger.info({
+                tool: event.name,
+                output: output
               }, 'Tool execution completed');
+
+              // ツールの出力をログに記録（デバッグ用）
+              if (output) {
+                // ToolMessageオブジェクトの場合はcontentプロパティを取得
+                const outputContent = typeof output === 'object' && output !== null && 'content' in output
+                  ? String(output.content)
+                  : String(output);
+
+                logger.debug({ tool: event.name, outputContent }, 'Tool output content');
+
+                // ツールの出力がセッションマーカーを含む場合、それをストリームに含める
+                if (outputContent.includes('[WORKFLOW_SESSION:') || outputContent.includes('[IMAGE_SESSION:')) {
+                  logger.info({ tool: event.name, marker: 'Detected session marker in tool output', content: outputContent }, 'Including tool output in stream');
+                  controller.enqueue(encoder.encode(outputContent));
+                }
+              }
+
+              controller.enqueue(encoder.encode(`<<TOOL_END:${event.name}>>`));
             }
           }
           logger.info('AI stream completed successfully');

@@ -8,7 +8,7 @@ export function StartNode() {
     return (
         <div className={`${styles.node} ${styles.startNode}`}>
             <div className={styles.label}>
-                Start
+                開始
             </div>
 
             <Handle

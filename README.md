@@ -1,42 +1,74 @@
 
 # Visionfy Demo
 
-このリポジトリは、Visionfy Demo アプリケーションのソースコードを含んでいます。
+画像処理ワークフローアプリケーション。ノードベースのワークフロー（Start → Process → End）で
+OpenCV変換を画像に適用し、リアルタイムで結果を表示します。
 
-## 📂 プロジェクト構成
+## プロジェクト構成
 
 ```text
 .
-├── backend/      # Python Flask API（Cloud Run 上でホスト）
-│   ├── src/      # アプリケーションソースコード
-│   └── test/     # テストスクリプト
-└── frontend/     # Next.js フロントエンド（Firebase App Hosting 上でホスト）
+├── backend/      # Python Flask API (Cloud Run)
+├── frontend/     # Next.js フロントエンド (Cloud Run)
+└── terraform/    # GCPインフラ (Terraform)
 ```
 
-## 🔗 アーキテクチャと関係
+## アーキテクチャ
 
 ```text
 +----------------------+           +----------------------+
 |   Frontend (Next.js) |   HTTPS   |   Backend (Flask)    |
-| [Firebase Hosting]   +---------->+ [Cloud Run]          |
-|                      |           |                      |
+|   [Cloud Run]        +---------->+   [Cloud Run]        |
 +----------------------+           +----------------------+
 ```
 
-## 🚀 デプロイ概要
+両サービスは同一GCPプロジェクト上のCloud Runで稼働し、Terraformで管理されています。
 
-### フロントエンド
+## 前提条件
 
-- プラットフォーム: Firebase App Hosting
-- 設定ファイル: `frontend\apphosting.yaml`
-- 方法:
-  - 自動: 変更が `main` にプッシュされると自動的にデプロイされます。
-  - 手動: `firebase deploy` を使用してください。
+- [Terraform](https://www.terraform.io/downloads) >= 1.5
+- [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
+- [Docker](https://docs.docker.com/get-docker/)
+- GCPの組織IDと請求先アカウント
 
-### バックエンド
+## デプロイ
 
-- プラットフォーム: Google Cloud Run
-- 方法: `gcloud` CLI を使った手動デプロイ。
-- Github Actions による自動デプロイも設定されています。`.github\workflows\backend-cloud-run.yml` を参照してください。
+詳細は `terraform/README.md` を参照してください。
 
-**詳細は`infra`ディレクトリ内のドキュメントを参照してください。**
+### クイックスタート
+
+```powershell
+# 1. インフラ作成
+cd terraform
+cp terraform.tfvars.example terraform.tfvars  # 値を編集
+terraform init
+terraform apply
+
+# 2. Docker認証
+gcloud auth configure-docker asia-northeast1-docker.pkg.dev
+
+# 3. バックエンドのビルド・プッシュ
+docker build -t asia-northeast1-docker.pkg.dev/PROJECT_ID/visionfy-demo/backend:latest ./backend
+docker push asia-northeast1-docker.pkg.dev/PROJECT_ID/visionfy-demo/backend:latest
+
+# 4. フロントエンドのビルド・プッシュ
+docker build -t asia-northeast1-docker.pkg.dev/PROJECT_ID/visionfy-demo/frontend:latest ./frontend
+docker push asia-northeast1-docker.pkg.dev/PROJECT_ID/visionfy-demo/frontend:latest
+
+# 5. Cloud Runサービスをデプロイ
+terraform apply
+```
+
+## ローカル開発
+
+### フロントエンド (`frontend/`)
+```powershell
+pnpm install
+pnpm dev        # localhost:3000
+```
+
+### バックエンド (`backend/`)
+```powershell
+pip install -r requirements.txt
+python src/main.py   # localhost:8080
+```

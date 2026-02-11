@@ -1,9 +1,14 @@
 from dataclasses import dataclass
-from typing import Tuple, Union
+import logging
 
-from flask import Request, Response, make_response
-import cv2
+from flask import Request
 import numpy as np
+
+from common.pipeline import create_image_processing_pipeline
+from common.params import get_int_param
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -12,56 +17,28 @@ class RestoreBrightnessParams:
 
 
 def _parse_params(request: Request) -> RestoreBrightnessParams:
-    try:
-        value = int(request.form.get("value", -30))
-    except ValueError as exc:
-        raise ValueError("Invalid parameters: value must be int") from exc
-    return RestoreBrightnessParams(value=value)
+    return RestoreBrightnessParams(
+        value=get_int_param(request, "value", -30),
+    )
 
 
-def restore_brightness(request: Request) -> Union[Response, Tuple[str, int]]:
-    """
-    画像を受け取り、明るさを調整して返す
-    """
-    if request.method != "POST":
-        return "Method not allowed", 405
+def _process_restore_brightness(
+    img: np.ndarray, params: RestoreBrightnessParams
+) -> np.ndarray:
+    beta = params.value
+    if beta != 0:
+        logger.info(f"Adjusting brightness with beta={beta}")
+        img_f = img.astype(np.float32)
+        img_f = img_f - beta
+        result = np.clip(img_f, 0, 255).astype(np.uint8)
+        logger.info("Brightness restoration completed successfully")
+        return result
+    else:
+        logger.info("Skipping brightness adjustment (beta=0)")
+        return img
 
-    if "file" not in request.files:
-        return "No file part", 400
 
-    file = request.files["file"]
-    if file.filename == "":
-        return "No selected file", 400
-
-    try:
-        try:
-            params = _parse_params(request)
-        except ValueError as exc:
-            return (str(exc), 400)
-
-        # Read image
-        file_bytes = np.frombuffer(file.read(), np.uint8)
-        img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
-
-        if img is None:
-            return "Could not decode image", 400
-
-        # Apply brightness restoration
-        beta = params.value
-        if beta != 0:
-            img_f = img.astype(np.float32)
-            img_f = img_f - beta
-            img = np.clip(img_f, 0, 255).astype(np.uint8)
-
-        # Encode back to format (JPG)
-        ret, buffer = cv2.imencode(".jpg", img)
-
-        if not ret:
-            return "Could not encode image", 500
-
-        response = make_response(buffer.tobytes())
-        response.headers["Content-Type"] = "image/jpeg"
-        return response
-
-    except Exception as e:
-        return f"Internal Server Error: {str(e)}", 500
+restore_brightness = create_image_processing_pipeline(
+    param_parser=_parse_params,
+    processor=_process_restore_brightness,
+)

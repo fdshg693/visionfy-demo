@@ -1,4 +1,5 @@
-import type { ChatMessage } from '@/lib/chatService';
+import type { ChatMessage } from '@/types/chat';
+import { storageService } from '@/lib/storageService';
 
 const STORAGE_KEY = 'visionfy-chat-threads';
 
@@ -10,13 +11,9 @@ export type ChatThread = {
   updatedAt: number;
 };
 
-const canUseStorage = () =>
-  typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
-
 export function loadThreads(): ChatThread[] {
-  if (!canUseStorage()) return [];
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = storageService.getItem(STORAGE_KEY);
     if (!raw) return [];
     const threads: ChatThread[] = JSON.parse(raw);
     return threads.sort((a, b) => b.updatedAt - a.updatedAt);
@@ -25,26 +22,46 @@ export function loadThreads(): ChatThread[] {
   }
 }
 
+/**
+ * 永続化時に画像のbase64データを除去してストレージ容量を節約する。
+ * ファイル名とMIMEタイプは保持し、UIで添付履歴を表示できるようにする。
+ */
+function stripImageData(messages: ChatMessage[]): ChatMessage[] {
+  return messages.map((msg) => {
+    if (!msg.images || msg.images.length === 0) return msg;
+    return {
+      ...msg,
+      images: msg.images.map((img) => ({
+        name: img.name,
+        base64: '',
+        mimeType: img.mimeType,
+      })),
+    };
+  });
+}
+
 export function saveThread(thread: ChatThread): void {
-  if (!canUseStorage()) return;
   try {
+    const threadToSave = {
+      ...thread,
+      messages: stripImageData(thread.messages),
+    };
     const threads = loadThreads();
     const index = threads.findIndex((t) => t.id === thread.id);
     if (index >= 0) {
-      threads[index] = thread;
+      threads[index] = threadToSave;
     } else {
-      threads.push(thread);
+      threads.push(threadToSave);
     }
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(threads));
+    storageService.setItem(STORAGE_KEY, JSON.stringify(threads));
   } catch {}
 }
 
 export function deleteThread(threadId: string): void {
-  if (!canUseStorage()) return;
   try {
     const threads = loadThreads();
     const filtered = threads.filter((t) => t.id !== threadId);
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    storageService.setItem(STORAGE_KEY, JSON.stringify(filtered));
   } catch {}
 }
 

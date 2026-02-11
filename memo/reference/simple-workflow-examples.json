@@ -1,0 +1,122 @@
+{
+  "description": "簡易ワークフロー形式のサンプル集",
+  "examples": [
+    {
+      "name": "基本的な例（パラメータ指定あり）",
+      "workflow": {
+        "processNodes": [
+          {
+            "functionName": "createclahe",
+            "params": {
+              "clipLimit": 40,
+              "tileGridSize": [8, 8]
+            }
+          },
+          {
+            "functionName": "grayscale",
+            "params": {
+              "enableThreshold": false,
+              "threshold": 128
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "パラメータ省略例（デフォルト値を使用）",
+      "workflow": {
+        "processNodes": [
+          {
+            "functionName": "createclahe"
+          },
+          {
+            "functionName": "grayscale"
+          },
+          {
+            "functionName": "remove_noise"
+          }
+        ]
+      }
+    },
+    {
+      "name": "部分的なパラメータ指定",
+      "workflow": {
+        "processNodes": [
+          {
+            "functionName": "gaussianblur",
+            "params": {
+              "ksize": [7, 7]
+            }
+          },
+          {
+            "functionName": "restore_brightness",
+            "params": {
+              "value": -50
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "全ての処理関数を使用",
+      "workflow": {
+        "processNodes": [
+          { "functionName": "createclahe" },
+          { "functionName": "gaussianblur" },
+          { "functionName": "grayscale" },
+          { "functionName": "remove_noise" },
+          { "functionName": "restore_brightness" },
+          { "functionName": "restore_contrast" },
+          { "functionName": "model_inference" }
+        ]
+      }
+    },
+    {
+      "name": "単一ノードのワークフロー",
+      "workflow": {
+        "processNodes": [
+          {
+            "functionName": "grayscale",
+            "params": {
+              "enableThreshold": true,
+              "threshold": 200
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "プロセスノードなし（START→ENDのみ）",
+      "workflow": {
+        "processNodes": []
+      }
+    }
+  ],
+  "notes": {
+    "parameters": "各関数で利用可能なパラメータ:",
+    "createclahe": {
+      "clipLimit": "number (デフォルト: 40.0)",
+      "tileGridSize": "[number, number] (デフォルト: [8, 8])"
+    },
+    "gaussianblur": {
+      "ksize": "[number, number] - 奇数のみ (デフォルト: [5, 5])",
+      "sigmaX": "number (デフォルト: 0)",
+      "sigmaY": "number (デフォルト: 0)"
+    },
+    "grayscale": {
+      "enableThreshold": "boolean (デフォルト: false)",
+      "threshold": "number 0-255 (デフォルト: 128)"
+    },
+    "remove_noise": "パラメータなし",
+    "restore_brightness": {
+      "value": "number (デフォルト: -30)"
+    },
+    "restore_contrast": {
+      "gamma": "number (デフォルト: 1.7)"
+    },
+    "model_inference": {
+      "overlayAlpha": "number (デフォルト: 0.6)",
+      "heatmapAlpha": "number (デフォルト: 0.4)"
+    }
+  }
+}

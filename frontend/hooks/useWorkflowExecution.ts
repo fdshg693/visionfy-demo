@@ -5,7 +5,7 @@
  */
 import type { Node, Edge } from '@xyflow/react';
 import { useCallback, useState } from 'react';
-import type { ProcessNodeParams } from '@/types/node';
+import type { ProcessNodeParams } from '@/types/processNode';
 import type { ExecutionStatusValue } from '@/constants/index';
 import { EXECUTION_STATUS, NODE_TYPE } from '@/constants/index';
 import { isProcessNodeData } from '@/types/typeGuards';
@@ -183,9 +183,14 @@ export const useWorkflowExecution = ({
     onError,
   ]);
 
+  const clearResultImage = useCallback(() => {
+    setResultImage(null);
+  }, []);
+
   return {
     executeWorkflow,
     isProcessing,
     resultImage,
+    clearResultImage,
   };
 };

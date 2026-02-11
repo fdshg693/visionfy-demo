@@ -9,12 +9,14 @@ import {
     type NodeDataUpdate,
     type ProcessNodeFunctionName,
     type ProcessNodeParams,
-} from '@/types/node';
+} from '@/types/processNode';
 import { isProcessNodeData } from '@/types/typeGuards';
-import type { OpencvParamValue } from '@/types/opencv';
-import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/opencv';
+import type { OpencvParamValue } from '@/types/processFunction';
+import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/processFunction';
 import { Node } from '@xyflow/react';
+import { FormField } from '@/components/ui/FormField';
 import styles from '../NodeInspector.module.css';
+import formStyles from '@/lib/styles/forms.module.css';
 
 interface ProcessNodeInspectorProps {
     selectedNode: Node;
@@ -23,7 +25,7 @@ interface ProcessNodeInspectorProps {
 
 export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNodeInspectorProps) {
     // Hooks must be called before any early returns (Rules of Hooks)
-    const { resolvedFunctionName, params } = useProcessNodeParams(selectedNode.data as import('@/types/node').BaseProcessNodeData);
+    const { resolvedFunctionName, params } = useProcessNodeParams(selectedNode.data as import('@/types/processNode').BaseProcessNodeData);
 
     // Type-safe data extraction with runtime validation
     if (!isProcessNodeData(selectedNode.data)) {
@@ -65,54 +67,38 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
     return (
         <div className={styles.inspectorContent}>
             {/* Label Input */}
-            <div className={styles.field}>
-                <label className={styles.label}>Label</label>
-                <input
-                    type="text"
-                    value={label}
-                    onChange={(e) => {
-                        onUpdateNode(selectedNode.id, { label: e.target.value });
-                    }}
-                    className={styles.input}
-                />
-            </div>
-            {/* Execution Result */}
-            <div className={styles.section}>
-                <label className={styles.sectionLabel}>
-                    Execution Result
-                </label>
-                <div className={styles.imageBox}>
-                    {data.result ? (
-                        <>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={data.result}
-                                alt="Result"
-                                className={styles.resultImage}
-                            />
-                        </>
-                    ) : (
-                        <div className={styles.emptyResult}>No result</div>
-                    )}
-                </div>
-            </div>
+            <FormField
+                label="ラベル"
+                name="label"
+                value={label}
+                onChange={(e) => {
+                    onUpdateNode(selectedNode.id, { label: e.target.value });
+                }}
+                theme="dark"
+                className={styles.field}
+                labelClassName={styles.label}
+                inputClassName={formStyles['input-dark']}
+            />
 
             {/* Function Selection */}
-            <div className={styles.field}>
-                <label className={styles.label}>Function</label>
-                <select
-                    value={functionName}
-                    onChange={(e) => handleFunctionChange(e.target.value as ProcessNodeFunctionName)}
-                    className={styles.select}
-                >
-                    <option value="" disabled>Select a function</option>
-                    {Object.keys(VISIONFY_FUNCTIONS_CONFIG).map((func) => (
-                        <option key={func} value={func}>
-                            {func}
-                        </option>
-                    ))}
-                </select>
-            </div>
+            <FormField
+                label="関数"
+                type="select"
+                name="function"
+                value={functionName}
+                onChange={(e) => handleFunctionChange(e.target.value as ProcessNodeFunctionName)}
+                theme="dark"
+                className={styles.field}
+                labelClassName={styles.label}
+                inputClassName={`${formStyles['input-select']} ${formStyles.dark}`}
+            >
+                <option value="" disabled>関数を選択</option>
+                {Object.keys(VISIONFY_FUNCTIONS_CONFIG).map((func) => (
+                    <option key={func} value={func}>
+                        {func}
+                    </option>
+                ))}
+            </FormField>
 
             {/* Function Description */}
             {currentFunctionConfig && (
@@ -125,7 +111,7 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
             {currentFunctionConfig && (
                 <div className={styles.section}>
                     <label className={styles.sectionLabel}>
-                        Parameters
+                        パラメータ
                     </label>
                     <div className={styles.paramsList}>
                         <ProcessNodeParamInputs
@@ -135,10 +121,10 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
                             classNames={{
                                 field: styles.field,
                                 label: styles.label,
-                                input: styles.input,
-                                select: styles.select,
-                                tupleInput: styles.tupleInput,
-                                smallInput: styles.smallInput,
+                                input: formStyles['input-dark'],
+                                select: `${formStyles['input-select']} ${formStyles.dark}`,
+                                tupleInput: formStyles['tuple-input'],
+                                smallInput: formStyles['input-dark'],
                             }}
                         />
                     </div>

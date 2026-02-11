@@ -1,0 +1,43 @@
+/**
+ * TabGroup Styles
+ *
+ * Provides styling for the TabGroup component container and variations.
+ */
+
+/* Default tab group with bottom border */
+.tabGroup {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #374151;
+  margin-bottom: 16px;
+}
+
+/* Pills variant (segmented control style) */
+.tabGroupPills {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* Full width container */
+.fullWidth {
+  width: 100%;
+}
+
+/* Full width individual tab */
+.fullWidthTab {
+  flex: 1;
+}
+
+/* Tab icon spacing */
+.tabIcon {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 6px;
+}
+
+/* Ensure tabs don't wrap */
+.tabGroup,
+.tabGroupPills {
+  flex-wrap: nowrap;
+}

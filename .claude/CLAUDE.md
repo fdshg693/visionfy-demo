@@ -8,16 +8,18 @@ BECAUSE in tha case there is no wrting conflicts.
 
 ## ARCHITECTURE
 
-@../.ai/overview/architecture.md
+@../ai/overview/architecture.md
 
 ## COMMANDS
 
-@../.ai/overview/commands.md
+@../ai/overview/commands.md
 
 ## PROJECT
 
-@../.ai/overview/project.md
+@../ai/overview/project.md
 
-## frontend
+## INFRASTRUCTURE
 
-@../.ai/overview/frontend.md
+@../ai/overview/infrastructure.md
+
+It is possible that other convenient documents exist under `ai\overview` or `docs` folder.

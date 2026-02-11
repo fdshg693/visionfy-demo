@@ -1,8 +1,10 @@
-import type { FlowHistoryEntry } from '@/workflow/flowPersistence';
-import { formatSnapshotDate } from '@/lib/formatDate';
+import type { FlowHistoryEntry } from '@/types/workflowPersistence';
 import { useState } from 'react';
+import { Button } from '@/components/ui/Button';
+import { SnapshotListItem } from '@/components/ui/SnapshotListItem';
 
 import styles from '@/app/page.module.css';
+import formStyles from '@/lib/styles/forms.module.css';
 
 type SnapshotPanelProps = {
   historyEntries: FlowHistoryEntry[];
@@ -31,9 +33,9 @@ export function SnapshotPanel({
       {/* 保存セクション */}
       <div className={styles.snapshotSavePanel}>
         <p className={styles.snapshotHelp}>現在のフロー状態を保存します。</p>
-        <button type="button" onClick={onSaveSnapshot} className={styles.snapshotSaveBtn}>
+        <Button variant="primary" size="sm" onClick={onSaveSnapshot}>
           保存する
-        </button>
+        </Button>
       </div>
 
       {/* 履歴セクション */}
@@ -44,72 +46,32 @@ export function SnapshotPanel({
         ) : (
           <ul className={styles.snapshotList}>
             {historyEntries.map((entry) => (
-              <li key={entry.id}>
-                {editingId === entry.id ? (
-                  <div className={styles.snapshotEditRow}>
-                    <input
-                      className={styles.snapshotInput}
-                      value={draftName}
-                      onChange={(event) => setDraftName(event.target.value)}
-                      placeholder="スナップショット名"
-                    />
-                    <button
-                      type="button"
-                      className={styles.snapshotActionBtn}
-                      onClick={() => {
-                        const trimmed = draftName.trim();
-                        if (trimmed) {
-                          onRenameSnapshot(entry.id, trimmed);
-                        }
-                        setEditingId(null);
-                        setDraftName('');
-                      }}
-                    >
-                      保存
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.snapshotSecondaryBtn}
-                      onClick={() => {
-                        setEditingId(null);
-                        setDraftName('');
-                      }}
-                    >
-                      キャンセル
-                    </button>
-                  </div>
-                ) : (
-                  <div className={styles.snapshotRow}>
-                    <button
-                      type="button"
-                      className={styles.snapshotItem}
-                      onClick={() => onRestoreSnapshot(entry)}
-                    >
-                      <span className={styles.snapshotName}>{entry.name}</span>
-                      <span className={styles.snapshotDate}>{formatSnapshotDate(entry.createdAt)}</span>
-                    </button>
-                    <div className={styles.snapshotActions}>
-                      <button
-                        type="button"
-                        className={styles.snapshotSecondaryBtn}
-                        onClick={() => {
-                          setEditingId(entry.id);
-                          setDraftName(entry.name);
-                        }}
-                      >
-                        編集
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.snapshotDangerBtn}
-                        onClick={() => onDeleteSnapshot(entry.id)}
-                      >
-                        削除
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </li>
+              <SnapshotListItem
+                key={entry.id}
+                entry={entry}
+                isEditing={editingId === entry.id}
+                draftName={draftName}
+                onDraftNameChange={setDraftName}
+                onSaveEdit={() => {
+                  const trimmed = draftName.trim();
+                  if (trimmed) {
+                    onRenameSnapshot(entry.id, trimmed);
+                  }
+                  setEditingId(null);
+                  setDraftName('');
+                }}
+                onCancelEdit={() => {
+                  setEditingId(null);
+                  setDraftName('');
+                }}
+                onStartEdit={() => {
+                  setEditingId(entry.id);
+                  setDraftName(entry.name);
+                }}
+                onRestore={() => onRestoreSnapshot(entry)}
+                onDelete={() => onDeleteSnapshot(entry.id)}
+                inputClassName={formStyles['input-field']}
+              />
             ))}
           </ul>
         )}

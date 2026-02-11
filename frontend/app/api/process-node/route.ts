@@ -1,11 +1,14 @@
 import { backendApiService } from "@/lib/backendApiService";
-import type { ProcessNodeFunctionName, ProcessNodeParams } from "@/types/node";
+import type { ProcessNodeFunctionName, ProcessNodeParams } from "@/types/processNode";
 import { NextRequest, NextResponse } from "next/server";
-import { createLogger } from "@/lib/logger";
+import { createLogger, withHttpContext } from "@/lib/logger";
 
-const logger = createLogger('ProcessNodeAPI');
+const baseLogger = createLogger('ProcessNodeAPI');
 
 export async function POST(req: NextRequest) {
+    // HTTPコンテキストとトレースIDを含むロガーを作成
+    const logger = withHttpContext(baseLogger, req, 'POST', req.url);
+
     try {
         const body = await req.json();
         const { functionName, params, inputData } = body as {

@@ -4,7 +4,7 @@ export const UI = {
     showResponse: (elementId, response) => {
         const resultArea = document.getElementById(elementId);
         resultArea.classList.remove('hidden');
-        
+
         // 1. Request Section
         const reqCode = resultArea.querySelector('.req-content');
         if (reqCode && response.request) {
@@ -15,26 +15,32 @@ export const UI = {
         const resCode = resultArea.querySelector('.res-content');
         // Fallback for elements not updated to new structure (just in case)
         const codeTarget = resCode || resultArea.querySelector('code');
-        
+
         // Remove old image if any
         const oldImg = resultArea.querySelector('.response-image');
         if (oldImg) oldImg.remove();
-        
-        // Prepare display object (exclude request to avoid duplication in view)
-        const responseToDisplay = {
-            ok: response.ok,
-            status: response.status,
-            data: response.data
-        };
-        if (response.error) responseToDisplay.error = response.error;
 
-        // Format JSON beautifully
-        codeTarget.textContent = JSON.stringify(responseToDisplay, null, 2);
+        // Special handling for code generation endpoint
+        if (elementId === 'res-generate-code' && response.ok && response.data && response.data.code) {
+            // Display the generated code directly
+            codeTarget.textContent = response.data.code;
+        } else {
+            // Prepare display object (exclude request to avoid duplication in view)
+            const responseToDisplay = {
+                ok: response.ok,
+                status: response.status,
+                data: response.data
+            };
+            if (response.error) responseToDisplay.error = response.error;
+
+            // Format JSON beautifully
+            codeTarget.textContent = JSON.stringify(responseToDisplay, null, 2);
+        }
 
         // Basic color coding for status
         if (response.ok) {
             resultArea.style.borderColor = 'var(--success-color)';
-            
+
             // Show image if available
             if (response.data && response.data.url) {
                 const img = document.createElement('img');
@@ -43,7 +49,7 @@ export const UI = {
                 img.style.maxWidth = '100%';
                 img.style.marginTop = '10px';
                 img.style.borderRadius = '8px';
-                
+
                 // Append to appropriate container
                 if (resCode && resCode.parentElement) {
                     resCode.parentElement.appendChild(img);

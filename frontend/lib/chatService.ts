@@ -13,13 +13,11 @@ import { createAgent } from "langchain";
 import { SYSTEM_PROMPT } from "./chatPrompts";
 import { createLogger } from "./logger";
 import { createEnabledTools, type ToolContext } from "./tools";
+import type { ChatMessage, ChatMessageImage } from "@/types/chat";
 
 const logger = createLogger('ChatService');
 
-export type ChatMessage = {
-  role: "user" | "assistant";
-  content: string;
-};
+export type { ChatMessage, ChatMessageImage };
 
 export class ChatService {
   private model: ChatGoogleGenerativeAI;
@@ -27,27 +25,59 @@ export class ChatService {
   constructor(apiKey: string) {
     logger.debug('Initializing ChatGoogleGenerativeAI model');
     this.model = new ChatGoogleGenerativeAI({
-      model: "gemini-2.5-pro",
+      model: "gemini-3-pro-preview",
       apiKey,
     });
-    logger.info('ChatService initialized with model: gemini-2.5-pro');
+    logger.info('ChatService initialized with model: gemini-3-pro-preview');
   }
 
   /**
    * 会話履歴からLangchainメッセージ配列を構築し、エージェントでストリーム処理する
    * toolContext が渡された場合はツールをエージェントに渡し、AIが必要に応じて実行できるようにする
    */
-  async stream(messages: ChatMessage[], toolContext?: ToolContext) {
-    logger.info({ 
-      messageCount: messages.length, 
-      hasToolContext: !!toolContext 
+  async stream(messages: ChatMessage[], toolContext?: ToolContext, customSystemPrompt?: string, dynamicContext?: string) {
+    logger.info({
+      messageCount: messages.length,
+      hasToolContext: !!toolContext,
+      hasCustomPrompt: !!customSystemPrompt,
+      hasDynamicContext: !!dynamicContext,
     }, 'Building langchain messages');
     
-    const langchainMessages: BaseMessage[] = messages.map((msg) =>
-      msg.role === "user"
-        ? new HumanMessage(msg.content)
-        : new AIMessage(msg.content)
-    );
+    const langchainMessages: BaseMessage[] = messages.map((msg) => {
+      if (msg.role === "assistant") {
+        return new AIMessage(msg.content);
+      }
+
+      // 画像がない場合はテキストのみ
+      if (!msg.images || msg.images.length === 0) {
+        return new HumanMessage(msg.content);
+      }
+
+      // マルチモーダルメッセージを構築（テキスト + 画像）
+      const content: Array<
+        | { type: "text"; text: string }
+        | { type: "image_url"; image_url: string }
+      > = [];
+
+      // ファイル名情報をテキストに含める
+      const imageLabels = msg.images
+        .map((img, i) => `[添付画像${i + 1}: ${img.name}]`)
+        .join(" ");
+      content.push({
+        type: "text",
+        text: `${msg.content}\n\n${imageLabels}`,
+      });
+
+      // 各画像をimage_urlとして追加
+      for (const image of msg.images) {
+        content.push({
+          type: "image_url",
+          image_url: `data:${image.mimeType};base64,${image.base64}`,
+        });
+      }
+
+      return new HumanMessage({ content });
+    });
 
     // ツールコンテキストがある場合、有効なツールを生成してエージェントを作成
     const tools = toolContext ? createEnabledTools(toolContext) : [];
@@ -58,10 +88,12 @@ export class ChatService {
     }
 
     // エージェントを作成（ツールがない場合でも動作する）
+    const basePrompt = customSystemPrompt ?? SYSTEM_PROMPT;
+    const systemPrompt = dynamicContext ? `${basePrompt}${dynamicContext}` : basePrompt;
     const agent = createAgent({
       model: this.model,
       tools,
-      systemPrompt: SYSTEM_PROMPT,
+      systemPrompt,
     });
 
     logger.info({ totalMessages: langchainMessages.length }, 'Starting streamEvents');

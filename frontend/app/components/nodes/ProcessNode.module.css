@@ -1,4 +1,5 @@
 .node {
+    position: relative;
     padding: 6px 8px;
     border-radius: 6px;
     background: white;
@@ -21,6 +22,71 @@
 
 .error {
     border-color: #ef4444;
+}
+
+/* Function type backgrounds */
+.fn-createclahe {
+    background: #eff6ff;
+    border-color: #93c5fd;
+}
+
+.fn-gaussianblur {
+    background: #f0fdf4;
+    border-color: #86efac;
+}
+
+.fn-grayscale {
+    background: #f5f5f5;
+    border-color: #a3a3a3;
+}
+
+.fn-remove_noise {
+    background: #fefce8;
+    border-color: #fde047;
+}
+
+.fn-restore_brightness {
+    background: #fff7ed;
+    border-color: #fdba74;
+}
+
+.fn-restore_contrast {
+    background: #fdf4ff;
+    border-color: #d8b4fe;
+}
+
+.fn-model_inference {
+    background: #fef2f2;
+    border-color: #fca5a5;
+}
+
+/* Function type icon colors */
+.fn-createclahe .icon {
+    color: #3b82f6;
+}
+
+.fn-gaussianblur .icon {
+    color: #22c55e;
+}
+
+.fn-grayscale .icon {
+    color: #737373;
+}
+
+.fn-remove_noise .icon {
+    color: #eab308;
+}
+
+.fn-restore_brightness .icon {
+    color: #f97316;
+}
+
+.fn-restore_contrast .icon {
+    color: #a855f7;
+}
+
+.fn-model_inference .icon {
+    color: #ef4444;
 }
 
 .header {
@@ -61,22 +127,72 @@
     font-size: 9px;
 }
 
-.paramRow input {
-    border: 1px solid #e0e0e0;
-    border-radius: 3px;
-    padding: 1px 3px;
-    font-size: 9px;
-    width: 40px;
-}
-
-.paramRow input:focus {
-    outline: none;
-    border-color: #3b82f6;
-}
+/* Input styles moved to forms.module.css */
+/* Inputs now use .input-small from forms.module.css */
 
 /* Handles */
 .handle {
     width: 6px !important;
     height: 6px !important;
     background: #555 !important;
+}
+
+/* ===== Hover Popup ===== */
+.hoverPopup {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    padding: 10px;
+    z-index: 1000;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* Custom animation combining popup fade-in with centered transform */
+@keyframes hoverPopupAnimation {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.hoverPopup {
+    animation: hoverPopupAnimation 0.15s ease-out;
+}
+
+.hoverPopupImages {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hoverPopupImageWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.hoverPopupLabel {
+    font-size: 10px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.hoverPopupArrow {
+    font-size: 16px;
+    color: #9ca3af;
+    font-weight: 600;
+    padding: 0 2px;
 }

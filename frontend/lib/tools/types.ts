@@ -2,7 +2,6 @@
  * LangChainツールの型定義
  * 新しいツールを追加する際は、ここで型を定義する
  */
-import { z } from "zod";
 import type { StructuredTool } from "@langchain/core/tools";
 
 /**

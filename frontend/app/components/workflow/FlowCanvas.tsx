@@ -1,6 +1,6 @@
 // 役割: ノード/エッジのキャンバス表示と操作UI(ミニマップ/ズーム/追加ボタン/リセット/右クリック削除)を提供する。
 // 依存: ReactFlowのイベントを受け取り、親から渡された状態更新に委譲する。
-import { type ComponentProps } from 'react';
+import { type ComponentProps, useState } from 'react';
 import {
   Background,
   Controls,
@@ -10,6 +10,16 @@ import {
 } from '@xyflow/react';
 import { useFlowStore } from '@/workflow/flowStore';
 import { useContextMenu } from '@/hooks/useContextMenu';
+import { useInspector } from '@/contexts/InspectorContext';
+import { Button, MenuButton } from '@/components/ui/Button';
+import { UsageGuidePanel } from './UsageGuidePanel';
+import { SnapshotDropdown } from './SnapshotDropdown';
+import { JsonImportModal } from './JsonImportModal';
+import { GenerateCodeModal } from './GenerateCodeModal';
+import { Dropdown } from '@/components/ui/Dropdown';
+import type { ProcessNodeFunctionName } from '@/types/processNode';
+import type { FlowHistoryEntry, FlowSnapshot } from '@/types/workflowPersistence';
+import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/processFunction';
 
 import styles from '@/app/page.module.css';
 
@@ -20,8 +30,14 @@ type FlowCanvasProps = {
   onNodeClick: ComponentProps<typeof ReactFlow>['onNodeClick'];
   onPaneClick: ComponentProps<typeof ReactFlow>['onPaneClick'];
   onMoveEnd?: ComponentProps<typeof ReactFlow>['onMoveEnd'];
-  onAddNode: () => void;
+  onAddNode: (functionName: ProcessNodeFunctionName) => void;
   onResetCanvas: () => void;
+  onSaveSnapshot: () => void;
+  historyEntries: FlowHistoryEntry[];
+  onRestoreSnapshot: (entry: FlowHistoryEntry) => void;
+  onRenameSnapshot: (entryId: string, name: string) => void;
+  onDeleteSnapshot: (entryId: string) => void;
+  onImportSnapshot: (snapshot: FlowSnapshot) => void;
 };
 
 /**
@@ -37,8 +53,18 @@ export function FlowCanvas({
   onMoveEnd,
   onAddNode,
   onResetCanvas,
+  onSaveSnapshot,
+  historyEntries,
+  onRestoreSnapshot,
+  onRenameSnapshot,
+  onDeleteSnapshot,
+  onImportSnapshot,
 }: FlowCanvasProps) {
-  const { nodes, edges, onNodesChange, onEdgesChange } = useFlowStore();
+  const { nodes, edges, viewport, onNodesChange, onEdgesChange } = useFlowStore();
+  const { files, executeWorkflow } = useInspector();
+  const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [showGenerateCodeModal, setShowGenerateCodeModal] = useState(false);
   const {
     containerRef,
     contextMenu,
@@ -76,19 +102,86 @@ export function FlowCanvas({
       </ReactFlow>
 
       <div className={styles.toolbar}>
-        <button
+        <Button
+          variant="secondary"
           onClick={onResetCanvas}
-          className={styles.addBtn}
         >
-          ↺ Reset
-        </button>
-        <button
-          onClick={onAddNode}
-          className={styles.addBtn}
+          ↺ リセット
+        </Button>
+        <Dropdown
+          trigger={(isOpen, toggle) => (
+            <Button
+              variant="secondary"
+              onClick={toggle}
+            >
+              ＋ ノード追加
+            </Button>
+          )}
+          overlay
+          containerClassName={styles.addNodeWrapper}
+          className={styles.addNodeDropdown}
+          zIndex={100}
+          closeOnClickInside
         >
-          ＋ Add Node
-        </button>
+          {Object.entries(VISIONFY_FUNCTIONS_CONFIG).map(([name, config]) => (
+            <MenuButton
+              key={name}
+              withIcon
+              onClick={() => onAddNode(name as ProcessNodeFunctionName)}
+            >
+              <span className={styles.addNodeOptionName}>{name}</span>
+              <span className={styles.addNodeOptionDesc}>{config.description}</span>
+            </MenuButton>
+          ))}
+        </Dropdown>
       </div>
+
+      {/* Action buttons: Guide, Import, History, Save, Run */}
+      <div className={styles.runButtonArea}>
+        <UsageGuidePanel />
+        <Button variant="secondary" size="lg" onClick={() => setShowImportModal(true)}>
+          📥 JSONインポート
+        </Button>
+        <div className={styles.actionButtonWrapper}>
+          <Button variant="secondary" size="lg" onClick={() => setShowHistoryDropdown((prev) => !prev)}>
+            📋 履歴
+          </Button>
+          <SnapshotDropdown
+            isOpen={showHistoryDropdown}
+            onClose={() => setShowHistoryDropdown(false)}
+            historyEntries={historyEntries}
+            onRestoreSnapshot={onRestoreSnapshot}
+            onRenameSnapshot={onRenameSnapshot}
+            onDeleteSnapshot={onDeleteSnapshot}
+          />
+        </div>
+        <Button variant="secondary" size="lg" onClick={onSaveSnapshot}>💾 保存</Button>
+        <Button
+          variant="secondary"
+          size="lg"
+          onClick={() => setShowGenerateCodeModal(true)}
+          disabled={nodes.filter(n => n.type === 'processNode').length === 0}
+        >
+          🐍 コード生成
+        </Button>
+        <Button variant="blue" size="lg" onClick={executeWorkflow} disabled={files.length === 0}>▶ Run</Button>
+      </div>
+
+      {/* JSON Import Modal */}
+      <JsonImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImport={onImportSnapshot}
+      />
+
+      {/* Generate Code Modal */}
+      <GenerateCodeModal
+        isOpen={showGenerateCodeModal}
+        onClose={() => setShowGenerateCodeModal(false)}
+        nodes={nodes}
+        edges={edges}
+        viewport={viewport}
+      />
 
       {contextMenu && (
         <>
@@ -97,9 +190,9 @@ export function FlowCanvas({
             className={styles.contextMenu}
             style={{ left: contextMenu.x, top: contextMenu.y }}
           >
-            <button className={styles.contextMenuItem} onClick={handleDelete}>
+            <MenuButton danger onClick={handleDelete}>
               削除
-            </button>
+            </MenuButton>
           </div>
         </>
       )}

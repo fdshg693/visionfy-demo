@@ -1,0 +1,52 @@
+/**
+ * Design System - Main Entry Point
+ *
+ * Imports all design system CSS files.
+ * Import this file in your global CSS or specific components.
+ *
+ * Usage:
+ *   @import './lib/styles/index.css';
+ *
+ * Or import individual files as needed:
+ *   @import './lib/styles/colors.css';
+ *   @import './lib/styles/spacing.css';
+ */
+
+/* Core design tokens */
+@import './colors.css';
+@import './spacing.css';
+@import './shadows.css';
+@import './z-index.css';
+@import './typography.css';
+
+/**
+ * Design System Structure:
+ *
+ * 1. colors.css - Color palette with light/dark mode support
+ *    - Primary, neutral, success, danger, warning, info colors
+ *    - Semantic color tokens (background, foreground, border, etc.)
+ *    - Canvas and status colors
+ *
+ * 2. spacing.css - Spacing scale (4px base unit)
+ *    - Numeric scale (--space-1 to --space-24)
+ *    - Semantic aliases (xs, sm, md, lg, xl)
+ *    - Component-specific spacing
+ *
+ * 3. shadows.css - Elevation system
+ *    - Standard shadows (xs, sm, md, lg, xl, 2xl)
+ *    - Colored shadows (primary, danger, success)
+ *    - Component-specific shadows
+ *
+ * 4. z-index.css - Layering system
+ *    - Base layers (0-9)
+ *    - Component layers (10-99)
+ *    - Interactive overlays (100-299)
+ *    - Modals and toasts (300-699)
+ *    - Critical UI (700-899)
+ *
+ * 5. typography.css - Type system
+ *    - Font sizes (xs to 5xl)
+ *    - Font weights (thin to black)
+ *    - Line heights and letter spacing
+ *    - Preset text styles (headings, body, code)
+ */

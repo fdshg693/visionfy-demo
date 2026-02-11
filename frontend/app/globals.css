@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Import unified design system */
+@import "../lib/styles/index.css";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

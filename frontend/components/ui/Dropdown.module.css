@@ -1,0 +1,44 @@
+.container {
+  position: relative;
+  display: inline-block;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+}
+
+.dropdown {
+  position: absolute;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+/* Position variants */
+.position-bottom-left {
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+}
+
+.position-bottom-right {
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+}
+
+.position-top-left {
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 4px;
+}
+
+.position-top-right {
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 4px;
+}

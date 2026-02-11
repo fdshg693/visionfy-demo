@@ -1,0 +1,227 @@
+/**
+ * Design System - Color Palette
+ *
+ * Defines all color variables for the application.
+ * Based on the existing color usage in the codebase.
+ */
+
+:root {
+  /* Primary Colors - Blue */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  --color-primary-950: #172554;
+
+  /* Neutral/Gray Colors */
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6;
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-300: #d1d5db;
+  --color-neutral-400: #9ca3af;
+  --color-neutral-500: #6b7280;
+  --color-neutral-600: #4b5563;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827;
+  --color-neutral-950: #030712;
+
+  /* Success Colors - Green */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-300: #86efac;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+  --color-success-900: #14532d;
+  --color-success-950: #052e16;
+
+  /* Danger/Error Colors - Red */
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-200: #fecaca;
+  --color-danger-300: #fca5a5;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-danger-800: #991b1b;
+  --color-danger-900: #7f1d1d;
+  --color-danger-950: #450a0a;
+
+  /* Warning Colors - Yellow/Amber */
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning-900: #78350f;
+  --color-warning-950: #451a03;
+
+  /* Info Colors - Blue (lighter variant) */
+  --color-info-50: #eff6ff;
+  --color-info-100: #dbeafe;
+  --color-info-200: #bfdbfe;
+  --color-info-300: #93c5fd;
+  --color-info-400: #60a5fa;
+  --color-info-500: #3b82f6;
+  --color-info-600: #2563eb;
+  --color-info-700: #1d4ed8;
+  --color-info-800: #1e40af;
+  --color-info-900: #1e3a8a;
+  --color-info-950: #172554;
+
+  /* Accent Colors */
+  --color-accent-indigo: #c7d2fe;
+  --color-accent-purple: #a78bfa;
+  --color-accent-pink: #f472b6;
+  --color-accent-teal: #2dd4bf;
+
+  /* Semantic Colors */
+  --color-background: #ffffff;
+  --color-foreground: #171717;
+  --color-surface: #ffffff;
+  --color-border: #e5e7eb;
+  --color-divider: #d1d5db;
+  --color-disabled: #9ca3af;
+  --color-hover: #f3f4f6;
+  --color-active: #e5e7eb;
+
+  /* Canvas/Flow Colors */
+  --color-canvas-background: #fafafa;
+  --color-canvas-grid: #e5e7eb;
+  --color-canvas-edge: #b1b1b7;
+  --color-canvas-node-border: #d1d5db;
+  --color-canvas-node-hover: #f3f4f6;
+  --color-canvas-node-selected: #3b82f6;
+
+  /* Status Colors */
+  --color-status-pending: #6b7280;
+  --color-status-running: #3b82f6;
+  --color-status-success: #22c55e;
+  --color-status-error: #ef4444;
+  --color-status-warning: #f59e0b;
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Primary Colors - Adjusted for dark mode */
+    --color-primary-50: #1e3a8a;
+    --color-primary-100: #1e40af;
+    --color-primary-200: #1d4ed8;
+    --color-primary-300: #2563eb;
+    --color-primary-400: #3b82f6;
+    --color-primary-500: #60a5fa;
+    --color-primary-600: #93c5fd;
+    --color-primary-700: #bfdbfe;
+    --color-primary-800: #dbeafe;
+    --color-primary-900: #eff6ff;
+
+    /* Neutral Colors - Inverted */
+    --color-neutral-50: #030712;
+    --color-neutral-100: #111827;
+    --color-neutral-200: #1f2937;
+    --color-neutral-300: #374151;
+    --color-neutral-400: #4b5563;
+    --color-neutral-500: #6b7280;
+    --color-neutral-600: #9ca3af;
+    --color-neutral-700: #d1d5db;
+    --color-neutral-800: #e5e7eb;
+    --color-neutral-900: #f3f4f6;
+    --color-neutral-950: #f9fafb;
+
+    /* Success Colors - Adjusted */
+    --color-success-50: #052e16;
+    --color-success-100: #14532d;
+    --color-success-200: #166534;
+    --color-success-300: #15803d;
+    --color-success-400: #16a34a;
+    --color-success-500: #22c55e;
+    --color-success-600: #4ade80;
+    --color-success-700: #86efac;
+    --color-success-800: #bbf7d0;
+    --color-success-900: #dcfce7;
+
+    /* Danger Colors - Adjusted */
+    --color-danger-50: #450a0a;
+    --color-danger-100: #7f1d1d;
+    --color-danger-200: #991b1b;
+    --color-danger-300: #b91c1c;
+    --color-danger-400: #dc2626;
+    --color-danger-500: #ef4444;
+    --color-danger-600: #f87171;
+    --color-danger-700: #fca5a5;
+    --color-danger-800: #fecaca;
+    --color-danger-900: #fee2e2;
+
+    /* Warning Colors - Adjusted */
+    --color-warning-50: #451a03;
+    --color-warning-100: #78350f;
+    --color-warning-200: #92400e;
+    --color-warning-300: #b45309;
+    --color-warning-400: #d97706;
+    --color-warning-500: #f59e0b;
+    --color-warning-600: #fbbf24;
+    --color-warning-700: #fcd34d;
+    --color-warning-800: #fde68a;
+    --color-warning-900: #fef3c7;
+
+    /* Semantic Colors - Dark Mode */
+    --color-background: #0a0a0a;
+    --color-foreground: #ededed;
+    --color-surface: #111827;
+    --color-border: #374151;
+    --color-divider: #4b5563;
+    --color-disabled: #6b7280;
+    --color-hover: #1f2937;
+    --color-active: #374151;
+
+    /* Canvas Colors - Dark Mode */
+    --color-canvas-background: #0f0f0f;
+    --color-canvas-grid: #374151;
+    --color-canvas-edge: #6b7280;
+    --color-canvas-node-border: #4b5563;
+    --color-canvas-node-hover: #1f2937;
+    --color-canvas-node-selected: #3b82f6;
+
+    /* Status Colors - Dark Mode (keep vivid) */
+    --color-status-pending: #9ca3af;
+    --color-status-running: #60a5fa;
+    --color-status-success: #4ade80;
+    --color-status-error: #f87171;
+    --color-status-warning: #fbbf24;
+  }
+}
+
+/* Utility classes for quick color application */
+.bg-primary { background-color: var(--color-primary-500); }
+.bg-success { background-color: var(--color-success-500); }
+.bg-danger { background-color: var(--color-danger-500); }
+.bg-warning { background-color: var(--color-warning-500); }
+.bg-info { background-color: var(--color-info-500); }
+
+.text-primary { color: var(--color-primary-500); }
+.text-success { color: var(--color-success-500); }
+.text-danger { color: var(--color-danger-500); }
+.text-warning { color: var(--color-warning-500); }
+.text-info { color: var(--color-info-500); }
+
+.border-primary { border-color: var(--color-primary-500); }
+.border-success { border-color: var(--color-success-500); }
+.border-danger { border-color: var(--color-danger-500); }
+.border-warning { border-color: var(--color-warning-500); }
+.border-info { border-color: var(--color-info-500); }

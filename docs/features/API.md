@@ -1,68 +1,103 @@
-# How to Add a New Backend API to the Frontend
+# バックエンドAPI連携ガイド（新しい処理関数の追加手順）
 
-## Overview
+## 概要
 
-- When a new image-processing endpoint is added to the Flask backend, the frontend requires changes in **5 areas**: types, UI config, adapter, inspector, and node defaults
-- The overall request flow is: **Browser → Next.js proxy route → BackendApiService → Adapter → Flask backend**
-- The adapter layer converts JSON + base64 image into `multipart/form-data` that Flask expects (`request.files` + `request.form`)
-- The Next.js proxy route ([frontend/app/api/process-node/route.ts](frontend/app/api/process-node/route.ts)) requires **no changes** — it dispatches generically via `BackendApiService`
+- Flask バックエンドに新しい画像処理エンドポイントを追加する際、フロントエンド側で **5箇所** の変更が必要
+- リクエストフロー: **Browser → Next.js proxy route → BackendApiService → Adapter → Flask backend**
+- アダプタ層が JSON + base64画像 を `multipart/form-data`（Flask の `request.files` + `request.form`）に変換
+- Next.jsプロキシルート（`frontend/app/api/process-node/route.ts`）は汎用ディスパッチのため **変更不要**
 
-## Step 1 — Define Types and Defaults
+## 現在サポートされている処理関数（7種）
 
-- Add a new params interface (e.g. `XxxParams`) in [frontend/types/node.ts](frontend/types/node.ts)
-  - Each field represents a parameter the backend handler accepts via `request.form`
-- Add a corresponding data interface (e.g. `XxxData`) extending `BaseProcessNodeData`
-  - Must include a **literal** `functionName` string (this is the discriminant key)
-  - Must include `params: XxxParams`
-- Add `XxxData` to the `ProcessNodeData` discriminated union
-- Add the function name → params mapping entry to `ProcessNodeParamsMap`
-- Add a default params entry to the `DEFAULT_NODE_PARAMS` constant
-- Add an icon entry to the `DEFAULT_NODE_ICONS` constant
+| 関数名 | 表示名 | アイコン | バックエンドエンドポイント |
+|--------|--------|----------|--------------------------|
+| `createclahe` | CLAHE（コントラスト制限適応ヒストグラム均等化） | `histogram` | `/api/createclahe` |
+| `gaussianblur` | ガウシアンブラー | `brush` | `/api/gaussian_blur` |
+| `grayscale` | グレイスケール変換 | `palette` | `/api/grayscale` |
+| `remove_noise` | ノイズ除去（メディアンブラー） | `settings` | `/api/remove_noise` |
+| `restore_brightness` | 明るさ復元 | `image` | `/api/restore_brightness` |
+| `restore_contrast` | コントラスト復元（ガンマ補正） | `image` | `/api/restore_contrast` |
+| `model_inference` | モデル推論（Patchcore異常検知） | `scan` | `/api/model_inference` |
 
-## Step 2 — Add UI Parameter Config
+## Pythonコード生成API
 
-- Add a new entry to `VISIONFY_FUNCTIONS_CONFIG` in [frontend/types/opencv.ts](frontend/types/opencv.ts)
-  - Provide a `description` string and a `params` array of `OpencvParamDefinition` objects
-  - Each param definition specifies `name`, `type` (`number` / `text` / `boolean` / `tuple` / `select`), and `defaultValue`
-- **Important**: default values here must match those in `DEFAULT_NODE_PARAMS` — they are maintained separately
+- **エンドポイント**: `POST /api/generate_code`
+- **リクエストフロー**: Browser → Next.js proxy route (`/api/generate-code`) → Flask backend (`/api/generate_code`)
+- **リクエスト**: JSON body（SimpleWorkflow形式）
+- **レスポンス**: `{ "code": "import cv2\n..." }`（生成されたPythonスクリプト）
+- **対応関数**: OpenCV系6関数（`model_inference` は除外。ワークフローに含まれる場合はスキップ＋コメント出力）
+- **生成コードの特徴**:
+  - ワークフローで使用する関数の定義のみを含める（不要な関数は除外）
+  - 各ステップに対応する呼び出しコードをパラメータ付きで生成
+  - `import cv2` / `import numpy as np` を自動付加
+  - `cv2.imread()` / `cv2.imwrite()` による入出力を含むスタンドアロンスクリプト
+- **UI**: FlowCanvasの「🐍 コード生成」ボタン → `GenerateCodeModal` でコード表示・コピー・ダウンロード
 
-## Step 3 — Create the Backend Adapter
+### 関連ファイル
 
-- Add a new adapter builder function (e.g. `buildXxxAdapter()`) in [frontend/lib/backendApiAdapters.ts](frontend/lib/backendApiAdapters.ts)
-  - The adapter receives `RequestAdapterArgs` and returns `RequestAdapterResult` (`{ url, init }`)
-  - Build a `FormData` containing `file` (image blob) and each parameter as a string field
-  - The `base64ToBlob` converter is injected via `args` — use it to convert the input image
-  - Return the target URL as `${baseUrl}/api/<backend_route_name>`
-- Register the adapter in `createBackendAdapters()` with the key matching the new `functionName` literal
-- **Note**: the `functionName` key and backend route path can differ (e.g. `gaussianblur` maps to `/api/gaussian_blur`)
+- `backend/src/api/generate_code/main.py` — コード生成ロジック（関数定義テンプレート + 呼び出しコード組み立て）
+- `backend/src/main.py` — `POST /api/generate_code` ルート登録
+- `frontend/app/api/generate-code/route.ts` — Next.jsプロキシルート
+- `frontend/app/components/workflow/GenerateCodeModal.tsx` — コード表示モーダル（コピー・ダウンロード機能付き）
 
-## Step 4 — Add the Inspector UI
+## 型システムアーキテクチャ
 
-- Create a new inspector component under [frontend/app/components/inspectors/](frontend/app/components/inspectors/)
-  - Use the `useProcessNodeParams` hook from [frontend/hooks/useProcessNodeParams.ts](frontend/hooks/useProcessNodeParams.ts) to read/write params
-  - Render input controls matching the param definitions from Step 2
-- Wire the new inspector into `ProcessNodeInspector` in [frontend/app/components/inspectors/ProcessNodeInspector.tsx](frontend/app/components/inspectors/ProcessNodeInspector.tsx)
-  - Add a case to the `functionName` switch statement that renders the new component
-- Alternatively, if the function uses only standard param types, the generic param rendering from `VISIONFY_FUNCTIONS_CONFIG` may suffice without a custom inspector
+- **Single Source of Truth**: `frontend/types/processFunctionBase.ts` に全関数のメタデータを一元定義（`PROCESS_FUNCTIONS_BASE`）
+- ここから以下が自動導出される:
+  - `VISIONFY_FUNCTIONS_CONFIG`（UIパラメータ定義） — `frontend/types/processFunction.ts`
+  - `DEFAULT_NODE_PARAMS` / `DEFAULT_NODE_ICONS`（デフォルト値・アイコン） — `frontend/types/processNode.ts`
+  - `NODE_DESCRIPTIONS`（AIツール用説明） — `frontend/lib/tools/availableNodesTool.ts`
 
-## Step 5 — Update Node Creation Defaults
+## Step 1 — 型とデフォルト値の定義
 
-- In [frontend/constants/flowConfig.ts](frontend/constants/flowConfig.ts), the `handleAddNode` function in `FlowCanvas` hardcodes `createclahe` as the default for new nodes
-  - If the new function should be selectable when adding nodes, update the node-addition logic accordingly
-- No changes are needed in [frontend/constants/index.ts](frontend/constants/index.ts) — it only defines node *kinds* (Start/Process/End), not function-level types
+- `frontend/types/processFunctionBase.ts` に新関数のエントリを `PROCESS_FUNCTIONS_BASE` に追加
+  - `functionName`, `label`, `icon`, `description`, `params`（型・範囲・デフォルト値）を定義
+  - これにより `VISIONFY_FUNCTIONS_CONFIG`, `DEFAULT_NODE_PARAMS`, `DEFAULT_NODE_ICONS` が自動生成される
+- `frontend/types/processNode.ts` に対応するパラメータインターフェース（例: `XxxParams`）とデータインターフェース（例: `XxxData`）を追加
+  - `XxxData` は `BaseProcessNodeData` を拡張し、リテラル `functionName` と `params: XxxParams` を持つ
+  - `ProcessNodeData` 判別共用体に追加
+  - `ProcessNodeParamsMap` にマッピングを追加
+  - `ProcessNodeFunctionName` ユニオンに追加
 
-## Checklist Summary
+## Step 2 — UIパラメータ設定
 
-- [ ] **Types** — new params interface, data interface, union member, params map, defaults, icon in [frontend/types/node.ts](frontend/types/node.ts)
-- [ ] **UI Config** — new entry in `VISIONFY_FUNCTIONS_CONFIG` in [frontend/types/opencv.ts](frontend/types/opencv.ts)
-- [ ] **Adapter** — new builder function + registration in [frontend/lib/backendApiAdapters.ts](frontend/lib/backendApiAdapters.ts)
-- [ ] **Inspector** — new component or switch case in [frontend/app/components/inspectors/](frontend/app/components/inspectors/)
-- [ ] **Verify** — confirm `functionName` key matches the discriminated union literal, adapter key, and inspector switch case
+- `frontend/types/processFunctionBase.ts` のエントリに正しい `params` 定義があれば、UIパラメータ設定は自動生成される
+- パラメータの `type` は `number` / `text` / `boolean` / `tuple` / `select` から選択
+- パラメータフィールドは `frontend/app/components/nodes/paramFields/` 配下の5つのコンポーネントで動的にレンダリングされる
 
-## Common Pitfalls
+## Step 3 — バックエンドアダプタの作成
 
-- **Missing adapter** — if `functionName` has no registered adapter, `BackendApiService` throws `ProcessingError` before any network call is made
-- **Param name mismatch** — FormData field names must exactly match what the Flask handler reads from `request.form` (e.g. `ksizeX`, not `ksize_x`)
-- **Default value drift** — defaults exist in three places: `DEFAULT_NODE_PARAMS`, `VISIONFY_FUNCTIONS_CONFIG`, and `initialNodes` in flowConfig — keep them in sync
-- **No fallback adapter** — unlike some frameworks, there is no generic/default adapter; every function must be explicitly registered
-- **Route name vs function name** — the adapter URL path and the `functionName` string are independent; always check the backend route path
+- `frontend/lib/backendApiAdapters.ts` に新しいアダプタビルダー関数を追加
+  - `RequestAdapterArgs` を受け取り `RequestAdapterResult`（`{ url, init }`）を返す
+  - `FormData` に `file`（画像Blob）と各パラメータを文字列フィールドとして格納
+  - `base64ToBlob` は `args` 経由で注入される
+- `createBackendAdapters()` 内で新しい `functionName` をキーにしてアダプタを登録
+- **注意**: `functionName` とバックエンドルートパスは独立（例: `gaussianblur` → `/api/gaussian_blur`）
+
+## Step 4 — インスペクタUIの追加
+
+- `frontend/app/components/inspectors/` 配下にインスペクタコンポーネントを作成するか、既存の汎用レンダリングを利用
+- `ProcessNodeInspector`（`frontend/app/components/inspectors/ProcessNodeInspector.tsx`）内の `functionName` スイッチに新しいケースを追加
+- パラメータフィールドは `ProcessNodeParamInputs`（`frontend/app/components/nodes/ProcessNodeParamInputs.tsx`）が `VISIONFY_FUNCTIONS_CONFIG` から動的に生成するため、標準的なパラメータ型のみの場合はカスタムインスペクタ不要
+
+## Step 5 — ノード追加時のデフォルト更新
+
+- `frontend/constants/flowConfig.ts` の `handleAddNode` で新規ノードのデフォルトは `createclahe` にハードコード
+- 新関数をノード追加時に選択可能にする場合は、このロジックを更新
+- `frontend/constants/index.ts` はノード種別（Start/Process/End）のみを定義しており変更不要
+
+## チェックリスト
+
+- **型定義** — `processFunctionBase.ts` にメタデータ追加 + `processNode.ts` にインターフェース・共用体メンバー追加
+- **UIパラメータ** — `processFunctionBase.ts` のエントリで自動生成（手動設定は原則不要）
+- **アダプタ** — `backendApiAdapters.ts` にビルダー関数 + 登録
+- **インスペクタ** — `inspectors/` 配下にコンポーネント追加、または汎用レンダリングで対応
+- **確認** — `functionName` がリテラル型・アダプタキー・インスペクタスイッチで一致すること
+
+## よくある問題
+
+- **アダプタ未登録** — `functionName` に対応するアダプタがないと `BackendApiService` が `ProcessingError` をスロー
+- **パラメータ名の不一致** — FormData のフィールド名は Flask ハンドラの `request.form` と完全一致が必要
+- **デフォルト値の一元化** — `PROCESS_FUNCTIONS_BASE` にデフォルト値を定義すれば自動的に `DEFAULT_NODE_PARAMS` と `VISIONFY_FUNCTIONS_CONFIG` に反映される
+- **フォールバックアダプタなし** — 汎用アダプタは存在せず、全関数を個別登録する必要がある
+- **ルート名と関数名の違い** — アダプタのURLパスと `functionName` は独立しているため、バックエンドルートパスを必ず確認

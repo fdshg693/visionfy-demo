@@ -1,0 +1,88 @@
+/**
+ * Design System - Z-Index Layering System
+ *
+ * Defines consistent z-index values for layered UI elements.
+ * Prevents z-index conflicts and creates a clear stacking context hierarchy.
+ */
+
+:root {
+  /* Base layers */
+  --z-base: 0;
+  --z-raised: 1;
+  --z-overlay: 10;
+
+  /* Component layers */
+  --z-header: 40;
+  --z-sidebar: 30;
+  --z-dropdown: 50;
+  --z-sticky: 60;
+  --z-fixed: 70;
+
+  /* Interactive overlays */
+  --z-popover: 100;
+  --z-tooltip: 200;
+  --z-modal-backdrop: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-context-menu: 600;
+
+  /* Special cases */
+  --z-loading: 700;
+  --z-notification: 800;
+  --z-debug: 9999;
+
+  /* Component-specific z-index values */
+  --z-chat-panel: var(--z-sidebar);
+  --z-inspector-panel: var(--z-sidebar);
+  --z-flow-controls: var(--z-raised);
+  --z-node: var(--z-base);
+  --z-node-selected: var(--z-raised);
+  --z-edge: var(--z-base);
+  --z-process-node-popup: var(--z-popover);
+  --z-snapshot-modal: var(--z-modal);
+  --z-error-boundary: var(--z-modal);
+  --z-toast-container: var(--z-toast);
+  --z-context-menu-overlay: var(--z-context-menu);
+  --z-resizer: var(--z-raised);
+}
+
+/* Utility classes */
+.z-base { z-index: var(--z-base); }
+.z-raised { z-index: var(--z-raised); }
+.z-overlay { z-index: var(--z-overlay); }
+.z-header { z-index: var(--z-header); }
+.z-sidebar { z-index: var(--z-sidebar); }
+.z-dropdown { z-index: var(--z-dropdown); }
+.z-sticky { z-index: var(--z-sticky); }
+.z-fixed { z-index: var(--z-fixed); }
+.z-popover { z-index: var(--z-popover); }
+.z-tooltip { z-index: var(--z-tooltip); }
+.z-modal-backdrop { z-index: var(--z-modal-backdrop); }
+.z-modal { z-index: var(--z-modal); }
+.z-toast { z-index: var(--z-toast); }
+.z-context-menu { z-index: var(--z-context-menu); }
+.z-loading { z-index: var(--z-loading); }
+.z-notification { z-index: var(--z-notification); }
+.z-debug { z-index: var(--z-debug); }
+
+/* Relative positioning utilities (often needed with z-index) */
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.sticky { position: sticky; }
+
+/**
+ * Z-Index Stacking Context Guide:
+ *
+ * 0-9: Base content (flow canvas, nodes, edges)
+ * 10-39: Overlays and raised content
+ * 40-99: Fixed UI elements (headers, sidebars, dropdowns)
+ * 100-299: Popovers and tooltips
+ * 300-499: Modal dialogs and their backdrops
+ * 500-699: Temporary overlays (toasts, context menus)
+ * 700-899: Critical system UI (loading screens, notifications)
+ * 9999: Debug/developer tools
+ *
+ * Always use these CSS variables instead of hardcoding z-index values
+ * to maintain a consistent stacking order across the application.
+ */

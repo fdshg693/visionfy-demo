@@ -1,0 +1,1 @@
+READ `docs\features\API.md` to understand API of this project.

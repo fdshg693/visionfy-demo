@@ -9,9 +9,17 @@ import {
   isWorkflowContextToolEnabled
 } from './workflowContextTool';
 import {
-  createExecutionImagesTool,
-  isExecutionImagesToolEnabled,
-} from './executionImagesTool';
+  createAvailableNodesTool,
+  isAvailableNodesToolEnabled,
+} from './availableNodesTool';
+import {
+  createGenerateWorkflowTool,
+  isGenerateWorkflowToolEnabled,
+} from './generateWorkflowTool';
+import {
+  createGetImageTool,
+  isGetImageToolEnabled,
+} from './getImageTool';
 
 /**
  * 利用可能なすべてのツールのレジストリ
@@ -25,10 +33,22 @@ export const TOOL_REGISTRY: ToolRegistryEntry[] = [
     isEnabled: isWorkflowContextToolEnabled,
   },
   {
-    name: 'get_execution_images',
-    description: '直前の実行結果の元画像・処理前後画像を取得',
-    factory: createExecutionImagesTool,
-    isEnabled: isExecutionImagesToolEnabled,
+    name: 'get_available_nodes',
+    description: '利用可能な処理ノード一覧を取得',
+    factory: createAvailableNodesTool,
+    isEnabled: isAvailableNodesToolEnabled,
+  },
+  {
+    name: 'generate_workflow',
+    description: 'ワークフローを生成してキャンバスに適用',
+    factory: createGenerateWorkflowTool,
+    isEnabled: isGenerateWorkflowToolEnabled,
+  },
+  {
+    name: 'get_image',
+    description: 'ワークフローの画像を取得して確認',
+    factory: createGetImageTool,
+    isEnabled: isGetImageToolEnabled,
   },
 ];
 

@@ -1,0 +1,33 @@
+# Version control
+.git/
+.gitignore
+
+# Documentation
+README.md
+memo/
+
+# Test images / artifacts at repo root
+*.jpeg
+*.png
+*.webp
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Credentials
+sa-key.json
+
+# IDE
+.vscode/
+.idea/
+
+# reference
+reference/
+
+# Model checkpoints (downloaded from GCS at runtime)
+*.ckpt
+
+# venv
+.venv/

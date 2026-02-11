@@ -5,12 +5,12 @@
  */
 import { useCallback, useState } from 'react';
 import { useFlowStore } from '@/workflow/flowStore';
-import { toFlowSnapshot } from '@/workflow/flowSerializer';
+import { toFlowSnapshot } from '@/workflow/workflowConverter';
 import {
   saveFlowSnapshot,
   saveFlowHistory,
-  type FlowHistoryEntry,
 } from '@/workflow/flowPersistence';
+import type { FlowHistoryEntry } from '@/types/workflowPersistence';
 
 export function useSnapshotHistory(initialEntries: FlowHistoryEntry[]) {
   const { nodes, edges, viewport, setNodes, setEdges, setViewport } = useFlowStore();

@@ -1,4 +1,4 @@
-import { DEFAULT_NODE_PARAMS, type BaseProcessNodeData, type ProcessNodeFunctionName, type ProcessNodeParams } from '@/types/node';
+import { DEFAULT_NODE_PARAMS, type BaseProcessNodeData, type ProcessNodeFunctionName, type ProcessNodeParams } from '@/types/processNode';
 import { useMemo } from 'react';
 
 /**
