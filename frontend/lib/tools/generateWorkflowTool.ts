@@ -5,6 +5,8 @@
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
 import { PROCESS_FUNCTIONS_BASE } from '@/types/processFunctionBase';
+import { WorkflowAIAdapter } from '@/lib/workflow';
+import type { SimpleWorkflow } from '@/lib/workflow';
 import type { ToolFactory } from './types';
 
 /**
@@ -47,26 +49,10 @@ export const createGenerateWorkflowTool: ToolFactory = () => {
 
         console.log('[generateWorkflowTool] Validation passed');
 
-        // セッションIDを生成してワークフローデータを内部APIに保存
+        // WorkflowAIAdapterを使用してセッション登録
+        const simpleWorkflow = input as SimpleWorkflow;
         const sessionId = crypto.randomUUID();
-        const port = process.env.PORT || 3000;
-        const apiUrl = `http://localhost:${port}/api/apply-workflow`;
-
-        console.log('[generateWorkflowTool] Sending to API:', apiUrl);
-        console.log('[generateWorkflowTool] Payload:', JSON.stringify({ workflowData: input, sessionId }, null, 2));
-
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ workflowData: input, sessionId }),
-        });
-
-        console.log('[generateWorkflowTool] API response status:', response.status);
-
-        if (!response.ok) {
-          console.error('[generateWorkflowTool] API request failed with status:', response.status);
-          return 'ワークフローデータの保存に失敗しました。';
-        }
+        await WorkflowAIAdapter.registerSession(simpleWorkflow, sessionId);
 
         const successMessage = `ワークフローを生成しました。キャンバスに適用します。[WORKFLOW_SESSION:${sessionId}]`;
         console.log('[generateWorkflowTool] Returning success message:', successMessage);
