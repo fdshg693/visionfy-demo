@@ -19,6 +19,27 @@
 | `restore_contrast` | コントラスト復元（ガンマ補正） | `image` | `/api/restore_contrast` |
 | `model_inference` | モデル推論（Patchcore異常検知） | `scan` | `/api/model_inference` |
 
+## Pythonコード生成API
+
+- **エンドポイント**: `POST /api/generate_code`
+- **リクエストフロー**: Browser → Next.js proxy route (`/api/generate-code`) → Flask backend (`/api/generate_code`)
+- **リクエスト**: JSON body（SimpleWorkflow形式）
+- **レスポンス**: `{ "code": "import cv2\n..." }`（生成されたPythonスクリプト）
+- **対応関数**: OpenCV系6関数（`model_inference` は除外。ワークフローに含まれる場合はスキップ＋コメント出力）
+- **生成コードの特徴**:
+  - ワークフローで使用する関数の定義のみを含める（不要な関数は除外）
+  - 各ステップに対応する呼び出しコードをパラメータ付きで生成
+  - `import cv2` / `import numpy as np` を自動付加
+  - `cv2.imread()` / `cv2.imwrite()` による入出力を含むスタンドアロンスクリプト
+- **UI**: FlowCanvasの「🐍 コード生成」ボタン → `GenerateCodeModal` でコード表示・コピー・ダウンロード
+
+### 関連ファイル
+
+- `backend/src/api/generate_code/main.py` — コード生成ロジック（関数定義テンプレート + 呼び出しコード組み立て）
+- `backend/src/main.py` — `POST /api/generate_code` ルート登録
+- `frontend/app/api/generate-code/route.ts` — Next.jsプロキシルート
+- `frontend/app/components/workflow/GenerateCodeModal.tsx` — コード表示モーダル（コピー・ダウンロード機能付き）
+
 ## 型システムアーキテクチャ
 
 - **Single Source of Truth**: `frontend/types/processFunctionBase.ts` に全関数のメタデータを一元定義（`PROCESS_FUNCTIONS_BASE`）

@@ -11,6 +11,7 @@ from api.remove_noise import main as remove_noise
 from api.restore_contrast import main as restore_contrast
 from api.restore_brightness import main as restore_brightness
 from api.model_inference import main as model_inference
+from api.generate_code import main as generate_code
 
 from common.decorators import image_endpoint
 from common.config import config
@@ -129,6 +130,13 @@ def route_restore_brightness():
 @image_endpoint("model_inference")
 def route_model_inference():
     return model_inference.apply_model_inference(request)
+
+
+@app.route("/api/generate_code", methods=["POST"])
+def route_generate_code():
+    """ワークフローからPythonコードを生成"""
+    logger.info("Generate code request received")
+    return generate_code.generate_code(request)
 
 
 def validate_env_vars() -> None:

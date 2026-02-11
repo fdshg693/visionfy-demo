@@ -179,6 +179,26 @@ try {
 - `frontend/lib/exportWorkflow.ts` が後方互換性のためのラッパー関数を提供
 - `frontend/app/components/workflow/ExportModal.tsx` でUIを提供（簡易/完全形式の選択）
 
+## Pythonコード生成
+
+- ワークフローをスタンドアロンPythonスクリプトとしてエクスポートする機能
+- FlowCanvasの「🐍 コード生成」ボタンからモーダルを開き、生成コードの表示・コピー・ダウンロードが可能
+- 内部では現在のワークフローを `convertSnapshotToSimpleWorkflow()` で SimpleWorkflow に変換し、バックエンドの `/api/generate_code` に送信
+- バックエンドがワークフロー内の関数を特定し、使用する関数定義＋呼び出しコードのみを含むPythonスクリプトを生成
+- 対応関数: OpenCV系6関数（`model_inference` はスキップ＋コメント）
+- プロセスノードがない場合はボタンが無効化される
+
+**データフロー:**
+
+```
+1. FlowCanvas「コード生成」ボタンクリック
+2. GenerateCodeModal: convertSnapshotToSimpleWorkflow({ nodes, edges, viewport })
+3. POST /api/generate-code (Next.js proxy) → POST /api/generate_code (Flask)
+4. Flask: SimpleWorkflow解析 → 関数定義テンプレート + 呼び出しコード組み立て
+5. Response: { "code": "import cv2\n..." }
+6. モーダルでコード表示（コピー / .pyダウンロード可能）
+```
+
 **使用例:**
 
 ```typescript
@@ -286,6 +306,7 @@ if (!result.isValid) {
 
 - `frontend/app/components/workflow/JsonImportModal.tsx` — JSONインポートモーダル
 - `frontend/app/components/workflow/ExportModal.tsx` — JSONエクスポートモーダル
+- `frontend/app/components/workflow/GenerateCodeModal.tsx` — Pythonコード生成モーダル（コピー・ダウンロード機能付き）
 - `frontend/app/components/workflow/SnapshotDropdown.tsx` — スナップショット履歴ドロップダウン
 
 ## 関連ドキュメント

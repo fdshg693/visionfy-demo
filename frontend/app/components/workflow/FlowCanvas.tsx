@@ -15,6 +15,7 @@ import { Button, MenuButton } from '@/components/ui/Button';
 import { UsageGuidePanel } from './UsageGuidePanel';
 import { SnapshotDropdown } from './SnapshotDropdown';
 import { JsonImportModal } from './JsonImportModal';
+import { GenerateCodeModal } from './GenerateCodeModal';
 import { Dropdown } from '@/components/ui/Dropdown';
 import type { ProcessNodeFunctionName } from '@/types/processNode';
 import type { FlowHistoryEntry, FlowSnapshot } from '@/types/workflowPersistence';
@@ -59,10 +60,11 @@ export function FlowCanvas({
   onDeleteSnapshot,
   onImportSnapshot,
 }: FlowCanvasProps) {
-  const { nodes, edges, onNodesChange, onEdgesChange } = useFlowStore();
+  const { nodes, edges, viewport, onNodesChange, onEdgesChange } = useFlowStore();
   const { files, executeWorkflow } = useInspector();
   const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showGenerateCodeModal, setShowGenerateCodeModal] = useState(false);
   const {
     containerRef,
     contextMenu,
@@ -154,6 +156,14 @@ export function FlowCanvas({
           />
         </div>
         <Button variant="secondary" size="lg" onClick={onSaveSnapshot}>💾 保存</Button>
+        <Button
+          variant="secondary"
+          size="lg"
+          onClick={() => setShowGenerateCodeModal(true)}
+          disabled={nodes.filter(n => n.type === 'processNode').length === 0}
+        >
+          🐍 コード生成
+        </Button>
         <Button variant="blue" size="lg" onClick={executeWorkflow} disabled={files.length === 0}>▶ Run</Button>
       </div>
 
@@ -162,6 +172,15 @@ export function FlowCanvas({
         isOpen={showImportModal}
         onClose={() => setShowImportModal(false)}
         onImport={onImportSnapshot}
+      />
+
+      {/* Generate Code Modal */}
+      <GenerateCodeModal
+        isOpen={showGenerateCodeModal}
+        onClose={() => setShowGenerateCodeModal(false)}
+        nodes={nodes}
+        edges={edges}
+        viewport={viewport}
       />
 
       {contextMenu && (
