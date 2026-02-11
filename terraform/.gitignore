@@ -12,3 +12,5 @@ override.tf.json
 *_override.tf.json
 
 DEPLOY.md
+.terraform.tfstate.lock.info
+.terraform.lock.hcl

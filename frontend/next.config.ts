@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  serverExternalPackages: ["pino", "pino-pretty", "@google-cloud/logging-pino"],
+  serverExternalPackages: ["pino", "pino-pretty"],
 };
 
 export default nextConfig;

@@ -39,21 +39,8 @@ const serverConfig: pino.LoggerOptions = {
       },
     },
   }),
-  // 本番環境ではCloud Loggingトランスポートを使用（環境変数で明示的に有効化された場合）
-  ...(isProduction &&
-    isServer &&
-    enableCloudLogging && {
-      transport: {
-        target: "@google-cloud/logging-pino",
-        options: {
-          serviceContext: {
-            service: "visionfy-frontend",
-            version: process.env.NEXT_PUBLIC_APP_VERSION || "1.0.0",
-          },
-          logName: "visionfy-frontend",
-        },
-      },
-    }),
+  // 本番環境ではCloud Loggingは環境変数で制御（オプション機能）
+  // 注: Cloud Logging統合が必要な場合は別途設定してください
 };
 
 // クライアントサイド用の設定（ブラウザ向け）
