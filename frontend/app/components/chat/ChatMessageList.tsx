@@ -2,7 +2,7 @@
 
 import { ImageBox } from '@/components/ui/ImageBox';
 import type { ChatMessage } from '@/lib/chatService';
-import { Paperclip } from 'lucide-react';
+import { Paperclip, Loader2 as Spinner } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { ChatPlaceholder } from './ChatPlaceholder';
 import { MessageContent } from './MessageContent';
@@ -11,19 +11,20 @@ import styles from '@/app/page.module.css';
 
 export interface ChatMessageListProps {
   messages: ChatMessage[];
+  isLoading?: boolean;
 }
 
 /**
  * チャットメッセージリストコンポーネント
  * 役割: メッセージレンダリング、自動スクロール
  */
-export function ChatMessageList({ messages }: ChatMessageListProps) {
+export function ChatMessageList({ messages, isLoading }: ChatMessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // メッセージ更新時に末尾へスクロール
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, isLoading]);
 
   return (
     <div className={styles.chatMessages}>
@@ -65,6 +66,16 @@ export function ChatMessageList({ messages }: ChatMessageListProps) {
           )}
         </div>
       ))}
+
+      {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
+        <div className={styles.chatMessageAssistant}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#6b7280', padding: '0.5rem' }}>
+            <Spinner className="animate-spin" size={16} />
+            <span style={{ fontSize: '0.875rem' }}>考え中...</span>
+          </div>
+        </div>
+      )}
+
       <div ref={messagesEndRef} />
     </div>
   );
