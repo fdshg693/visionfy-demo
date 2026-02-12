@@ -72,3 +72,14 @@ pnpm dev        # localhost:3000
 pip install -r requirements.txt
 python src/main.py   # localhost:8080
 ```
+
+## 参考ファイル
+
+- `docs\features`: 機能のまとめ
+    - AI機能・API・フローキャンバス・ワークフロー保存
+    - 該当箇所をAIに渡して開発させることで、効率的に実装可能
+
+- `terraform/README.md`: インフラの詳細なデプロイ手順
+
+- `ai\overview`: 主にAIに渡すためのプロジェクト概要のドキュメント
+    - AIが読むことを想定しているため、英語で記載
