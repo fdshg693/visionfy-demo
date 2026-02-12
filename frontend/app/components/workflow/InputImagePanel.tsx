@@ -1,11 +1,11 @@
 // 役割: 入力画像のアップロード・プレビューを提供する常時表示パネル。
 // 依存: FilePondで画像プレビュー/アップロード制御。InspectorContextからfiles/setFilesを取得。
+import { useInspector } from '@/contexts/InspectorContext';
+import type { WorkflowFile } from '@/types/workflow';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 import 'filepond/dist/filepond.min.css';
 import { FilePond, registerPlugin } from 'react-filepond';
-import type { WorkflowFile } from '@/types/workflow';
-import { useInspector } from '@/contexts/InspectorContext';
 
 import styles from '@/app/page.module.css';
 
@@ -28,7 +28,7 @@ export function InputImagePanel() {
                     allowMultiple={false}
                     maxFiles={1}
                     name="files"
-                    labelIdle='<span class="filepond--label-action">参照</span>'
+                    labelIdle='<div class="filepond--label-action">📷 画像をアップロード</div><div class="test">ドラッグ＆ドロップ</div>'
                     credits={false}
                 />
             </div>

@@ -481,6 +481,8 @@
   z-index: 10;
   display: flex;
   align-items: center;
+  flex-direction: row;
+  height: fit-content;
   gap: 10px;
 }
 
@@ -513,7 +515,27 @@
 }
 
 .inputImageUpload {
-  /* Constrain FilePond height for compact display */
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.inputImageUpload:hover {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+/* Customize FilePond to fit the new style */
+.inputImageUpload :global(.filepond--panel-root) {
+  background-color: transparent;
+  border: none;
+}
+
+.inputImageUpload :global(.filepond--drop-label) {
+  color: #64748b;
+  font-size: 13px;
 }
 
 .inputImageUpload :global(.filepond--root) {

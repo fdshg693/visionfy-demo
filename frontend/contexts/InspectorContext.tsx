@@ -9,6 +9,8 @@ type InspectorContextValue = {
   files: WorkflowFile[];
   setFiles: (files: WorkflowFile[]) => void;
   resultImage: string | null;
+  previewImage: string | null;
+  previewTitle: string;
   executeWorkflow: () => void;
 };
 

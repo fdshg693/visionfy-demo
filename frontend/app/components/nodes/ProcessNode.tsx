@@ -1,18 +1,18 @@
 // 役割: 処理ノードの見た目とパラメータ入力UIを表示し、入力変更をReactFlow状態に反映する。
 // 依存: ProcessNodeHeader、ProcessNodeBody、ProcessNodeHoverPopup
-import { useProcessNodeParams } from '@/hooks/useProcessNodeParams';
-import type { ProcessNodeParams } from '@/types/processNode';
-import type { OpencvParamValue } from '@/types/processFunction';
-import { useFlowStore } from '@/workflow/flowStore';
-import { isProcessNodeData } from '@/types/typeGuards';
-import { Handle, Node, NodeProps, Position } from '@xyflow/react';
-import { useCallback, useState, useMemo } from 'react';
 import { useInspector } from '@/contexts/InspectorContext';
 import { useObjectURL } from '@/hooks/useObjectURL';
-import { ProcessNodeHeader } from './ProcessNodeHeader';
-import { ProcessNodeBody } from './ProcessNodeBody';
-import { ProcessNodeHoverPopup } from './ProcessNodeHoverPopup';
+import { useProcessNodeParams } from '@/hooks/useProcessNodeParams';
+import type { OpencvParamValue } from '@/types/processFunction';
+import type { ProcessNodeParams } from '@/types/processNode';
+import { isProcessNodeData } from '@/types/typeGuards';
+import { useFlowStore } from '@/workflow/flowStore';
+import { Handle, Node, NodeProps, Position } from '@xyflow/react';
+import { useCallback, useMemo, useState } from 'react';
 import styles from './ProcessNode.module.css';
+import { ProcessNodeBody } from './ProcessNodeBody';
+import { ProcessNodeHeader } from './ProcessNodeHeader';
+import { ProcessNodeHoverPopup } from './ProcessNodeHoverPopup';
 
 /** 関数タイプに応じた背景色CSSクラスのマッピング */
 const FUNCTION_TYPE_CLASS_MAP: Record<string, string> = {
@@ -97,7 +97,11 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
                 className={styles.handle}
             />
 
-            <ProcessNodeHeader icon={nodeData.icon} label={nodeData.label} />
+            <ProcessNodeHeader
+                icon={nodeData.icon}
+                label={nodeData.label}
+                status={status}
+            />
 
             <ProcessNodeBody
                 functionName={nodeData.functionName}

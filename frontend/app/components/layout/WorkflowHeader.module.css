@@ -1,0 +1,83 @@
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 16px;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    position: relative;
+    z-index: 50;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.leftSection,
+.rightSection {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.branding {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #111827;
+    font-size: 16px;
+}
+
+.logoIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.separator {
+    width: 1px;
+    height: 24px;
+    background: #e5e7eb;
+    margin: 0 4px;
+}
+
+.addNodeBtn {
+    font-weight: 600;
+}
+
+.addNodeWrapper {
+    width: 260px;
+}
+
+.addNodeOptionName {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.addNodeOptionDesc {
+    font-size: 11px;
+    color: #6b7280;
+    display: block;
+}
+
+.actionGroup {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.historyWrapper {
+    position: relative;
+}
+
+.primaryActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

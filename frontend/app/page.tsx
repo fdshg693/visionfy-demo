@@ -3,25 +3,29 @@
 // 役割: ワークフロー画面のルート。FlowCanvasとサイドバーを束ねて状態と実行を管理する。
 // 依存: useWorkflowExecutionで実行、flowConfigで初期ノード/エッジ定義。
 import { ChatPanel } from '@/app/components/chat/ChatPanel';
+import { ResultInspector } from '@/app/components/inspectors/ResultNodeInspector';
 import { FlowCanvas } from '@/app/components/workflow/FlowCanvas';
 import { InputImagePanel } from '@/app/components/workflow/InputImagePanel';
-import { ResultInspector } from '@/app/components/inspectors/ResultNodeInspector';
 import { ProcessNodePopup } from '@/app/components/workflow/ProcessNodePopup';
-import { useWorkflowExecution } from '@/hooks/useWorkflowExecution';
-import { useSnapshotHistory } from '@/hooks/useSnapshotHistory';
-import { useSelectedNode } from '@/hooks/useSelectedNode';
-import { DEFAULT_NODE_PARAMS, DEFAULT_NODE_ICONS, type ProcessNodeData, type ProcessNodeFunctionName, type NodeDataUpdate } from '@/types/processNode';
-import { PROCESS_FUNCTIONS_BASE } from '@/types/processFunctionBase';
-import { NODE_TYPE, EXECUTION_STATUS } from '@/constants/index';
-import type { WorkflowFile } from '@/types/workflow';
-import { FlowStoreProvider, useFlowStore } from '@/workflow/flowStore';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { initialEdges, initialNodes, nodeTypes } from '@/constants/flowConfig';
+import { EXECUTION_STATUS, NODE_TYPE } from '@/constants/index';
+import { InspectorProvider } from '@/contexts/InspectorContext';
+import { ToastProvider, useToast } from '@/contexts/ToastContext';
+import { useSelectedNode } from '@/hooks/useSelectedNode';
+import { useSnapshotHistory } from '@/hooks/useSnapshotHistory';
+import { useWorkflowExecution } from '@/hooks/useWorkflowExecution';
+import { categorizeError } from '@/lib/errors';
+import { PROCESS_FUNCTIONS_BASE } from '@/types/processFunctionBase';
+import { DEFAULT_NODE_ICONS, DEFAULT_NODE_PARAMS, type NodeDataUpdate, type ProcessNodeData, type ProcessNodeFunctionName } from '@/types/processNode';
+import type { WorkflowFile } from '@/types/workflow';
+import type { FlowHistoryEntry, FlowSnapshot } from '@/types/workflowPersistence';
 import { getConnectionConstraintError } from '@/workflow/connectionConstraints';
 import {
   loadFlowHistory,
   saveFlowSnapshot,
 } from '@/workflow/flowPersistence';
-import type { FlowHistoryEntry, FlowSnapshot } from '@/types/workflowPersistence';
+import { FlowStoreProvider, useFlowStore } from '@/workflow/flowStore';
 import {
   addEdge,
   type Connection,
@@ -32,10 +36,6 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { InspectorProvider } from '@/contexts/InspectorContext';
-import { ToastProvider, useToast } from '@/contexts/ToastContext';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { categorizeError } from '@/lib/errors';
 
 import styles from './page.module.css';
 
@@ -174,12 +174,32 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     showSuccess('インポート成功', 'ワークフローが正常に復元されました');
   }, [setNodes, setEdges, setViewport, showSuccess]);
 
-  const inspectorValue = useMemo(() => ({
-    files,
-    setFiles,
-    resultImage,
-    executeWorkflow,
-  }), [files, setFiles, resultImage, executeWorkflow]);
+  const inspectorValue = useMemo(() => {
+    // 選択されたノードがあればその結果を表示、なければ最終結果を表示
+    let previewImage = resultImage;
+    let previewTitle = '実行結果';
+
+    if (selectedNode && selectedNode.type === NODE_TYPE.PROCESS) {
+      const pNode = selectedNode as Node<ProcessNodeData>;
+      previewTitle = pNode.data.label ? `${pNode.data.label} の結果` : 'ノード結果';
+
+      if (pNode.data.result) {
+        previewImage = pNode.data.result;
+      } else {
+        // 結果がまだない場合
+        previewImage = null;
+      }
+    }
+
+    return {
+      files,
+      setFiles,
+      resultImage,
+      previewImage,
+      previewTitle,
+      executeWorkflow,
+    };
+  }, [files, setFiles, resultImage, executeWorkflow, selectedNode]);
 
   return (
     <InspectorProvider

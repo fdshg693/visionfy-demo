@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { Paperclip } from 'lucide-react';
 import { ImageBox } from '@/components/ui/ImageBox';
-import { MessageContent } from './MessageContent';
 import type { ChatMessage } from '@/lib/chatService';
+import { Paperclip } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { ChatPlaceholder } from './ChatPlaceholder';
+import { MessageContent } from './MessageContent';
 
 import styles from '@/app/page.module.css';
 
@@ -26,11 +27,7 @@ export function ChatMessageList({ messages }: ChatMessageListProps) {
 
   return (
     <div className={styles.chatMessages}>
-      {messages.length === 0 && (
-        <p className={styles.chatPlaceholder}>
-          Visionfyについて何でも聞いてください
-        </p>
-      )}
+      {messages.length === 0 && <ChatPlaceholder />}
       {messages.map((msg, i) => (
         <div
           key={i}
