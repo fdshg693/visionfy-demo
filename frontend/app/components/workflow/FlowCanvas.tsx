@@ -105,6 +105,7 @@ export function FlowCanvas({
           onEdgeContextMenu={handleEdgeContextMenu}
           nodeTypes={nodeTypes}
           defaultViewport={defaultViewport}
+          connectionRadius={50}
           fitView
           colorMode="light"
           defaultEdgeOptions={{

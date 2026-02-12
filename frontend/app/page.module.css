@@ -22,6 +22,14 @@
   flex: 1;
   position: relative;
   background: #f3f4f6;
+  display: flex;
+  flex-direction: column;
+}
+
+.flowWrapper {
+  flex: 1;
+  position: relative;
+  min-height: 0;
 }
 
 .toolbar {
