@@ -3,10 +3,9 @@
 // 役割: ワークフロー画面のルート。FlowCanvasとサイドバーを束ねて状態と実行を管理する。
 // 依存: useWorkflowExecutionで実行、flowConfigで初期ノード/エッジ定義。
 import { ChatPanel } from '@/app/components/chat/ChatPanel';
-import { ResultInspector } from '@/app/components/inspectors/ResultNodeInspector';
+import { InspectorSidePanel } from '@/app/components/inspectors/InspectorSidePanel';
 import { FlowCanvas } from '@/app/components/workflow/FlowCanvas';
-import { InputImagePanel } from '@/app/components/workflow/InputImagePanel';
-import { ProcessNodePopup } from '@/app/components/workflow/ProcessNodePopup';
+
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { initialEdges, initialNodes, nodeTypes } from '@/constants/flowConfig';
 import { EXECUTION_STATUS, NODE_TYPE } from '@/constants/index';
@@ -71,12 +70,16 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
     handleRestoreSnapshot,
   } = useSnapshotHistory(initialHistoryEntries);
   const { selectedNode, handleNodeClick, handlePaneClick, clearSelection } = useSelectedNode(nodes);
-  // PROCESSノード以外のクリックを無視する（ポップアップはPROCESSノード専用）
+  // ノードクリック → インスペクターサイドパネルを開く
   const handleNodeClickFiltered = useCallback((_event: React.MouseEvent, node: Node) => {
-    if (node.type !== NODE_TYPE.PROCESS) return;
     handleNodeClick(_event, node);
+    setIsInspectorOpen(true);
   }, [handleNodeClick]);
   const { showError, showWarning, showSuccess } = useToast();
+  const [isInspectorOpen, setIsInspectorOpen] = useState(false);
+  const handleToggleInspector = useCallback(() => {
+    setIsInspectorOpen((prev) => !prev);
+  }, []);
 
   // エラーハンドラ
   const handleExecutionError = useCallback((error: unknown) => {
@@ -223,19 +226,14 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
           onRenameSnapshot={handleRenameSnapshot}
           onDeleteSnapshot={handleDeleteSnapshot}
           onImportSnapshot={handleImportSnapshot}
+          onToggleInspector={handleToggleInspector}
         />
 
-        <div className={styles.sidebar}>
-          <InputImagePanel />
-          <div className={styles.resultSection}>
-            <ResultInspector />
-          </div>
-        </div>
-
-        <ProcessNodePopup
+        <InspectorSidePanel
+          isOpen={isInspectorOpen}
+          onClose={() => setIsInspectorOpen(false)}
           selectedNode={selectedNode}
           onUpdateNode={handleUpdateNode}
-          onClose={handlePaneClick}
         />
       </div>
     </InspectorProvider>

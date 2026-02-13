@@ -16,6 +16,7 @@ import {
 import { useState, type ComponentProps } from 'react';
 import { WorkflowHeader } from '../layout/WorkflowHeader';
 import { GenerateCodeModal } from './GenerateCodeModal';
+import { ImagePreviewOverlay } from './ImagePreviewOverlay';
 import { JsonImportModal } from './JsonImportModal';
 
 import styles from '@/app/page.module.css';
@@ -35,6 +36,7 @@ type FlowCanvasProps = {
   onRenameSnapshot: (entryId: string, name: string) => void;
   onDeleteSnapshot: (entryId: string) => void;
   onImportSnapshot: (snapshot: FlowSnapshot) => void;
+  onToggleInspector: () => void;
 };
 
 /**
@@ -56,6 +58,7 @@ export function FlowCanvas({
   onRenameSnapshot,
   onDeleteSnapshot,
   onImportSnapshot,
+  onToggleInspector,
 }: FlowCanvasProps) {
   const { nodes, edges, viewport, onNodesChange, onEdgesChange } = useFlowStore();
   const { files, executeWorkflow } = useInspector();
@@ -117,6 +120,8 @@ export function FlowCanvas({
           <MiniMap />
           <Background color="#e5e7eb" gap={20} size={1} />
         </ReactFlow>
+
+        <ImagePreviewOverlay onToggleInspector={onToggleInspector} />
 
         {contextMenu && (
           <>
