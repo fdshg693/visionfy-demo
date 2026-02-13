@@ -14,6 +14,57 @@ import type { ProcessNodeFunctionName } from './processNode';
 export type OpencvParamValue = number | string | boolean | [number, number];
 
 /**
+ * ノードカテゴリの定義
+ * 目的別に分類し、メニューやノードの色に反映する
+ */
+export type ProcessNodeCategory = '明るさ調整' | 'ノイズ除去' | '色変換' | '推論';
+
+/**
+ * カテゴリ表示情報（アイコン・色など）
+ */
+export interface CategoryInfo {
+  /** メニュー用アイコン */
+  icon: string;
+  /** ノードヘッダー背景色 */
+  headerBg: string;
+  /** ノードヘッダーボーダー色 */
+  headerBorder: string;
+  /** アイコン色 */
+  iconColor: string;
+}
+
+/** カテゴリごとの表示情報 */
+export const CATEGORY_INFO: Record<ProcessNodeCategory, CategoryInfo> = {
+  '明るさ調整': {
+    icon: '☀️',
+    headerBg: '#fff7ed',
+    headerBorder: '#ffedd5',
+    iconColor: '#ea580c',
+  },
+  'ノイズ除去': {
+    icon: '🔇',
+    headerBg: '#eff6ff',
+    headerBorder: '#dbeafe',
+    iconColor: '#2563eb',
+  },
+  '色変換': {
+    icon: '🎨',
+    headerBg: '#f9fafb',
+    headerBorder: '#f3f4f6',
+    iconColor: '#6b7280',
+  },
+  '推論': {
+    icon: '🔍',
+    headerBg: '#fef2f2',
+    headerBorder: '#fee2e2',
+    iconColor: '#dc2626',
+  },
+};
+
+/** カテゴリの表示順 */
+export const CATEGORY_ORDER: ProcessNodeCategory[] = ['明るさ調整', 'ノイズ除去', '色変換', '推論'];
+
+/**
  * パラメータの完全な定義
  */
 export interface ParamDefinition {
@@ -37,12 +88,14 @@ export interface ParamDefinition {
  * 処理関数の完全な定義
  */
 export interface ProcessFunctionDefinition {
-  /** 日本語表示名 */
+  /** 日本語表示名（短い名前） */
   displayName: string;
   /** 基本説明 */
   description: string;
   /** アイコン名 */
   icon: string;
+  /** カテゴリ */
+  category: ProcessNodeCategory;
   /** パラメータ定義（キー: パラメータ名） */
   params: Record<string, ParamDefinition>;
 }
@@ -53,9 +106,10 @@ export interface ProcessFunctionDefinition {
  */
 export const PROCESS_FUNCTIONS_BASE: Record<ProcessNodeFunctionName, ProcessFunctionDefinition> = {
   createclahe: {
-    displayName: 'CLAHE（コントラスト制限適応ヒストグラム均等化）',
-    description: '画像のコントラストを自動的に均等化する処理です。局所的なコントラストを改善し、暗い部分や明るい部分の詳細を引き出します。',
+    displayName: '適応的ヒストグラム平坦化',
+    description: '画素値の分布を適応的に均等化します。不鮮明な画像を見やすくしたり、過度に鮮明な画像を調整したりできます。',
     icon: 'histogram',
+    category: '明るさ調整',
     params: {
       clipLimit: {
         defaultValue: 40.0,
@@ -71,9 +125,10 @@ export const PROCESS_FUNCTIONS_BASE: Record<ProcessNodeFunctionName, ProcessFunc
     },
   },
   gaussianblur: {
-    displayName: 'ガウシアンブラー',
-    description: 'ガウシアン分布に基づくブラー（ぼかし）処理です。ノイズ除去や画像の平滑化に使用します。',
+    displayName: 'ガウシアンフィルタ',
+    description: 'ガウシアンフィルタを用いてノイズを除去します。全体的にざらついている画像に対して効果的です。',
     icon: 'brush',
+    category: 'ノイズ除去',
     params: {
       ksize: {
         defaultValue: [5, 5],
@@ -96,9 +151,10 @@ export const PROCESS_FUNCTIONS_BASE: Record<ProcessNodeFunctionName, ProcessFunc
     },
   },
   grayscale: {
-    displayName: 'グレイスケール変換',
-    description: 'カラー画像をグレイスケール（白黒）に変換します。オプションで二値化しきい値を適用できます。',
+    displayName: 'グレースケール',
+    description: 'カラー画像をグレースケール（白黒）に変換します。オプションで二値化しきい値を適用できます。',
     icon: 'palette',
+    category: '色変換',
     params: {
       enableThreshold: {
         defaultValue: false,
@@ -115,15 +171,17 @@ export const PROCESS_FUNCTIONS_BASE: Record<ProcessNodeFunctionName, ProcessFunc
     },
   },
   remove_noise: {
-    displayName: 'ノイズ除去（メディアンブラー）',
+    displayName: 'メディアンフィルタ',
     description: 'メディアンフィルタを用いてノイズを除去します。特にソルト＆ペッパーノイズに効果的です。',
     icon: 'settings',
+    category: 'ノイズ除去',
     params: {},
   },
   restore_brightness: {
-    displayName: '明るさ復元',
-    description: '明るさを補正します。値が負の場合は明るくし、正の場合は暗くします。',
+    displayName: '輝度補正',
+    description: '画像の明るさを全体的に補正します。値が負の場合は明るく、正の場合は暗くします。',
     icon: 'image',
+    category: '明るさ調整',
     params: {
       value: {
         defaultValue: -30,
@@ -134,9 +192,10 @@ export const PROCESS_FUNCTIONS_BASE: Record<ProcessNodeFunctionName, ProcessFunc
     },
   },
   restore_contrast: {
-    displayName: 'コントラスト復元（ガンマ補正）',
+    displayName: 'ガンマ補正',
     description: 'ガンマ補正を用いてコントラストを調整します。画像の明暗バランスを改善できます。',
     icon: 'image',
+    category: '明るさ調整',
     params: {
       gamma: {
         defaultValue: 1.7,
@@ -147,9 +206,10 @@ export const PROCESS_FUNCTIONS_BASE: Record<ProcessNodeFunctionName, ProcessFunc
     },
   },
   model_inference: {
-    displayName: 'モデル推論（Patchcore異常検知）',
+    displayName: '異常検知',
     description: 'Patchcoreモデルによる異常検知推論を実行し、ヒートマップオーバーレイを返します。異常スコアも算出されます。',
     icon: 'scan',
+    category: '推論',
     params: {
       overlayAlpha: {
         defaultValue: 0.6,

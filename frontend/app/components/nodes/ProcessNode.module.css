@@ -1,19 +1,49 @@
 .node {
     position: relative;
-    padding: 6px 8px;
-    border-radius: 6px;
+    border-radius: 12px;
     background: white;
-    border: 1px solid #ddd;
-    min-width: 100px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    font-size: 11px;
+    color: #374151;
+
+    transition: all 0.15s ease;
+}
+
+/* Expanded mode: 統一幅 180px, 固定高さ 280px */
+.expandedNode {
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Compact mode: 統一幅 140px, 固定高さ 36px */
+.compactNode {
+    width: 140px;
+    height: 36px;
+    min-width: 140px;
     max-width: 140px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    font-size: 10px;
-    color: #333;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.compactNode .header {
+    border-radius: 12px;
+    border-bottom: none;
+    height: 100%;
+}
+
+
+.node:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
 }
 
 .running {
     border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .success {
@@ -24,129 +54,187 @@
     border-color: #ef4444;
 }
 
-/* Function type backgrounds */
-.fn-createclahe {
-    background: #eff6ff;
-    border-color: #93c5fd;
-}
+/* Category-based header colors */
+/* Colors are set via inline style from CATEGORY_INFO for header bg/border/icon */
 
-.fn-gaussianblur {
-    background: #f0fdf4;
-    border-color: #86efac;
-}
-
-.fn-grayscale {
-    background: #f5f5f5;
-    border-color: #a3a3a3;
-}
-
-.fn-remove_noise {
-    background: #fefce8;
-    border-color: #fde047;
-}
-
-.fn-restore_brightness {
-    background: #fff7ed;
-    border-color: #fdba74;
-}
-
-.fn-restore_contrast {
-    background: #fdf4ff;
-    border-color: #d8b4fe;
-}
-
-.fn-model_inference {
-    background: #fef2f2;
-    border-color: #fca5a5;
-}
-
-/* Function type icon colors */
-.fn-createclahe .icon {
-    color: #3b82f6;
-}
-
-.fn-gaussianblur .icon {
-    color: #22c55e;
-}
-
-.fn-grayscale .icon {
-    color: #737373;
-}
-
-.fn-remove_noise .icon {
-    color: #eab308;
-}
-
-.fn-restore_brightness .icon {
-    color: #f97316;
-}
-
-.fn-restore_contrast .icon {
-    color: #a855f7;
-}
-
-.fn-model_inference .icon {
-    color: #ef4444;
-}
-
-.header {
+/* Category badge at bottom of node */
+.categoryBadge {
     display: flex;
     align-items: center;
     gap: 4px;
-    border-bottom: 1px solid #f0f0f0;
-    padding-bottom: 4px;
-    margin-bottom: 4px;
-    font-weight: 600;
-    color: #333;
+    padding: 4px 10px;
+    font-size: 9px;
+    font-weight: 500;
+    color: #9ca3af;
+    border-top: 1px solid #f3f4f6;
+    border-radius: 0 0 12px 12px;
+    background: #fafafa;
+}
+
+.categoryIcon {
+    font-size: 10px;
+    line-height: 1;
+}
+
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    background: #f9fafb;
+    /* default */
+    border-bottom: 1px solid #f3f4f6;
+    border-radius: 12px 12px 0 0;
+    gap: 8px;
+}
+
+.headerTitle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
 }
 
 .icon {
-    color: #555;
+    flex-shrink: 0;
 }
 
 .title {
-    flex: 1;
-    text-transform: capitalize;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 11px;
+    color: #1f2937;
 }
 
 .body {
+    padding: 10px;
+    background: white;
+    flex: 1;
+    overflow-y: auto;
+    /* Custom scrollbar for better UX in small node */
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.body::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 4px;
+}
+
+
+/* Status Indicators */
+.statusIndicator {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-checking {
+    color: #6b7280;
+}
+
+.status-running {
+    color: #3b82f6;
+}
+
+.status-completed {
+    color: #22c55e;
+}
+
+.status-failed {
+    color: #ef4444;
+}
+
+.spinner {
+    width: 10px;
+    height: 10px;
+    border: 2px solid #3b82f6;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.errorDot {
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .paramRow {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.paramRow:last-child {
+    margin-bottom: 0;
 }
 
 .paramRow label {
-    color: #666;
-    font-size: 9px;
+    color: #6b7280;
+    font-size: 10px;
+    font-weight: 500;
 }
 
-/* Input styles moved to forms.module.css */
-/* Inputs now use .input-small from forms.module.css */
-
-/* Handles */
+/* Handles: large transparent hit area + small visible dot via ::after */
 .handle {
-    width: 6px !important;
-    height: 6px !important;
-    background: #555 !important;
+    width: 24px !important;
+    height: 24px !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.handle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: #cbd5e1;
+    border: 1px solid #94a3b8;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.node:hover .handle::after {
+    background: #94a3b8;
+    border-color: #64748b;
+    width: 10px;
+    height: 10px;
 }
 
 /* ===== Hover Popup ===== */
 .hoverPopup {
     position: absolute;
-    bottom: calc(100% + 10px);
+    bottom: calc(100% + 12px);
     left: 50%;
     transform: translateX(-50%);
     background: white;
     border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
     padding: 10px;
     z-index: 1000;
     pointer-events: none;
@@ -159,6 +247,7 @@
         opacity: 0;
         transform: translateX(-50%) translateY(4px);
     }
+
     to {
         opacity: 1;
         transform: translateX(-50%) translateY(0);
@@ -195,4 +284,169 @@
     color: #9ca3af;
     font-weight: 600;
     padding: 0 2px;
+}
+
+/* ===== Start Node ===== */
+.startNode {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #a7f3d0 100%);
+    border: 1.5px solid #6ee7b7;
+    border-radius: 24px;
+    box-shadow:
+        0 4px 14px -2px rgba(16, 185, 129, 0.2),
+        0 0 0 1px rgba(16, 185, 129, 0.05);
+    overflow: visible;
+    cursor: default;
+}
+
+/* Don't fix height for Start/End in expanded mode */
+.startNode.expandedNode {
+    height: auto;
+    min-height: 40px;
+}
+
+.startNode:hover {
+    border-color: #34d399;
+    box-shadow:
+        0 8px 24px -4px rgba(16, 185, 129, 0.3),
+        0 0 0 1px rgba(16, 185, 129, 0.1);
+    transform: translateY(-1px);
+}
+
+.startNode .label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    font-weight: 700;
+    font-size: 12px;
+    color: #065f46;
+    letter-spacing: 0.03em;
+}
+
+.startNode .handle {
+    width: 28px !important;
+    height: 28px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.startNode .handle::after {
+    width: 10px;
+    height: 10px;
+    background: #10b981;
+    border: 2px solid #fff;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+}
+
+.startNode:hover .handle::after {
+    width: 12px;
+    height: 12px;
+    background: #059669;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+}
+
+.startNodeIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: rgba(16, 185, 129, 0.15);
+    border-radius: 50%;
+    color: #059669;
+    flex-shrink: 0;
+}
+
+/* pulse ring behind start node icon */
+@keyframes startPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.25);
+    }
+
+    70% {
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+.startNodeIcon {
+    animation: startPulse 2.5s ease-in-out infinite;
+}
+
+/* ===== End Node ===== */
+.endNode {
+    background: linear-gradient(135deg, #fef2f2 0%, #fecaca 50%, #fca5a5 100%);
+    border: 1.5px solid #f87171;
+    border-radius: 24px;
+    box-shadow:
+        0 4px 14px -2px rgba(239, 68, 68, 0.2),
+        0 0 0 1px rgba(239, 68, 68, 0.05);
+    overflow: visible;
+    cursor: default;
+}
+
+/* Don't fix height for Start/End in expanded mode */
+.endNode.expandedNode {
+    height: auto;
+    min-height: 40px;
+}
+
+.endNode:hover {
+    border-color: #ef4444;
+    box-shadow:
+        0 8px 24px -4px rgba(239, 68, 68, 0.3),
+        0 0 0 1px rgba(239, 68, 68, 0.1);
+    transform: translateY(-1px);
+}
+
+.endNode .label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    font-weight: 700;
+    font-size: 12px;
+    color: #991b1b;
+    letter-spacing: 0.03em;
+}
+
+.endNode .handle {
+    width: 28px !important;
+    height: 28px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.endNode .handle::after {
+    width: 10px;
+    height: 10px;
+    background: #ef4444;
+    border: 2px solid #fff;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+}
+
+.endNode:hover .handle::after {
+    width: 12px;
+    height: 12px;
+    background: #dc2626;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+}
+
+.endNodeIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: rgba(239, 68, 68, 0.15);
+    border-radius: 50%;
+    color: #dc2626;
+    flex-shrink: 0;
 }

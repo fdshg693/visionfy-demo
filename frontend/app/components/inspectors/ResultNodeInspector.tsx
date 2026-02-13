@@ -1,15 +1,15 @@
 // 役割: ワークフロー実行結果の常時表示UI。Before/Afterと実行パイプライン履歴をタブで切替表示する。
 // 依存: useExecutionHistoryで履歴抽出、useObjectURLでblob URL管理。
 // 備考: InspectorPanelに常時表示され、ENDノードのクリックには依存しない。
+import { TabGroup, TabPanel } from '@/components/ui/TabGroup';
+import { useInspector } from '@/contexts/InspectorContext';
+import { useExecutionHistory } from '@/hooks/useExecutionHistory';
+import { useObjectURL } from '@/hooks/useObjectURL';
+import { useFlowStore } from '@/workflow/flowStore';
 import { useState } from 'react';
 import styles from '../NodeInspector.module.css';
-import { useInspector } from '@/contexts/InspectorContext';
-import { useFlowStore } from '@/workflow/flowStore';
-import { useObjectURL } from '@/hooks/useObjectURL';
-import { useExecutionHistory } from '@/hooks/useExecutionHistory';
-import { TabGroup, TabPanel } from '@/components/ui/TabGroup';
-import { ResultComparisonTab } from './tabs/ResultComparisonTab';
 import { ExecutionHistoryTab } from './tabs/ExecutionHistoryTab';
+import { ResultComparisonTab } from './tabs/ResultComparisonTab';
 
 /**
  * ワークフロー実行結果の常時表示コンポーネント。
@@ -20,18 +20,22 @@ import { ExecutionHistoryTab } from './tabs/ExecutionHistoryTab';
  * InspectorPanelに常時マウントされ、ENDノードのクリックには依存しない。
  */
 export function ResultInspector() {
-    const { resultImage, files } = useInspector();
+    const { resultImage, previewImage, previewTitle, files } = useInspector();
     const { nodes } = useFlowStore();
     const [activeTab, setActiveTab] = useState<'result' | 'history'>('result');
     const originalImage = useObjectURL(files.length > 0 ? files[0].file : null);
     const executionHistory = useExecutionHistory(nodes);
+
+    // 表示すべき画像（プレビューがあればそれ、なければ最終結果）
+    // page.tsx側でロジック制御しているので previewImage を優先使用
+    const displayImage = previewImage ?? (previewTitle === '実行結果' ? resultImage : null);
 
     return (
         <div className={styles.inspectorContent}>
             {/* Tab Headers */}
             <TabGroup
                 tabs={[
-                    { value: 'result', label: '結果' },
+                    { value: 'result', label: previewTitle || '結果' },
                     { value: 'history', label: '履歴' }
                 ]}
                 activeTab={activeTab}
@@ -44,7 +48,7 @@ export function ResultInspector() {
             <TabPanel value="result" activeTab={activeTab}>
                 <ResultComparisonTab
                     originalImage={originalImage}
-                    resultImage={resultImage}
+                    resultImage={displayImage}
                 />
             </TabPanel>
 

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { Button } from '@/components/ui/Button';
+import { useCallback, useState } from 'react';
 import styles from './UsageGuidePanel.module.css';
 
 const guideItems = [
@@ -9,7 +10,7 @@ const guideItems = [
     { icon: '🔗', text: 'ノード間をエッジで接続してパイプラインを構築' },
     { icon: '▶️', text: 'キャンバス右上の「▶ Run」ボタンでワークフロー実行' },
     { icon: '🗑️', text: '右クリックでノード / エッジの削除が可能' },
-    { icon: '🖼️', text: '終了ノードで結果画像を確認可能' },
+    { icon: '🖼️', text: 'Resultノードで結果画像を確認可能' },
     { icon: '💾', text: 'スナップショット機能でワークフローの保存 / 復元が可能' },
     { icon: '🤖', text: 'AIチャットでアシスタントと会話可能' },
 ];
@@ -31,13 +32,14 @@ export function UsageGuidePanel() {
                 <div className={styles.panel}>
                     <div className={styles.header}>
                         <h3 className={styles.title}>使い方</h3>
-                        <button
-                            className={styles.closeButton}
+                        <Button
+                            variant="icon"
+                            size="sm"
                             onClick={toggle}
                             aria-label="閉じる"
                         >
                             ✕
-                        </button>
+                        </Button>
                     </div>
                     <div className={styles.body}>
                         <ul className={styles.list}>
@@ -52,14 +54,16 @@ export function UsageGuidePanel() {
                 </div>
             )}
 
-            <button
-                className={`${styles.toggleButton} ${isOpen ? styles.toggleButtonActive : ''}`}
+            <Button
+                variant={isOpen ? 'primary' : 'secondary'}
+                size="lg"
                 onClick={toggle}
                 aria-label="使い方ガイドを表示"
                 title="使い方"
+                className={styles.toggleButton}
             >
                 ❓ 使い方
-            </button>
+            </Button>
         </>
     );
 }

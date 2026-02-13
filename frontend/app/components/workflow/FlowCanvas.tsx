@@ -1,6 +1,12 @@
 // 役割: ノード/エッジのキャンバス表示と操作UI(ミニマップ/ズーム/追加ボタン/リセット/右クリック削除)を提供する。
 // 依存: ReactFlowのイベントを受け取り、親から渡された状態更新に委譲する。
-import { type ComponentProps, useState } from 'react';
+import { MenuButton } from '@/components/ui/Button';
+import { INITIAL_ZOOM_LEVEL } from '@/constants/flowConfig';
+import { useInspector } from '@/contexts/InspectorContext';
+import { useContextMenu } from '@/hooks/useContextMenu';
+import type { ProcessNodeFunctionName } from '@/types/processNode';
+import type { FlowHistoryEntry, FlowSnapshot } from '@/types/workflowPersistence';
+import { useFlowStore } from '@/workflow/flowStore';
 import {
   Background,
   Controls,
@@ -8,18 +14,11 @@ import {
   ReactFlow,
   type NodeTypes,
 } from '@xyflow/react';
-import { useFlowStore } from '@/workflow/flowStore';
-import { useContextMenu } from '@/hooks/useContextMenu';
-import { useInspector } from '@/contexts/InspectorContext';
-import { Button, MenuButton } from '@/components/ui/Button';
-import { UsageGuidePanel } from './UsageGuidePanel';
-import { SnapshotDropdown } from './SnapshotDropdown';
-import { JsonImportModal } from './JsonImportModal';
+import { useState, type ComponentProps } from 'react';
+import { WorkflowHeader } from '../layout/WorkflowHeader';
 import { GenerateCodeModal } from './GenerateCodeModal';
-import { Dropdown } from '@/components/ui/Dropdown';
-import type { ProcessNodeFunctionName } from '@/types/processNode';
-import type { FlowHistoryEntry, FlowSnapshot } from '@/types/workflowPersistence';
-import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/processFunction';
+import { ImagePreviewOverlay } from './ImagePreviewOverlay';
+import { JsonImportModal } from './JsonImportModal';
 
 import styles from '@/app/page.module.css';
 
@@ -38,6 +37,7 @@ type FlowCanvasProps = {
   onRenameSnapshot: (entryId: string, name: string) => void;
   onDeleteSnapshot: (entryId: string) => void;
   onImportSnapshot: (snapshot: FlowSnapshot) => void;
+  onToggleInspector: () => void;
 };
 
 /**
@@ -59,6 +59,7 @@ export function FlowCanvas({
   onRenameSnapshot,
   onDeleteSnapshot,
   onImportSnapshot,
+  onToggleInspector,
 }: FlowCanvasProps) {
   const { nodes, edges, viewport, onNodesChange, onEdgesChange } = useFlowStore();
   const { files, executeWorkflow } = useInspector();
@@ -76,95 +77,67 @@ export function FlowCanvas({
 
   return (
     <div className={styles.flowArea} ref={containerRef}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onNodeClick={onNodeClick}
-        onPaneClick={onPaneClick}
-        onMoveEnd={onMoveEnd}
-        onNodeContextMenu={handleNodeContextMenu}
-        onEdgeContextMenu={handleEdgeContextMenu}
-        nodeTypes={nodeTypes}
-        defaultViewport={defaultViewport}
-        fitView
-        colorMode="light"
-        defaultEdgeOptions={{
-          style: { stroke: '#b1b1b7', strokeWidth: 2 },
-          animated: true,
-        }}
-      >
-        <Controls />
-        <MiniMap />
-        <Background color="#e5e7eb" gap={20} size={1} />
-      </ReactFlow>
+      <WorkflowHeader
+        onAddNode={onAddNode}
+        onResetCanvas={onResetCanvas}
+        onSaveSnapshot={onSaveSnapshot}
+        onRunWorkflow={executeWorkflow}
+        onImportClick={() => setShowImportModal(true)}
+        onGenerateCodeClick={() => setShowGenerateCodeModal(true)}
+        onHistoryClick={() => setShowHistoryDropdown((prev) => !prev)}
+        showHistoryDropdown={showHistoryDropdown}
+        setShowHistoryDropdown={setShowHistoryDropdown}
+        historyEntries={historyEntries}
+        onRestoreSnapshot={onRestoreSnapshot}
+        onRenameSnapshot={onRenameSnapshot}
+        onDeleteSnapshot={onDeleteSnapshot}
+        canRun={files.length > 0}
+        hasNodes={nodes.filter(n => n.type === 'processNode').length > 0}
+      />
 
-      <div className={styles.toolbar}>
-        <Button
-          variant="secondary"
-          onClick={onResetCanvas}
+      <div className={styles.flowWrapper}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onNodeClick={onNodeClick}
+          onPaneClick={onPaneClick}
+          onMoveEnd={onMoveEnd}
+          onNodeContextMenu={handleNodeContextMenu}
+          onEdgeContextMenu={handleEdgeContextMenu}
+          nodeTypes={nodeTypes}
+          defaultViewport={defaultViewport}
+          connectionRadius={50}
+          fitView
+          colorMode="light"
+          defaultEdgeOptions={{
+            style: { stroke: '#b1b1b7', strokeWidth: 2 },
+            animated: true,
+          }}
+          fitViewOptions={{ maxZoom: INITIAL_ZOOM_LEVEL }}
         >
-          ↺ リセット
-        </Button>
-        <Dropdown
-          trigger={(isOpen, toggle) => (
-            <Button
-              variant="secondary"
-              onClick={toggle}
-            >
-              ＋ ノード追加
-            </Button>
-          )}
-          overlay
-          containerClassName={styles.addNodeWrapper}
-          className={styles.addNodeDropdown}
-          zIndex={100}
-          closeOnClickInside
-        >
-          {Object.entries(VISIONFY_FUNCTIONS_CONFIG).map(([name, config]) => (
-            <MenuButton
-              key={name}
-              withIcon
-              onClick={() => onAddNode(name as ProcessNodeFunctionName)}
-            >
-              <span className={styles.addNodeOptionName}>{name}</span>
-              <span className={styles.addNodeOptionDesc}>{config.description}</span>
-            </MenuButton>
-          ))}
-        </Dropdown>
-      </div>
+          <Controls />
+          <MiniMap />
+          <Background color="#e5e7eb" gap={20} size={1} />
+        </ReactFlow>
 
-      {/* Action buttons: Guide, Import, History, Save, Run */}
-      <div className={styles.runButtonArea}>
-        <UsageGuidePanel />
-        <Button variant="secondary" size="lg" onClick={() => setShowImportModal(true)}>
-          📥 JSONインポート
-        </Button>
-        <div className={styles.actionButtonWrapper}>
-          <Button variant="secondary" size="lg" onClick={() => setShowHistoryDropdown((prev) => !prev)}>
-            📋 履歴
-          </Button>
-          <SnapshotDropdown
-            isOpen={showHistoryDropdown}
-            onClose={() => setShowHistoryDropdown(false)}
-            historyEntries={historyEntries}
-            onRestoreSnapshot={onRestoreSnapshot}
-            onRenameSnapshot={onRenameSnapshot}
-            onDeleteSnapshot={onDeleteSnapshot}
-          />
-        </div>
-        <Button variant="secondary" size="lg" onClick={onSaveSnapshot}>💾 保存</Button>
-        <Button
-          variant="secondary"
-          size="lg"
-          onClick={() => setShowGenerateCodeModal(true)}
-          disabled={nodes.filter(n => n.type === 'processNode').length === 0}
-        >
-          🐍 コード生成
-        </Button>
-        <Button variant="blue" size="lg" onClick={executeWorkflow} disabled={files.length === 0}>▶ Run</Button>
+        <ImagePreviewOverlay onToggleInspector={onToggleInspector} />
+
+        {contextMenu && (
+          <>
+            <div className={styles.contextMenuOverlay} onClick={closeContextMenu} />
+            <div
+              className={styles.contextMenu}
+              style={{ left: contextMenu.x, top: contextMenu.y }}
+            >
+              <MenuButton danger onClick={handleDelete}>
+                削除
+              </MenuButton>
+            </div>
+          </>
+        )}
       </div>
 
       {/* JSON Import Modal */}
@@ -182,20 +155,6 @@ export function FlowCanvas({
         edges={edges}
         viewport={viewport}
       />
-
-      {contextMenu && (
-        <>
-          <div className={styles.contextMenuOverlay} onClick={closeContextMenu} />
-          <div
-            className={styles.contextMenu}
-            style={{ left: contextMenu.x, top: contextMenu.y }}
-          >
-            <MenuButton danger onClick={handleDelete}>
-              削除
-            </MenuButton>
-          </div>
-        </>
-      )}
     </div>
   );
 }

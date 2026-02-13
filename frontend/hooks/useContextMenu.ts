@@ -2,8 +2,8 @@
  * コンテキストメニューのロジックを管理するカスタムフック
  * 役割: ノード/エッジの右クリック削除メニューの状態管理とハンドラを提供
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Edge, EdgeChange, Node, NodeChange } from '@xyflow/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type ContextMenuState = {
   x: number;
@@ -41,6 +41,9 @@ export function useContextMenu(
 
   const handleNodeContextMenu = useCallback(
     (event: React.MouseEvent, node: Node) => {
+      // 削除不可のノードではメニューを表示しない
+      if (node.deletable === false) return;
+
       event.preventDefault();
       const pos = getRelativePosition(event);
       setContextMenu({ ...pos, type: 'node', id: node.id });
@@ -50,6 +53,9 @@ export function useContextMenu(
 
   const handleEdgeContextMenu = useCallback(
     (event: React.MouseEvent, edge: Edge) => {
+      // エッジにも削除不可設定がある場合はここでチェック可能
+      if (edge.deletable === false) return;
+
       event.preventDefault();
       const pos = getRelativePosition(event);
       setContextMenu({ ...pos, type: 'edge', id: edge.id });

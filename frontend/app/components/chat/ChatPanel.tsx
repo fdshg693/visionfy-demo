@@ -1,27 +1,27 @@
 'use client';
 
-import { useCallback, useState } from 'react';
-import { MessageCircle, Settings, Trash2 } from 'lucide-react';
 import { IconButton } from '@/components/ui/Button';
+import { MessageCircle, Settings, Trash2 } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 import styles from '@/app/page.module.css';
-import type { ChatMessage, ChatMessageImage } from '@/lib/chatService';
-import { storageService } from '@/lib/storageService';
-import { useWorkflowContext } from '@/hooks/useWorkflowContext';
-import { useFlowStore } from '@/workflow/flowStore';
 import { useInspector } from '@/contexts/InspectorContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useChatThreads } from '@/hooks/useChatThreads';
 import { useResizablePanel } from '@/hooks/useResizablePanel';
-import { useWorkflowImages } from '@/hooks/useWorkflowImages';
+import { useWorkflowContext } from '@/hooks/useWorkflowContext';
 import type { WorkflowImage } from '@/hooks/useWorkflowImages';
-import { convertSimpleWorkflowToSnapshot } from '@/workflow/workflowConverter';
+import { useWorkflowImages } from '@/hooks/useWorkflowImages';
+import type { ChatMessage, ChatMessageImage } from '@/lib/chatService';
+import { storageService } from '@/lib/storageService';
 import { isSimpleWorkflow } from '@/types/simpleWorkflow';
-import { useToast } from '@/contexts/ToastContext';
+import { useFlowStore } from '@/workflow/flowStore';
+import { convertSimpleWorkflowToSnapshot } from '@/workflow/workflowConverter';
+import { ChatInputArea } from './ChatInputArea';
+import { ChatMessageList } from './ChatMessageList';
+import { ChatSettingsPanel } from './ChatSettingsPanel';
 import { ThreadMenu } from './ThreadMenu';
 import { ToolList } from './ToolList';
-import { ChatSettingsPanel } from './ChatSettingsPanel';
-import { ChatMessageList } from './ChatMessageList';
-import { ChatInputArea } from './ChatInputArea';
 
 /**
  * GEMINIとのチャットパネルコンポーネント
@@ -349,7 +349,7 @@ export function ChatPanel() {
         onClose={() => setShowSettings(false)}
       />
 
-      <ChatMessageList messages={messages} />
+      <ChatMessageList messages={messages} isLoading={isLoading} />
 
       <ChatInputArea
         input={input}

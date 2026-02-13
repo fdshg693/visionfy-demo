@@ -8,11 +8,12 @@
  * - デフォルトviewportの設定
  */
 
-import type { Edge, Node, Viewport } from '@xyflow/react';
+import { PROCESS_FUNCTIONS_BASE } from '@/types/processFunctionBase';
 import type { ProcessNodeData, ProcessNodeFunctionName, ProcessNodeParamsMap } from '@/types/processNode';
 import { DEFAULT_NODE_PARAMS } from '@/types/processNode';
-import type { SimpleWorkflow, SimpleProcessNode, FlowSnapshot } from '../core/types';
+import type { Edge, Node, Viewport } from '@xyflow/react';
 import { FormatConversionError } from '../core/errors';
+import type { FlowSnapshot, SimpleProcessNode, SimpleWorkflow } from '../core/types';
 
 // ====================== Layout Constants ======================
 
@@ -102,7 +103,7 @@ function createProcessNode(simpleNode: SimpleProcessNode, index: number): Node {
 
   // ProcessNodeDataの構築
   const data: ProcessNodeData = {
-    label: functionName,
+    label: PROCESS_FUNCTIONS_BASE[functionName].displayName,
     functionName,
     params,
   } as ProcessNodeData;

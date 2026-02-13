@@ -1,0 +1,132 @@
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 16px;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    position: relative;
+    z-index: 50;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.leftSection,
+.rightSection {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.branding {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #111827;
+    font-size: 16px;
+}
+
+.logoIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.separator {
+    width: 1px;
+    height: 24px;
+    background: #e5e7eb;
+    margin: 0 4px;
+}
+
+.addNodeBtn {
+    font-weight: 600;
+}
+
+.addNodeWrapper {
+    width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: visible;
+}
+
+.categoryHeader {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    letter-spacing: 0.02em;
+}
+
+.categoryHeader:not(:first-child) {
+    margin-top: 4px;
+    border-top: 1px solid #f3f4f6;
+    padding-top: 8px;
+}
+
+.addNodeItem {
+    position: relative;
+}
+
+.addNodeOptionName {
+    font-weight: 600;
+    font-size: 12px;
+    color: #1f2937;
+}
+
+/* 吹き出しツールチップ（Portal でbodyに描画） */
+.addNodeTooltip {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.addNodeTooltipArrow {
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-right: 6px solid #1f2937;
+}
+
+.addNodeTooltipContent {
+    background: #1f2937;
+    color: #f9fafb;
+    font-size: 11px;
+    line-height: 1.5;
+    padding: 8px 12px;
+    border-radius: 8px;
+    max-width: 220px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    white-space: normal;
+}
+
+.actionGroup {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.historyWrapper {
+    position: relative;
+}
+
+.primaryActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

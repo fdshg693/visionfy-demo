@@ -1,11 +1,11 @@
 'use client';
 
-import { useCallback } from 'react';
-import { Send } from 'lucide-react';
 import { IconButton } from '@/components/ui/Button';
+import type { ChatMessageImage } from '@/lib/chatService';
+import { Send } from 'lucide-react';
+import { useCallback } from 'react';
 import { FileAttachmentManager } from './FileAttachmentManager';
 import { WorkflowImagePicker } from './WorkflowImagePicker';
-import type { ChatMessageImage } from '@/lib/chatService';
 
 import styles from '@/app/page.module.css';
 import formStyles from '@/lib/styles/forms.module.css';
@@ -45,7 +45,7 @@ export function ChatInputArea({
 }: ChatInputAreaProps) {
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
+      if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
         e.preventDefault();
         onSend();
       }

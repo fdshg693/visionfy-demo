@@ -36,3 +36,12 @@
   - 画面で使う静的アセットの配布を担当し、`app/` の UI で参照される。
 - ルート直下の設定ファイル群
   - Next.js/TypeScript/ESLint/PostCSS の設定を保持し、ビルド/開発時の挙動を規定する。
+
+## 設定・カスタマイズ
+
+### 1. 初期ズームレベルの設定
+定数ファイル `frontend/constants/flowConfig.ts` の `INITIAL_ZOOM_LEVEL` で一元管理されています。
+- `INITIAL_ZOOM_LEVEL` (デフォルト: 0.8): `fitView` による自動調整時の最大ズーム倍率として使用されます。
+
+### 2. 初期ノード配置
+`frontend/constants/flowConfig.ts` の `initialNodes` で座標（`position`）を定義しています。ノード同士の間隔を広げると、`fitView` 有効時に自動的にズームアウトされます。

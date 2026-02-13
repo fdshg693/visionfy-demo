@@ -1,29 +1,27 @@
 // 役割: 処理ノードの見た目とパラメータ入力UIを表示し、入力変更をReactFlow状態に反映する。
-// 依存: ProcessNodeHeader、ProcessNodeBody、ProcessNodeHoverPopup
-import { useProcessNodeParams } from '@/hooks/useProcessNodeParams';
-import type { ProcessNodeParams } from '@/types/processNode';
-import type { OpencvParamValue } from '@/types/processFunction';
-import { useFlowStore } from '@/workflow/flowStore';
-import { isProcessNodeData } from '@/types/typeGuards';
-import { Handle, Node, NodeProps, Position } from '@xyflow/react';
-import { useCallback, useState, useMemo } from 'react';
+// 依存: ProcessNodeHeader、ProcessNodeBody、ProcessNodeHoverPopup、processFunctionBase（カテゴリ情報）
 import { useInspector } from '@/contexts/InspectorContext';
 import { useObjectURL } from '@/hooks/useObjectURL';
-import { ProcessNodeHeader } from './ProcessNodeHeader';
-import { ProcessNodeBody } from './ProcessNodeBody';
-import { ProcessNodeHoverPopup } from './ProcessNodeHoverPopup';
+import { useProcessNodeParams } from '@/hooks/useProcessNodeParams';
+import { useZoomLevel } from '@/hooks/useZoomLevel';
+import type { OpencvParamValue } from '@/types/processFunction';
+import { CATEGORY_INFO, PROCESS_FUNCTIONS_BASE, type ProcessNodeCategory } from '@/types/processFunctionBase';
+import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/processNode';
+import { isProcessNodeData } from '@/types/typeGuards';
+import { useFlowStore } from '@/workflow/flowStore';
+import { Handle, Node, NodeProps, Position } from '@xyflow/react';
+import { useCallback, useMemo, useState } from 'react';
 import styles from './ProcessNode.module.css';
+import { ProcessNodeBody } from './ProcessNodeBody';
+import { ProcessNodeHeader } from './ProcessNodeHeader';
+import { ProcessNodeHoverPopup } from './ProcessNodeHoverPopup';
 
-/** 関数タイプに応じた背景色CSSクラスのマッピング */
-const FUNCTION_TYPE_CLASS_MAP: Record<string, string> = {
-    'createclahe': styles['fn-createclahe'],
-    'gaussianblur': styles['fn-gaussianblur'],
-    'grayscale': styles['fn-grayscale'],
-    'remove_noise': styles['fn-remove_noise'],
-    'restore_brightness': styles['fn-restore_brightness'],
-    'restore_contrast': styles['fn-restore_contrast'],
-    'model_inference': styles['fn-model_inference'],
-};
+/** functionNameからカテゴリ情報を取得 */
+function getCategoryForFunction(functionName: string): { category: ProcessNodeCategory; icon: string } | null {
+    const def = PROCESS_FUNCTIONS_BASE[functionName as ProcessNodeFunctionName];
+    if (!def) return null;
+    return { category: def.category, icon: CATEGORY_INFO[def.category].icon };
+}
 
 /**
  * 処理ノードコンポーネント。
@@ -32,6 +30,8 @@ const FUNCTION_TYPE_CLASS_MAP: Record<string, string> = {
 export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
     const { updateNodeData, nodes, edges } = useFlowStore();
     const { files } = useInspector();
+    const { lod } = useZoomLevel();
+    const isCompact = lod === 'compact';
     const isValid = isProcessNodeData(nodeData);
     const { params } = useProcessNodeParams(nodeData as import('@/types/processNode').BaseProcessNodeData);
     const [isHovered, setIsHovered] = useState(false);
@@ -85,9 +85,15 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
     const status = nodeData.executionStatus || 'idle';
     const hasResult = !!nodeData.result;
 
+    // カテゴリ情報を取得
+    const categoryInfo = getCategoryForFunction(nodeData.functionName as string);
+    const catColors = categoryInfo ? CATEGORY_INFO[categoryInfo.category] : null;
+
+    const lodClass = isCompact ? styles.compactNode : styles.expandedNode;
+
     return (
         <div
-            className={`${styles.node} ${styles[status]} ${FUNCTION_TYPE_CLASS_MAP[nodeData.functionName as string] || ''}`}
+            className={`${styles.node} ${styles[status]} ${lodClass}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -97,13 +103,30 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
                 className={styles.handle}
             />
 
-            <ProcessNodeHeader icon={nodeData.icon} label={nodeData.label} />
-
-            <ProcessNodeBody
-                functionName={nodeData.functionName}
-                params={params}
-                onParamChange={handleParamChange}
+            <ProcessNodeHeader
+                icon={nodeData.icon}
+                label={nodeData.label}
+                status={status}
+                headerBg={catColors?.headerBg}
+                headerBorder={catColors?.headerBorder}
+                iconColor={catColors?.iconColor}
             />
+
+            {!isCompact && (
+                <ProcessNodeBody
+                    functionName={nodeData.functionName}
+                    params={params}
+                    onParamChange={handleParamChange}
+                />
+            )}
+
+            {/* カテゴリバッジ（expanded のみ） */}
+            {!isCompact && categoryInfo && (
+                <div className={styles.categoryBadge}>
+                    <span className={styles.categoryIcon}>{categoryInfo.icon}</span>
+                    <span>{categoryInfo.category}</span>
+                </div>
+            )}
 
             <Handle
                 type="source"
@@ -111,8 +134,8 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
                 className={styles.handle}
             />
 
-            {/* Hover popup: shows input/output images when result exists */}
-            {hasResult && isHovered && (
+            {/* Hover popup: shows input/output images when result exists (expanded only) */}
+            {!isCompact && hasResult && isHovered && (
                 <ProcessNodeHoverPopup
                     inputImage={effectiveInputImage}
                     resultImage={nodeData.result as string}
@@ -121,3 +144,4 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
         </div>
     );
 }
+
