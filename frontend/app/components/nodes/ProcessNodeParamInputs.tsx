@@ -1,14 +1,14 @@
 // 役割: 処理ノードのパラメータ入力UIを関数定義に沿って表示する。
 // 依存: VISIONFY_FUNCTIONS_CONFIGの定義に合わせて入力を生成する。
+import { FormField } from '@/components/ui/FormField';
 import type { OpencvParamDefinition, OpencvParamValue } from '@/types/processFunction';
 import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/processFunction';
 import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/processNode';
-import { FormField } from '@/components/ui/FormField';
-import { SelectParamField } from './paramFields/SelectParamField';
-import { TupleParamField } from './paramFields/TupleParamField';
 import { BooleanParamField } from './paramFields/BooleanParamField';
 import { NumberParamField } from './paramFields/NumberParamField';
+import { SelectParamField } from './paramFields/SelectParamField';
 import { TextParamField } from './paramFields/TextParamField';
+import { TupleParamField } from './paramFields/TupleParamField';
 import styles from './ProcessNode.module.css';
 
 type Props = {
@@ -118,7 +118,10 @@ function ParamField({ config, value, onChange, classNames }: ParamFieldProps) {
         }
         // Default: use ParamRow styling for canvas nodes
         return (
-            <div className={styles.paramRow}>
+            <div
+                className={styles.paramRow}
+                onClick={(e) => e.stopPropagation()}
+            >
                 <label>{fieldLabel}</label>
                 {content}
             </div>
