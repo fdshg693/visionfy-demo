@@ -4,7 +4,7 @@ import { ChartNoAxesColumn, CheckCircle, Image as ImageIcon, Paintbrush, Palette
 import type { FC } from 'react';
 import styles from './ProcessNode.module.css';
 
-type ProcessNodeIcon = FC<{ size?: number; className?: string }>;
+type ProcessNodeIcon = FC<{ size?: number; className?: string; style?: React.CSSProperties }>;
 
 const PROCESS_NODE_ICON_MAP: Record<string, ProcessNodeIcon> = {
     'histogram': ChartNoAxesColumn,
@@ -21,16 +21,27 @@ type ProcessNodeHeaderProps = {
     icon?: string;
     label: string;
     status?: string;
+    /** カテゴリ別ヘッダー背景色 */
+    headerBg?: string;
+    /** カテゴリ別ヘッダーボーダー色 */
+    headerBorder?: string;
+    /** カテゴリ別アイコン色 */
+    iconColor?: string;
 };
 
-export function ProcessNodeHeader({ icon, label, status = 'idle' }: ProcessNodeHeaderProps) {
+export function ProcessNodeHeader({ icon, label, status = 'idle', headerBg, headerBorder, iconColor }: ProcessNodeHeaderProps) {
     const IconComponent = icon ? PROCESS_NODE_ICON_MAP[icon] : null;
 
+    const headerStyle: React.CSSProperties = {
+        ...(headerBg ? { background: headerBg } : {}),
+        ...(headerBorder ? { borderBottom: `1px solid ${headerBorder}` } : {}),
+    };
+
     return (
-        <div className={styles.header}>
+        <div className={styles.header} style={headerStyle}>
             <div className={styles.headerTitle}>
                 {IconComponent && (
-                    <IconComponent size={14} className={styles.icon} />
+                    <IconComponent size={14} className={styles.icon} style={iconColor ? { color: iconColor } : undefined} />
                 )}
                 <span className={styles.title}>{label || 'Process'}</span>
             </div>
@@ -44,3 +55,4 @@ export function ProcessNodeHeader({ icon, label, status = 'idle' }: ProcessNodeH
         </div>
     );
 }
+

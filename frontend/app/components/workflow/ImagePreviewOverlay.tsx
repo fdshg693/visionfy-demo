@@ -7,14 +7,8 @@ import { useInspector } from '@/contexts/InspectorContext';
 import { useDrag } from '@/hooks/useDrag';
 import { useObjectURL } from '@/hooks/useObjectURL';
 import type { WorkflowFile } from '@/types/workflow';
-import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
-import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
-import 'filepond/dist/filepond.min.css';
 import { useRef } from 'react';
-import { FilePond, registerPlugin } from 'react-filepond';
 import styles from './ImagePreviewOverlay.module.css';
-
-registerPlugin(FilePondPluginImagePreview);
 
 type ImagePreviewOverlayProps = {
     onToggleInspector: () => void;
@@ -24,15 +18,41 @@ type ImagePreviewOverlayProps = {
  * キャンバス右上のドラッグ可能な画像プレビューオーバーレイ。
  * - ドラッグハンドルで移動可能
  * - サムネイルクリックでサイドパネルを開く
- * - FilePondで画像アップロード
+ * - 入力スロット（画像なし時）をクリックでファイル選択
  */
 export function ImagePreviewOverlay({ onToggleInspector }: ImagePreviewOverlayProps) {
     const { files, setFiles, previewImage, resultImage } = useInspector();
     const originalImage = useObjectURL(files.length > 0 ? files[0].file : null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const { position, isDragging, handleMouseDown } = useDrag({ containerRef });
 
     const displayResult = previewImage ?? resultImage;
+
+    const handleInputSlotClick = () => {
+        if (originalImage) {
+            // 画像がある場合はインスペクターを開く
+            onToggleInspector();
+        } else {
+            // 画像がない場合はファイル選択ダイアログを開く
+            fileInputRef.current?.click();
+        }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            // WorkflowFile形式に変換してsetFiles
+            const workflowFile = {
+                source: file,
+                options: { type: 'local' },
+                file,
+            } as unknown as WorkflowFile;
+            setFiles([workflowFile]);
+        }
+        // inputをリセットして同じファイルを再選択可能にする
+        e.target.value = '';
+    };
 
     return (
         <div
@@ -49,10 +69,13 @@ export function ImagePreviewOverlay({ onToggleInspector }: ImagePreviewOverlayPr
 
             {/* サムネイル行 */}
             <div className={styles.imagesRow}>
-                {/* 入力画像 */}
-                <div className={styles.imageSlot} onClick={onToggleInspector}>
+                {/* 入力画像 - 画像なし時はファイル選択、画像あり時はインスペクター */}
+                <div
+                    className={`${styles.imageSlot} ${!originalImage ? styles.imageSlotUpload : ''}`}
+                    onClick={handleInputSlotClick}
+                >
                     <span className={styles.slotLabel}>Input</span>
-                    <div className={styles.thumbnail}>
+                    <div className={`${styles.thumbnail} ${!originalImage ? styles.thumbnailUpload : ''}`}>
                         {originalImage ? (
                             <img
                                 src={originalImage}
@@ -60,7 +83,11 @@ export function ImagePreviewOverlay({ onToggleInspector }: ImagePreviewOverlayPr
                                 className={styles.thumbnailImg}
                             />
                         ) : (
-                            <span className={styles.noImage}>No Image</span>
+                            <span className={styles.noImage}>
+                                📷
+                                <br />
+                                画像なし
+                            </span>
                         )}
                     </div>
                 </div>
@@ -82,18 +109,14 @@ export function ImagePreviewOverlay({ onToggleInspector }: ImagePreviewOverlayPr
                 </div>
             </div>
 
-            {/* FilePond アップロードエリア */}
-            <div className={styles.uploadArea}>
-                <FilePond
-                    files={files as any}
-                    onupdatefiles={(nextFiles) => setFiles(nextFiles as unknown as WorkflowFile[])}
-                    allowMultiple={false}
-                    maxFiles={1}
-                    name="files"
-                    labelIdle='<div class="filepond--label-action">📷 画像を入れてください</div>'
-                    credits={false}
-                />
-            </div>
+            {/* Hidden file input for upload */}
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleFileChange}
+            />
 
             <div className={styles.clickHint}>クリックで詳細を表示</div>
         </div>

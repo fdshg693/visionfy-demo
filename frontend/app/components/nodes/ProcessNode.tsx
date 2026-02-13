@@ -1,10 +1,11 @@
 // 役割: 処理ノードの見た目とパラメータ入力UIを表示し、入力変更をReactFlow状態に反映する。
-// 依存: ProcessNodeHeader、ProcessNodeBody、ProcessNodeHoverPopup
+// 依存: ProcessNodeHeader、ProcessNodeBody、ProcessNodeHoverPopup、processFunctionBase（カテゴリ情報）
 import { useInspector } from '@/contexts/InspectorContext';
 import { useObjectURL } from '@/hooks/useObjectURL';
 import { useProcessNodeParams } from '@/hooks/useProcessNodeParams';
 import type { OpencvParamValue } from '@/types/processFunction';
-import type { ProcessNodeParams } from '@/types/processNode';
+import { CATEGORY_INFO, PROCESS_FUNCTIONS_BASE, type ProcessNodeCategory } from '@/types/processFunctionBase';
+import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/processNode';
 import { isProcessNodeData } from '@/types/typeGuards';
 import { useFlowStore } from '@/workflow/flowStore';
 import { Handle, Node, NodeProps, Position } from '@xyflow/react';
@@ -14,16 +15,12 @@ import { ProcessNodeBody } from './ProcessNodeBody';
 import { ProcessNodeHeader } from './ProcessNodeHeader';
 import { ProcessNodeHoverPopup } from './ProcessNodeHoverPopup';
 
-/** 関数タイプに応じた背景色CSSクラスのマッピング */
-const FUNCTION_TYPE_CLASS_MAP: Record<string, string> = {
-    'createclahe': styles['fn-createclahe'],
-    'gaussianblur': styles['fn-gaussianblur'],
-    'grayscale': styles['fn-grayscale'],
-    'remove_noise': styles['fn-remove_noise'],
-    'restore_brightness': styles['fn-restore_brightness'],
-    'restore_contrast': styles['fn-restore_contrast'],
-    'model_inference': styles['fn-model_inference'],
-};
+/** functionNameからカテゴリ情報を取得 */
+function getCategoryForFunction(functionName: string): { category: ProcessNodeCategory; icon: string } | null {
+    const def = PROCESS_FUNCTIONS_BASE[functionName as ProcessNodeFunctionName];
+    if (!def) return null;
+    return { category: def.category, icon: CATEGORY_INFO[def.category].icon };
+}
 
 /**
  * 処理ノードコンポーネント。
@@ -85,9 +82,13 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
     const status = nodeData.executionStatus || 'idle';
     const hasResult = !!nodeData.result;
 
+    // カテゴリ情報を取得
+    const categoryInfo = getCategoryForFunction(nodeData.functionName as string);
+    const catColors = categoryInfo ? CATEGORY_INFO[categoryInfo.category] : null;
+
     return (
         <div
-            className={`${styles.node} ${styles[status]} ${FUNCTION_TYPE_CLASS_MAP[nodeData.functionName as string] || ''}`}
+            className={`${styles.node} ${styles[status]}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -101,6 +102,9 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
                 icon={nodeData.icon}
                 label={nodeData.label}
                 status={status}
+                headerBg={catColors?.headerBg}
+                headerBorder={catColors?.headerBorder}
+                iconColor={catColors?.iconColor}
             />
 
             <ProcessNodeBody
@@ -108,6 +112,14 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
                 params={params}
                 onParamChange={handleParamChange}
             />
+
+            {/* カテゴリバッジ */}
+            {categoryInfo && (
+                <div className={styles.categoryBadge}>
+                    <span className={styles.categoryIcon}>{categoryInfo.icon}</span>
+                    <span>{categoryInfo.category}</span>
+                </div>
+            )}
 
             <Handle
                 type="source"
@@ -125,3 +137,4 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
         </div>
     );
 }
+

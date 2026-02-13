@@ -78,8 +78,10 @@ function WorkflowContent({ initialHistoryEntries }: WorkflowContentProps) {
   const { showError, showWarning, showSuccess } = useToast();
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
   const handleToggleInspector = useCallback(() => {
+    // selectedNodeをクリアして、常にInputImagePanel + ResultInspectorを表示
+    clearSelection();
     setIsInspectorOpen((prev) => !prev);
-  }, []);
+  }, [clearSelection]);
 
   // エラーハンドラ
   const handleExecutionError = useCallback((error: unknown) => {

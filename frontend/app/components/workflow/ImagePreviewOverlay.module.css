@@ -98,34 +98,20 @@
     user-select: none;
 }
 
-/* FilePond ミニエリア */
-.uploadArea {
-    border: 1.5px dashed #cbd5e1;
-    border-radius: 8px;
-    background-color: #f8fafc;
-    transition: all 0.2s ease;
-    overflow: hidden;
+/* 画像なし時のアップロードヒント */
+.imageSlotUpload {
     cursor: pointer;
 }
 
-.uploadArea:hover {
+.thumbnailUpload {
+    border: 1.5px dashed #94a3b8;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.imageSlotUpload:hover .thumbnailUpload {
     border-color: #3b82f6;
-    background-color: #eff6ff;
-}
-
-.uploadArea :global(.filepond--panel-root) {
-    background-color: transparent;
-    border: none;
-}
-
-.uploadArea :global(.filepond--drop-label) {
-    color: #64748b;
-    font-size: 11px;
-    min-height: 40px;
-}
-
-.uploadArea :global(.filepond--root) {
-    margin-bottom: 0;
+    background: #eff6ff;
 }
 
 /* クリックヒント */

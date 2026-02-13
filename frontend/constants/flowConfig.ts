@@ -27,7 +27,7 @@ export const initialNodes: Node[] = [
     type: NODE_TYPE.PROCESS,
     position: { x: 250, y: 150 },
     data: {
-      label: 'createclahe',
+      label: '適応的ヒストグラム平坦化',
       functionName: 'createclahe',
       params: { clipLimit: 40.0, tileGridSize: [8, 8] },
       executionStatus: EXECUTION_STATUS.IDLE,

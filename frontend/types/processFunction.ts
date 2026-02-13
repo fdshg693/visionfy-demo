@@ -18,6 +18,7 @@ export interface OpencvParamDefinition {
 }
 
 export interface OpencvFunctionConfig {
+    displayName: string;
     description: string;
     params: OpencvParamDefinition[];
 }
@@ -35,6 +36,7 @@ export const VISIONFY_FUNCTIONS_CONFIG: Record<string, OpencvFunctionConfig> = O
     Object.entries(PROCESS_FUNCTIONS_BASE).map(([functionName, definition]) => [
         functionName,
         {
+            displayName: definition.displayName,
             description: definition.description,
             params: Object.entries(definition.params).map(([paramName, paramDef]) => ({
                 name: paramName,

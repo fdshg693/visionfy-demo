@@ -2,7 +2,12 @@
 // 役割: Processノードの詳細設定UI。関数選択/パラメータ編集/結果表示を担う。
 // 依存: VISIONFY_FUNCTIONS_CONFIGとNodeDataの定義。
 import { ProcessNodeParamInputs } from '@/app/components/nodes/ProcessNodeParamInputs';
+import { FormField } from '@/components/ui/FormField';
 import { useProcessNodeParams } from '@/hooks/useProcessNodeParams';
+import formStyles from '@/lib/styles/forms.module.css';
+import type { OpencvParamValue } from '@/types/processFunction';
+import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/processFunction';
+import { PROCESS_FUNCTIONS_BASE } from '@/types/processFunctionBase';
 import {
     DEFAULT_NODE_ICONS,
     DEFAULT_NODE_PARAMS,
@@ -11,12 +16,8 @@ import {
     type ProcessNodeParams,
 } from '@/types/processNode';
 import { isProcessNodeData } from '@/types/typeGuards';
-import type { OpencvParamValue } from '@/types/processFunction';
-import { VISIONFY_FUNCTIONS_CONFIG } from '@/types/processFunction';
 import { Node } from '@xyflow/react';
-import { FormField } from '@/components/ui/FormField';
 import styles from '../NodeInspector.module.css';
-import formStyles from '@/lib/styles/forms.module.css';
 
 interface ProcessNodeInspectorProps {
     selectedNode: Node;
@@ -47,7 +48,7 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
         const defaultIcon = DEFAULT_NODE_ICONS[newFunctionName] || 'settings';
 
         onUpdateNode(selectedNode.id, {
-            label: newFunctionName,
+            label: PROCESS_FUNCTIONS_BASE[newFunctionName].displayName,
             functionName: newFunctionName,
             params: defaultParams,
             icon: defaultIcon,
@@ -93,9 +94,9 @@ export function ProcessNodeInspector({ selectedNode, onUpdateNode }: ProcessNode
                 inputClassName={`${formStyles['input-select']} ${formStyles.dark}`}
             >
                 <option value="" disabled>関数を選択</option>
-                {Object.keys(VISIONFY_FUNCTIONS_CONFIG).map((func) => (
+                {Object.entries(VISIONFY_FUNCTIONS_CONFIG).map(([func, config]) => (
                     <option key={func} value={func}>
-                        {func}
+                        {config.displayName}
                     </option>
                 ))}
             </FormField>

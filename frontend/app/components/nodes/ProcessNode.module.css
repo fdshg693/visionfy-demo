@@ -29,69 +29,26 @@
     border-color: #ef4444;
 }
 
-/* Function type header backgrounds */
-/* These match the colors but apply to header background now */
-.fn-createclahe .header {
-    background: #eff6ff;
-    border-bottom: 1px solid #dbeafe;
+/* Category-based header colors */
+/* Colors are set via inline style from CATEGORY_INFO for header bg/border/icon */
+
+/* Category badge at bottom of node */
+.categoryBadge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    font-size: 9px;
+    font-weight: 500;
+    color: #9ca3af;
+    border-top: 1px solid #f3f4f6;
+    border-radius: 0 0 12px 12px;
+    background: #fafafa;
 }
 
-.fn-createclahe .icon {
-    color: #2563eb;
-}
-
-.fn-gaussianblur .header {
-    background: #f0fdf4;
-    border-bottom: 1px solid #dcfce7;
-}
-
-.fn-gaussianblur .icon {
-    color: #16a34a;
-}
-
-.fn-grayscale .header {
-    background: #f9fafb;
-    border-bottom: 1px solid #f3f4f6;
-}
-
-.fn-grayscale .icon {
-    color: #6b7280;
-}
-
-.fn-remove_noise .header {
-    background: #fefce8;
-    border-bottom: 1px solid #fef9c3;
-}
-
-.fn-remove_noise .icon {
-    color: #ca8a04;
-}
-
-.fn-restore_brightness .header {
-    background: #fff7ed;
-    border-bottom: 1px solid #ffedd5;
-}
-
-.fn-restore_brightness .icon {
-    color: #ea580c;
-}
-
-.fn-restore_contrast .header {
-    background: #faf5ff;
-    border-bottom: 1px solid #f3e8ff;
-}
-
-.fn-restore_contrast .icon {
-    color: #9333ea;
-}
-
-.fn-model_inference .header {
-    background: #fef2f2;
-    border-bottom: 1px solid #fee2e2;
-}
-
-.fn-model_inference .icon {
-    color: #dc2626;
+.categoryIcon {
+    font-size: 10px;
+    line-height: 1;
 }
 
 
