@@ -3,6 +3,7 @@
 import { useInspector } from '@/contexts/InspectorContext';
 import { useObjectURL } from '@/hooks/useObjectURL';
 import { useProcessNodeParams } from '@/hooks/useProcessNodeParams';
+import { useZoomLevel } from '@/hooks/useZoomLevel';
 import type { OpencvParamValue } from '@/types/processFunction';
 import { CATEGORY_INFO, PROCESS_FUNCTIONS_BASE, type ProcessNodeCategory } from '@/types/processFunctionBase';
 import type { ProcessNodeFunctionName, ProcessNodeParams } from '@/types/processNode';
@@ -29,6 +30,8 @@ function getCategoryForFunction(functionName: string): { category: ProcessNodeCa
 export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
     const { updateNodeData, nodes, edges } = useFlowStore();
     const { files } = useInspector();
+    const { lod } = useZoomLevel();
+    const isCompact = lod === 'compact';
     const isValid = isProcessNodeData(nodeData);
     const { params } = useProcessNodeParams(nodeData as import('@/types/processNode').BaseProcessNodeData);
     const [isHovered, setIsHovered] = useState(false);
@@ -86,9 +89,11 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
     const categoryInfo = getCategoryForFunction(nodeData.functionName as string);
     const catColors = categoryInfo ? CATEGORY_INFO[categoryInfo.category] : null;
 
+    const lodClass = isCompact ? styles.compactNode : styles.expandedNode;
+
     return (
         <div
-            className={`${styles.node} ${styles[status]}`}
+            className={`${styles.node} ${styles[status]} ${lodClass}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -107,14 +112,16 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
                 iconColor={catColors?.iconColor}
             />
 
-            <ProcessNodeBody
-                functionName={nodeData.functionName}
-                params={params}
-                onParamChange={handleParamChange}
-            />
+            {!isCompact && (
+                <ProcessNodeBody
+                    functionName={nodeData.functionName}
+                    params={params}
+                    onParamChange={handleParamChange}
+                />
+            )}
 
-            {/* カテゴリバッジ */}
-            {categoryInfo && (
+            {/* カテゴリバッジ（expanded のみ） */}
+            {!isCompact && categoryInfo && (
                 <div className={styles.categoryBadge}>
                     <span className={styles.categoryIcon}>{categoryInfo.icon}</span>
                     <span>{categoryInfo.category}</span>
@@ -127,8 +134,8 @@ export function ProcessNode({ id, data: nodeData }: NodeProps<Node>) {
                 className={styles.handle}
             />
 
-            {/* Hover popup: shows input/output images when result exists */}
-            {hasResult && isHovered && (
+            {/* Hover popup: shows input/output images when result exists (expanded only) */}
+            {!isCompact && hasResult && isHovered && (
                 <ProcessNodeHoverPopup
                     inputImage={effectiveInputImage}
                     resultImage={nodeData.result as string}

@@ -1,6 +1,7 @@
 // 役割: ノード/エッジのキャンバス表示と操作UI(ミニマップ/ズーム/追加ボタン/リセット/右クリック削除)を提供する。
 // 依存: ReactFlowのイベントを受け取り、親から渡された状態更新に委譲する。
 import { MenuButton } from '@/components/ui/Button';
+import { INITIAL_ZOOM_LEVEL } from '@/constants/flowConfig';
 import { useInspector } from '@/contexts/InspectorContext';
 import { useContextMenu } from '@/hooks/useContextMenu';
 import type { ProcessNodeFunctionName } from '@/types/processNode';
@@ -115,6 +116,7 @@ export function FlowCanvas({
             style: { stroke: '#b1b1b7', strokeWidth: 2 },
             animated: true,
           }}
+          fitViewOptions={{ maxZoom: INITIAL_ZOOM_LEVEL }}
         >
           <Controls />
           <MiniMap />

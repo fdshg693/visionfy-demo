@@ -45,3 +45,6 @@ export const initialNodes: Node[] = [
 
 /** 初期のエッジ。何も接続されていない状態 */
 export const initialEdges: Edge[] = [];
+
+/** 初期のズームレベル */
+export const INITIAL_ZOOM_LEVEL = 1.0;

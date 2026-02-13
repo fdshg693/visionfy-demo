@@ -1,12 +1,17 @@
 
 // 役割: ワークフローの終了ノード表示。入力ハンドルのみを持つ。
-// 依存: ReactFlowのHandle/Position。
+// 依存: ReactFlowのHandle/Position、useZoomLevel。
+import { useZoomLevel } from '@/hooks/useZoomLevel';
 import { Handle, Position } from '@xyflow/react';
 import styles from './ProcessNode.module.css';
 
 export function EndNode() {
+    const { lod } = useZoomLevel();
+    const isCompact = lod === 'compact';
+    const lodClass = isCompact ? styles.compactNode : styles.expandedNode;
+
     return (
-        <div className={`${styles.node} ${styles.endNode}`}>
+        <div className={`${styles.node} ${styles.endNode} ${lodClass}`}>
             <Handle
                 type="target"
                 position={Position.Left}
@@ -20,7 +25,7 @@ export function EndNode() {
                         <polyline points="22 4 12 14.01 9 11.01" />
                     </svg>
                 </span>
-                Result
+                {!isCompact && 'Result'}
             </div>
         </div>
     );

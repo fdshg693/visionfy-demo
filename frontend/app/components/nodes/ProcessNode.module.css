@@ -3,14 +3,39 @@
     border-radius: 12px;
     background: white;
     border: 1px solid #e5e7eb;
-    min-width: 140px;
-    max-width: 180px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     font-size: 11px;
     color: #374151;
 
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
 }
+
+/* Expanded mode: 統一幅 180px, 固定高さ 280px */
+.expandedNode {
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Compact mode: 統一幅 140px, 固定高さ 36px */
+.compactNode {
+    width: 140px;
+    height: 36px;
+    min-width: 140px;
+    max-width: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.compactNode .header {
+    border-radius: 12px;
+    border-bottom: none;
+    height: 100%;
+}
+
 
 .node:hover {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
@@ -87,7 +112,26 @@
 .body {
     padding: 10px;
     background: white;
+    flex: 1;
+    overflow-y: auto;
+    /* Custom scrollbar for better UX in small node */
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
 }
+
+.body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.body::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 4px;
+}
+
 
 /* Status Indicators */
 .statusIndicator {
@@ -244,8 +288,6 @@
 
 /* ===== Start Node ===== */
 .startNode {
-    min-width: 100px;
-    max-width: 120px;
     background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #a7f3d0 100%);
     border: 1.5px solid #6ee7b7;
     border-radius: 24px;
@@ -254,6 +296,12 @@
         0 0 0 1px rgba(16, 185, 129, 0.05);
     overflow: visible;
     cursor: default;
+}
+
+/* Don't fix height for Start/End in expanded mode */
+.startNode.expandedNode {
+    height: auto;
+    min-height: 40px;
 }
 
 .startNode:hover {
@@ -332,8 +380,6 @@
 
 /* ===== End Node ===== */
 .endNode {
-    min-width: 100px;
-    max-width: 120px;
     background: linear-gradient(135deg, #fef2f2 0%, #fecaca 50%, #fca5a5 100%);
     border: 1.5px solid #f87171;
     border-radius: 24px;
@@ -342,6 +388,12 @@
         0 0 0 1px rgba(239, 68, 68, 0.05);
     overflow: visible;
     cursor: default;
+}
+
+/* Don't fix height for Start/End in expanded mode */
+.endNode.expandedNode {
+    height: auto;
+    min-height: 40px;
 }
 
 .endNode:hover {
