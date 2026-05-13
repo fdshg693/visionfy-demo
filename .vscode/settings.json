@@ -1,5 +1,7 @@
 {
     "chat.tools.terminal.autoApprove": {
         "npx tsc": true
-    }
+    },
+    "claudeCode.allowDangerouslySkipPermissions": true,
+    "claudeCode.useCtrlEnterToSend": true
 }
