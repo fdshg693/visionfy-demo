@@ -18,7 +18,6 @@ Gemini 2.5 Pro + LangChain ベース。ストリーミングレスポンス内�
 権威ドキュメント:
 - 機能全体: [docs/features/AI.md](../../docs/features/AI.md)
 - ツール追加方法: [frontend/lib/tools/README.md](../../frontend/lib/tools/README.md)
-- AI 概要: [ai/overview/ai-chat.md](../../ai/overview/ai-chat.md)
 
 ## 重要な設計判断
 

@@ -21,11 +21,6 @@ paths:
 1. **画像処理**: Browser → `POST /api/process-node` (Next.js) → `BackendApiService` + adapter → Flask `/api/<func>` → JPEG返却。
 2. **AIチャット**: Browser → `POST /api/chat` (Next.js, streaming) → `ChatService` → LangChain Agent + Gemini 2.5 Pro → ストリームでツール呼び出しを挿入。
 
-詳細は以下:
-- 全体アーキテクチャ: [ai/overview/architecture.md](../../ai/overview/architecture.md)
-- プロジェクト概要 + 環境変数: [ai/overview/project.md](../../ai/overview/project.md)
-- 開発コマンド一覧: [ai/overview/commands.md](../../ai/overview/commands.md)（および [.claude/rules/commands.md](commands.md)）
-
 ## トピック別ルール
 
 | 関心領域 | 該当ルール |

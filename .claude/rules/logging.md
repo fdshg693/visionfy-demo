@@ -8,8 +8,6 @@ paths:
 
 # ロギング
 
-権威ドキュメント: [ai/overview/frontend_logging.md](../../ai/overview/frontend_logging.md)
-
 ## Frontend（Next.js / Pino）
 
 - 構造化ロガーは `frontend/lib/logger.ts` の `createLogger(module)` で生成。本番（`NODE_ENV=production`）では `@google-cloud/logging-pino` 経由で Cloud Logging に統合、開発時は `pino-pretty`。

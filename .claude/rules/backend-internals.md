@@ -12,15 +12,23 @@ paths:
 - `backend/src/main.py` がエントリ。ローカルは `python main.py`（`0.0.0.0:8080`, `debug=True`）、本番は Gunicorn。
 - `CORS(app)` は **無制限**（オリジン制限なし）。Next.js フロントが別ポート/ドメインで動くため。
 - `static_url_path=""` + `static_folder="static"` で `/` が `backend/src/static/index.html` を直接配信（テスト用スタンドアロン UI、 [backend/src/static/README.md](../../backend/src/static/README.md)）。
-- 各ルートハンドラは薄いラッパー: ログ出力 → API モジュール関数呼び出し → 例外時 `exc_info=True` で再 raise。
+- ルートハンドラは **`common/decorators.py` のデコレータで統一**: 画像系は `@image_endpoint("<name>")`、JSON 入出力 (`/api/generate_code`) は `@json_endpoint("<name>")`。どちらもリクエストログ・成功ログ・`exc_info=True` 付き例外再 raise を担う。**ハンドラ本体には個別 `logger.info()` を書かない**（重複ログになる）。
+- `app.config["MAX_CONTENT_LENGTH"] = config.MAX_CONTENT_LENGTH`（デフォルト 16MB、`MAX_CONTENT_LENGTH` 環境変数で上書き）。超過時は `413` ハンドラが `common.response.create_error_response` で `FILE_TOO_LARGE` を返却。
+- `validate_env_vars()` と `log_env_vars()` は **モジュールレベルで実行**（`__main__` ガード外）。Gunicorn 起動でも走るので `MODEL_GCS_BUCKET` / `MODEL_GCS_PATH` 未設定の警告は Cloud Run ログでも確認可能。
 
-## 全エンドポイント共通パターン
+## 画像処理エンドポイント共通パターン
 
 - **`multipart/form-data` 必須**: 画像 = `request.files['file']`、パラメータ = `request.form.get(...)`。
 - 画像デコード: `np.frombuffer(file.read(), np.uint8)` → `cv2.imdecode(buffer, flags)`。**CLAHE のみ `flags=0`（grayscale 強制デコード）**、他は `IMREAD_COLOR`。
 - **入力フォーマットを問わず出力は常に JPEG** (`Content-Type: image/jpeg`)。PNG の透過は失われる。
 - 戻り型は `Union[Response, Tuple[str, int]]`: 成功は `make_response(buffer.tobytes())`、エラーは `(message, status_code)`。
 - パース例外は 400 (`ValueError`)、処理例外は 500。型強制失敗（`int("abc")`）は `ValueError` の汎用メッセージで「どのパラメータが」までは特定できない。
+
+## `/api/generate_code` の例外
+
+- 画像処理エンドポイントとは独立。**JSON in / JSON out**。`request.get_json(silent=True)` で受け取り、`{"code": "..."}` を返す。
+- 入力検証エラー（不正 JSON / `processNodes` 非配列 / 空配列）は `common.response.create_error_response` で 400。
+- 内部の `SUPPORTED_FUNCTIONS` は **`model_inference` を含まない**（コード生成不可なステップは出力にコメントとしてスキップ表示される）。新規画像処理関数を追加した際は [api/generate_code/main.py](../../backend/src/api/generate_code/main.py) の `SUPPORTED_FUNCTIONS` / `FUNCTION_DEFS` / `_build_call_code` に **3 箇所**追記が必要。忘れると黙ってスキップされる。
 
 ## パラメータ定義パターン
 

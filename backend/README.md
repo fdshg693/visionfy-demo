@@ -8,6 +8,7 @@ Visionfy Demo のバックエンド API サーバーです。Flask ベースの�
 
 - **画像処理 API**: 6種類の OpenCV ベース画像処理機能（CLAHE、グレースケール、ガウシアンブラー、ノイズ除去、コントラスト修復、明るさ修復）
 - **異常検知 API**: Patchcore モデルによる異常検知とヒートマップ生成
+- **コード生成 API**: ワークフロー定義からスタンドアロン Python スクリプトを生成
 - **テスト用 UI**: 静的 HTML による API テストインターフェース
 - **ヘルスチェック**: Cloud Run での監視用エンドポイント
 
@@ -16,22 +17,27 @@ Visionfy Demo のバックエンド API サーバーです。Flask ベースの�
 ```text
 backend/
 ├── src/
-│   ├── main.py                     # Flask エントリポイント（全7ルート定義）
-│   ├── api/                        # 画像処理 API モジュール
+│   ├── main.py                     # Flask エントリポイント（全ルート定義）
+│   ├── api/                        # API モジュール
 │   │   ├── createclahe/            # CLAHE 適用
-│   │   │   └── main.py
 │   │   ├── grayscale/              # グレースケール変換 + オプション閾値処理
-│   │   │   └── main.py
 │   │   ├── gaussian_blur/          # ガウシアンブラー
-│   │   │   └── main.py
 │   │   ├── remove_noise/           # ノイズ除去（メディアンフィルタ）
-│   │   │   └── main.py
 │   │   ├── restore_contrast/       # コントラスト修復（ガンマ補正）
-│   │   │   └── main.py
 │   │   ├── restore_brightness/     # 明るさ修復
-│   │   │   └── main.py
-│   │   └── model_inference/        # 異常検知モデル推論 🆕
-│   │       └── main.py
+│   │   ├── model_inference/        # 異常検知モデル推論
+│   │   └── generate_code/          # ワークフローから Python コード生成
+│   ├── common/                     # 横断的ユーティリティ
+│   │   ├── config.py               # 環境変数・定数（MAX_CONTENT_LENGTH など）
+│   │   ├── decorators.py           # image_endpoint / json_endpoint
+│   │   ├── exceptions.py
+│   │   ├── image_processing.py
+│   │   ├── params.py
+│   │   ├── pipeline.py
+│   │   ├── response.py             # create_error_response
+│   │   └── validation.py
+│   ├── storage/                    # 外部ストレージクライアント
+│   │   └── gcs_client.py           # Patchcore モデルの GCS ロード
 │   ├── models/                     # 機械学習モデル
 │   │   └── model.ckpt              # Patchcore 異常検知モデル
 │   ├── static/                     # テスト用静的 UI
@@ -77,18 +83,25 @@ python src/main.py
 | `POST`   | `/api/remove_noise`        | ノイズ除去（メディアンフィルタ）                    |
 | `POST`   | `/api/restore_contrast`    | コントラスト修復（ガンマ補正）                      |
 | `POST`   | `/api/restore_brightness`  | 明るさ修復（適応的輝度調整）                        |
-| `POST`   | `/api/model_inference`     | 異常検知モデル推論 + ヒートマップ生成 🆕            |
+| `POST`   | `/api/model_inference`     | 異常検知モデル推論 + ヒートマップ生成               |
+| `POST`   | `/api/generate_code`       | ワークフロー定義 (JSON) から Python コードを生成   |
 
 ### リクエスト形式
 
-すべての `POST` エンドポイントは `multipart/form-data` 形式で画像ファイルとパラメータを受け取ります：
-
-- `file`: 処理対象の画像ファイル（必須）
-- その他のパラメータ: 各 API により異なる（詳細は各モジュールのコードを参照）
+- **画像処理系エンドポイント** (`/api/createclahe` … `/api/model_inference`): `multipart/form-data`
+  - `file`: 処理対象の画像ファイル（必須）
+  - その他のパラメータ: 各 API により異なる（詳細は各モジュールのコードを参照）
+- **`/api/generate_code`**: `application/json`
+  - `{"processNodes": [{"functionName": "...", "params": {...}}, ...]}`
 
 ### レスポンス形式
 
-処理済み画像を直接バイナリで返却します（Content-Type: `image/png` または `image/jpeg`）。
+- 画像処理系: 処理済み画像を `image/jpeg` バイナリで返却（入力フォーマット問わず JPEG 出力）
+- `/api/generate_code`: `{"code": "..."}` の JSON
+
+### サイズ制限
+
+`Config.MAX_CONTENT_LENGTH`（デフォルト 16MB、環境変数 `MAX_CONTENT_LENGTH` で上書き可）。超過時は `413 FILE_TOO_LARGE` を返却。
 
 ## 🐳 Docker 実行方法
 
@@ -121,5 +134,7 @@ Terraform 構成（`../terraform/`）を使用して自動デプロイされま�
 
 - ログレベルは環境変数 `LOG_LEVEL` で制御（デフォルト: `INFO`）
 - `FLASK_DEBUG=1` の場合は自動的に `DEBUG` レベルになります
+- 各ルートは `common/decorators.py` の `@image_endpoint` / `@json_endpoint` で統一的にログ・例外処理されます
 - 各 API モジュールは独立しており、個別にテスト可能です
 - 異常検知モデル（`model.ckpt`）は Patchcore アーキテクチャを使用しています
+- `MODEL_GCS_BUCKET` / `MODEL_GCS_PATH` は `/api/model_inference` でのみ必須（未設定時は起動ログに警告）

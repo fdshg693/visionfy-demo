@@ -35,3 +35,32 @@ def image_endpoint(name: str):
         return wrapper
 
     return decorator
+
+
+def json_endpoint(name: str):
+    """Decorator for JSON-in / JSON-out endpoints.
+
+    Provides:
+    - Request logging (content type + payload size)
+    - Success logging
+    - Error logging with traceback
+    """
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            logger.info(
+                f"[{name}] Request received - content_type: {request.content_type}, "
+                f"content_length: {request.content_length}"
+            )
+            try:
+                result = func(*args, **kwargs)
+                logger.info(f"[{name}] Processing completed successfully")
+                return result
+            except Exception as e:
+                logger.error(f"[{name}] Error: {str(e)}", exc_info=True)
+                raise
+
+        return wrapper
+
+    return decorator

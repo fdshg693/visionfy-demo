@@ -12,7 +12,6 @@ paths:
 
 権威ドキュメント:
 - 新関数追加の5ステップと型システム: [docs/features/API.md](../../docs/features/API.md)
-- バックエンドAPIエンドポイント一覧と curl 例: [backend/README.md](../../backend/README.md), [backend/src/static/README.md](../../backend/src/static/README.md)
 
 ## リクエストフロー
 

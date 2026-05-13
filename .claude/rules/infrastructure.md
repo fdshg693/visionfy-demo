@@ -9,10 +9,7 @@ paths:
 
 すべて GCP・Terraform 管理。デフォルトリージョン `asia-northeast1`。**Docker イメージのビルド/プッシュは `terraform apply` の前**に手動で行う必要がある（Cloud Run が参照するため）。
 
-詳細:
-- 全体構成・図: [ai/overview/infrastructure.md](../../ai/overview/infrastructure.md)
 - ファイル構成・コマンド: [terraform/README.md](../../terraform/README.md)
-- デプロイ手順: [terraform/DEPLOY.md](../../terraform/DEPLOY.md)
 
 ## 環境分離
 

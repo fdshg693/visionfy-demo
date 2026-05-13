@@ -5,8 +5,6 @@ paths:
 
 # Frontend — 非自明な内部仕様
 
-`.cursor/rules/frontened.mdc` および機能ドキュメントから抽出した、コードを読んだだけでは気付きにくい挙動。
-
 ## SSR / Hydration
 
 - `app/page.tsx` は `isHydrated` が `true` になるまで `null` を返す（`useEffect` で flip）。サーバーには `window` がなく `loadFlowHistory()` が `[]` を返すため、これをやらないとハイドレーションが mismatch する。
