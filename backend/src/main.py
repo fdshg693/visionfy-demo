@@ -13,7 +13,7 @@ from api.restore_brightness import main as restore_brightness
 from api.model_inference import main as model_inference
 from api.generate_code import main as generate_code
 
-from common.decorators import image_endpoint
+from common.decorators import image_endpoint, json_endpoint
 from common.config import config
 from common.response import create_error_response
 
@@ -133,9 +133,9 @@ def route_model_inference():
 
 
 @app.route("/api/generate_code", methods=["POST"])
+@json_endpoint("generate_code")
 def route_generate_code():
     """ワークフローからPythonコードを生成"""
-    logger.info("Generate code request received")
     return generate_code.generate_code(request)
 
 
@@ -153,8 +153,11 @@ def validate_env_vars() -> None:
             )
 
 
+# 起動時検証（Gunicorn環境でも実行されるようモジュールレベルで呼び出し）
+validate_env_vars()
+
+
 if __name__ == "__main__":
     # ローカル開発用
-    validate_env_vars()
     logger.info("Starting Flask server on 0.0.0.0:8080")
     app.run(host="0.0.0.0", port=8080, debug=True)

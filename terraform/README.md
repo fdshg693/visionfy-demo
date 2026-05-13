@@ -24,79 +24,90 @@ GCPインフラをTerraformで管理します。
 
 ```
 terraform/
-├── main.tf                 # プロバイダー設定とプロジェクトリソース
-├── artifact_registry.tf    # Artifact Registry設定
-├── secrets.tf              # Secret Manager設定
-├── iam.tf                  # サービスアカウントとIAM設定
-├── cloudrun.tf             # Cloud Runサービス設定
-├── variables.tf            # 変数定義
-├── outputs.tf              # 出力値定義
-├── terraform.tfvars.example # 変数ファイルのサンプル
-├── DEPLOY.md               # 詳細なデプロイ手順
-└── README.md               # このファイル
+├── main.tf                          # プロバイダー設定とプロジェクトリソース
+├── artifact_registry.tf             # Artifact Registry設定
+├── secrets.tf                       # Secret Manager設定
+├── iam.tf                           # サービスアカウントとIAM設定
+├── cloudrun.tf                      # Cloud Runサービス設定
+├── storage.tf                       # Cloud Storage (モデル) 設定
+├── variables.tf                     # 変数定義
+├── outputs.tf                       # 出力値定義
+├── environments/                    # 環境別の変数ファイル
+│   ├── dev.tfvars.example           #   dev環境のテンプレート（コミット対象）
+│   ├── prod.tfvars.example          #   prod環境のテンプレート（コミット対象）
+│   ├── dev.tfvars                   #   実値（gitignore、シークレット含む）
+│   └── prod.tfvars                  #   実値（gitignore、シークレット含む）
+├── states/                          # 環境別のtfstate（中身はgitignore）
+│   ├── dev.tfstate
+│   └── prod.tfstate
+├── DEPLOY.md                        # 詳細なデプロイ手順
+└── README.md                        # このファイル
 ```
+
+## 環境分離方針
+
+dev / prod は **同一の `.tf` ファイル群** を共有し、以下を環境ごとに分けます:
+
+| 種別 | パス | 切替方法 |
+|------|------|---------|
+| 変数値 | `environments/<env>.tfvars` | `-var-file=environments/<env>.tfvars` |
+| state  | `states/<env>.tfstate`     | `-state=states/<env>.tfstate`        |
+
+`<env>` は `dev` または `prod`。各環境のパラメータ差分は tfvars に集約されているため、
+`environments/*.tfvars.example` を見れば dev/prod の違いが一目でわかります。
 
 ## クイックスタート
 
+プロジェクトルートから [Justfile](../Justfile) のレシピを使うのが最短です。
 詳細な手順は [DEPLOY.md](./DEPLOY.md) を参照してください。
 
 ### 1. 準備
 
 ```powershell
-# 変数ファイルの作成
-cp terraform.tfvars.example terraform.tfvars
+# 変数ファイルの作成（dev/prod それぞれ）
+cp terraform/environments/dev.tfvars.example  terraform/environments/dev.tfvars
+cp terraform/environments/prod.tfvars.example terraform/environments/prod.tfvars
 
-# terraform.tfvars を編集（プロジェクトID、請求先アカウント、API Keyなど）
+# 中身を編集（project_id、billing_account、gemini_api_key など）
 
 # 初期化
-terraform init
+just tf-init
 
 # Google Cloud認証
 gcloud auth application-default login
 ```
 
-### 2. 基盤リソースの作成
+### 2. 基盤リソースの作成（環境ごとに1回）
+
+`google_project` / API有効化 / Artifact Registry / Secret Manager などを先に作成します。
 
 ```powershell
-# PowerShellの場合（引用符が必要）
-terraform apply `
-  '-target=google_project.main' `
-  '-target=google_project_service.apis' `
-  '-target=google_artifact_registry_repository.docker' `
-  '-target=google_secret_manager_secret.gemini_api_key' `
-  '-target=google_secret_manager_secret_version.gemini_api_key' `
-  '-target=google_service_account.frontend' `
-  '-target=google_secret_manager_secret_iam_member.frontend_gemini_key'
-
-# Bash/Zshの場合
-terraform apply \
-  -target=google_project.main \
-  -target=google_project_service.apis \
-  -target=google_artifact_registry_repository.docker \
-  -target=google_secret_manager_secret.gemini_api_key \
-  -target=google_secret_manager_secret_version.gemini_api_key \
-  -target=google_service_account.frontend \
-  -target=google_secret_manager_secret_iam_member.frontend_gemini_key
+just tf-bootstrap dev
+# または
+just tf-bootstrap prod
 ```
 
-### 3. Dockerイメージのビルドとデプロイ
+### 3. Dockerイメージのビルドとプッシュ
 
 ```powershell
-# Docker認証
-gcloud auth configure-docker asia-northeast1-docker.pkg.dev
+# Docker認証（1回だけ）
+just docker-auth
 
-# イメージビルド（プロジェクトルートから）
-cd ..
-docker build -t asia-northeast1-docker.pkg.dev/YOUR_PROJECT_ID/visionfy-demo/backend:latest backend
-docker build -t asia-northeast1-docker.pkg.dev/YOUR_PROJECT_ID/visionfy-demo/frontend:latest frontend
+# dev環境向け
+just docker-release-all visionfy-demo-dev dev
 
-# プッシュ
-docker push asia-northeast1-docker.pkg.dev/YOUR_PROJECT_ID/visionfy-demo/backend:latest
-docker push asia-northeast1-docker.pkg.dev/YOUR_PROJECT_ID/visionfy-demo/frontend:latest
+# prod環境向け
+just docker-release-all visionfy-demo-prod latest
+```
 
-# Cloud Runサービスのデプロイ
-cd terraform
-terraform apply
+### 4. Cloud Runサービスのデプロイ
+
+```powershell
+just tf-plan dev      # 差分確認
+just tf-apply dev     # 適用
+
+just tf-plan prod
+just tf-apply prod
 ```
 
 ## 主要な設定
@@ -133,48 +144,31 @@ terraform apply
 
 ## コマンドリファレンス
 
+Justfile 経由を推奨。生 `terraform` を使う場合は必ず `-var-file` と `-state` を両方指定してください。
+
 ```powershell
-# 計画の確認（実行前のドライラン）
-terraform plan
+# Justfile 経由（推奨）
+just tf-init
+just tf-plan dev
+just tf-apply dev
+just tf-output dev
+just tf-state-list dev
+just tf-destroy dev
+just tf-fmt
+just tf-validate
 
-# 特定のリソースのみ適用
-terraform apply -target=RESOURCE_TYPE.RESOURCE_NAME
-
-# 全リソースの適用
-terraform apply
-
-# 出力値の確認
-terraform output
-
-# 状態の確認
-terraform show
-
-# リソース一覧
-terraform state list
-
-# 既存リソースのインポート
-terraform import google_project.main PROJECT_ID
-
-# 全リソースの削除
-terraform destroy
+# 生のterraformで実行する場合（dev環境の例）
+terraform plan    -var-file=environments/dev.tfvars  -state=states/dev.tfstate
+terraform apply   -var-file=environments/dev.tfvars  -state=states/dev.tfstate
+terraform output  -state=states/dev.tfstate
+terraform destroy -var-file=environments/dev.tfvars  -state=states/dev.tfstate
 ```
-
-## トラブルシューティング
-
-詳細は [DEPLOY.md](./DEPLOY.md) のトラブルシューティングセクションを参照してください。
 
 ## 状態管理
 
-Terraformの状態は `terraform.tfstate` ファイルにローカル保存されます。
+Terraform の状態は環境別に `states/<env>.tfstate` にローカル保存されます。
 
-**重要:** 以下のファイルは `.gitignore` で除外されており、バージョン管理にコミットされません：
-- `terraform.tfstate`
-- `terraform.tfstate.backup`
-- `terraform.tfvars`
+**重要:** 以下のファイルは `.gitignore` で除外されており、バージョン管理にコミットされません:
+- `states/*.tfstate` および `*.backup`
+- `environments/*.tfvars`（`*.tfvars.example` は除く）
 - `.terraform/`
-
-チーム開発や本番環境では、Terraform CloudやGCS Backendを使用したリモート状態管理を推奨します。
-
-## 更新履歴
-
-- 2026-02-09: 初版作成、デプロイ手順の詳細化、トラブルシューティング追加

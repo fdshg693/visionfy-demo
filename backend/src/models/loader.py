@@ -7,7 +7,7 @@ from typing import Optional
 import torch
 from anomalib.models import Patchcore
 
-from storage.gcs_client import download_from_gcs
+from storage.gcs_client import download_model_from_gcs
 
 logger = logging.getLogger(__name__)
 
@@ -16,44 +16,41 @@ _MODEL_INSTANCE: Optional[torch.nn.Module] = None
 _MODEL_DEVICE: str = "cpu"
 
 
-def get_model_path() -> str:
-    """Get the absolute path to the model checkpoint.
+_MODEL_FILENAME = "model.ckpt"
 
-    Resolution order:
-    1. Local file at backend/src/models/model.ckpt (for local development)
-    2. GCS download via MODEL_GCS_BUCKET / MODEL_GCS_PATH env vars → /tmp/model.ckpt
 
-    Returns:
-        Path to model checkpoint file
+def _resolve_cache_dir() -> str:
+    """Decide the single writable directory used to hold the model checkpoint.
 
-    Raises:
-        FileNotFoundError: If model is not found locally and GCS env vars are not set
+    Precedence:
+    1. ``MODEL_CACHE_DIR`` — explicit override.
+    2. ``/tmp`` when ``K_SERVICE`` is set — Cloud Run's only writable location.
+    3. This module's directory — convenient for local development where the
+       checkpoint may be placed manually alongside the source.
     """
-    # 1. Check local file first (backend/src/models/model.ckpt)
-    models_dir = os.path.dirname(os.path.abspath(__file__))
-    local_path = os.path.join(models_dir, "model.ckpt")
+    explicit = os.environ.get("MODEL_CACHE_DIR")
+    if explicit:
+        return explicit
+    if os.environ.get("K_SERVICE"):
+        return "/tmp"
+    return os.path.dirname(os.path.abspath(__file__))
 
-    if os.path.exists(local_path):
-        return local_path
 
-    # 2. Try GCS download
-    gcs_bucket = os.environ.get("MODEL_GCS_BUCKET")
-    gcs_path = os.environ.get("MODEL_GCS_PATH")
+def get_model_path() -> str:
+    """Return the path to the model checkpoint, fetching from GCS if absent.
 
-    if not gcs_bucket or not gcs_path:
-        raise FileNotFoundError(
-            f"Model checkpoint not found at {local_path} and "
-            "MODEL_GCS_BUCKET / MODEL_GCS_PATH env vars are not set"
-        )
+    The checkpoint lives at a single resolved cache path (see
+    :func:`_resolve_cache_dir`). If the file is missing, it is downloaded
+    in place via :func:`download_model_from_gcs`.
+    """
+    path = os.path.join(_resolve_cache_dir(), _MODEL_FILENAME)
 
-    tmp_path = os.path.join("/tmp", "model.ckpt")
+    if os.path.exists(path):
+        logger.info(f"Using cached model at {path}")
+        return path
 
-    if os.path.exists(tmp_path):
-        logger.info(f"Using cached model at {tmp_path}")
-        return tmp_path
-
-    download_from_gcs(gcs_bucket, gcs_path, tmp_path)
-    return tmp_path
+    download_model_from_gcs(path)
+    return path
 
 
 def load_model() -> torch.nn.Module:

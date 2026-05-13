@@ -37,3 +37,32 @@ variable "gemini_api_key" {
   type        = string
   sensitive   = true
 }
+
+# -----------------------------------------------------------------------------
+# Runtime env vars (injected into Cloud Run containers)
+# -----------------------------------------------------------------------------
+# 値の対応関係は `docs/features/ENVIRONMENT.md` の一覧表を参照。
+
+variable "backend_log_level" {
+  description = "LOG_LEVEL for the backend Flask app (DEBUG|INFO|WARNING|ERROR)"
+  type        = string
+  default     = "INFO"
+}
+
+variable "frontend_log_level" {
+  description = "LOG_LEVEL for the frontend Next.js app (debug|info|warn|error)"
+  type        = string
+  default     = "info"
+}
+
+variable "frontend_enable_cloud_logging" {
+  description = "ENABLE_CLOUD_LOGGING for the frontend (routes pino to @google-cloud/logging-pino)"
+  type        = bool
+  default     = true
+}
+
+variable "model_gcs_object_path" {
+  description = "Object path of the Patchcore checkpoint inside the models bucket"
+  type        = string
+  default     = "models/model.ckpt"
+}

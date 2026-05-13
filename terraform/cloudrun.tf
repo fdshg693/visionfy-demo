@@ -25,6 +25,7 @@ resource "google_cloud_run_v2_service" "backend" {
         }
       }
 
+      # Runtime env vars — keep in sync with backend/.env.example
       env {
         name  = "MODEL_GCS_BUCKET"
         value = google_storage_bucket.models.name
@@ -32,12 +33,12 @@ resource "google_cloud_run_v2_service" "backend" {
 
       env {
         name  = "MODEL_GCS_PATH"
-        value = "models/model.ckpt"
+        value = var.model_gcs_object_path
       }
 
       env {
         name  = "LOG_LEVEL"
-        value = "INFO"
+        value = var.backend_log_level
       }
 
       startup_probe {
@@ -90,6 +91,7 @@ resource "google_cloud_run_v2_service" "frontend" {
         }
       }
 
+      # Runtime env vars — keep in sync with frontend/.env.example
       env {
         name  = "API_BASE_URL"
         value = google_cloud_run_v2_service.backend.uri
@@ -107,12 +109,17 @@ resource "google_cloud_run_v2_service" "frontend" {
 
       env {
         name  = "LOG_LEVEL"
-        value = "info"
+        value = var.frontend_log_level
       }
 
       env {
         name  = "GCP_PROJECT"
         value = google_project.main.project_id
+      }
+
+      env {
+        name  = "ENABLE_CLOUD_LOGGING"
+        value = var.frontend_enable_cloud_logging ? "true" : "false"
       }
 
       startup_probe {
