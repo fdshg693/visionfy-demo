@@ -1,8 +1,12 @@
 # =============================================================================
-# Development environment variables
+# Development environment variables (Terraform / Cloud Run)
 # =============================================================================
 # Copy this file to `dev.tfvars` and fill in real values.
 # `dev.tfvars` is gitignored (it contains secrets like gemini_api_key).
+#
+# 横断的な env マトリクスは `docs/features/ENVIRONMENT.md` を参照。
+# このファイルで定義した値は Terraform が Cloud Run の `env` ブロックに注入する。
+# =============================================================================
 
 # --- GCP project ---
 project_id      = "visionfy-demo-dev"
@@ -14,6 +18,14 @@ region          = "asia-northeast1"
 # In dev we typically use a moving tag for fast iteration.
 backend_image_tag  = "dev"
 frontend_image_tag = "dev"
+
+# --- Runtime env (Cloud Run) ---
+# dev はトラブルシュート優先で詳細ログを出す。
+backend_log_level             = "DEBUG"
+frontend_log_level            = "debug"
+frontend_enable_cloud_logging = true
+# Patchcore checkpoint の GCS オブジェクトパス。通常 default のままで OK。
+# model_gcs_object_path       = "models/model.ckpt"
 
 # --- Secrets (DO NOT commit dev.tfvars) ---
 gemini_api_key = "your-dev-gemini-api-key-here"

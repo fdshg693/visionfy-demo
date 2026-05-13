@@ -4,6 +4,9 @@ memo/
 *.webp
 *.pyc
 
+# .env.example は GIT 管理下に置く
+.env
+
 __pycache__/
 
 # Google Cloud サービスアカウントキー

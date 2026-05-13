@@ -34,3 +34,7 @@ paths:
 | インフラ・デプロイ | [[infrastructure]] |
 | フロント側の非自明な振る舞い | [[frontend-internals]] |
 | バックエンドの非自明な振る舞い | [[backend-internals]] |
+
+## 環境変数
+
+横断的なマトリクス（ローカル/Cloud Run/Terraform）は [docs/features/ENVIRONMENT.md](../../docs/features/ENVIRONMENT.md) を参照。ローカル開発は各サービスの [`backend/.env.example`](../../backend/.env.example) / [`frontend/.env.example`](../../frontend/.env.example) を `.env` にコピーして使う。Cloud Run の env は `terraform/cloudrun.tf` が真実の源。

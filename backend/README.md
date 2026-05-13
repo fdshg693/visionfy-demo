@@ -59,7 +59,18 @@ backend/
 pip install -r requirements.txt
 ```
 
-### 2. サーバー起動
+### 2. 環境変数の設定
+
+`.env.example` を `.env` にコピーして必要に応じて値を編集します。
+
+```powershell
+Copy-Item .env.example .env
+```
+
+各変数の Scope（ローカル / Cloud Run / 両方）は [`.env.example`](./.env.example) のコメントに記載。
+横断的な一覧は [`docs/features/ENVIRONMENT.md`](../docs/features/ENVIRONMENT.md) を参照。
+
+### 3. サーバー起動
 
 ```powershell
 python src/main.py
@@ -138,3 +149,4 @@ Terraform 構成（`../terraform/`）を使用して自動デプロイされま�
 - 各 API モジュールは独立しており、個別にテスト可能です
 - 異常検知モデル（`model.ckpt`）は Patchcore アーキテクチャを使用しています
 - `MODEL_GCS_BUCKET` / `MODEL_GCS_PATH` は `/api/model_inference` でのみ必須（未設定時は起動ログに警告）
+- 環境変数の全リストと注入経路は [`docs/features/ENVIRONMENT.md`](../docs/features/ENVIRONMENT.md) を参照
