@@ -24,7 +24,7 @@ sequenceDiagram
 
     loop ツール利用が必要なターン
         Gemini-->>Agent: tool_call(name, args)
-        Agent->>Api: yield "&lt;&lt;TOOL_START:name&gt;&gt;"
+        Agent->>Api: yield "«TOOL_START:name»"
         Api-->>Chat: stream chunk
         Agent->>Tool: invoke(args)
         alt 大きなペイロード (workflow / 画像)
@@ -34,7 +34,7 @@ sequenceDiagram
         else 通常 (一覧 / context)
             Tool-->>Agent: JSON 結果
         end
-        Agent->>Api: yield "&lt;&lt;TOOL_END:name&gt;&gt;"
+        Agent->>Api: yield "«TOOL_END:name»"
         Api-->>Chat: stream chunk
         Agent->>Gemini: tool_result
     end

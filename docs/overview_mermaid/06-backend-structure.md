@@ -10,7 +10,7 @@ graph TD
 
     subgraph Common[common/ 共通基盤]
         Config[config.py<br/>MAX_CONTENT_LENGTH 等]
-        Deco[decorators.py<br/>@image_endpoint<br/>@json_endpoint]
+        Deco["decorators.py<br/>@image_endpoint<br/>@json_endpoint"]
         Resp[response.py<br/>create_error_response]
         Exc[exceptions.py]
         ImgProc[image_processing.py<br/>共通変換]
@@ -85,7 +85,7 @@ sequenceDiagram
     participant Client
     participant Route as Flask Route
     participant Deco as @image_endpoint
-    participant Module as api/&lt;func&gt;/main.py
+    participant Module as api/{func}/main.py
     participant CV as OpenCV
 
     Client->>Route: POST multipart/form-data

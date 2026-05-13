@@ -14,7 +14,7 @@ sequenceDiagram
     participant ProxyApi as POST /api/process-node<br/>(Next.js API Route)
     participant Service as BackendApiService
     participant Adapter as backendApiAdapters
-    participant Flask as Flask /api/&lt;route&gt;
+    participant Flask as Flask /api/{route}
     participant CV as OpenCV / Patchcore
 
     U->>Canvas: 実行クリック
@@ -30,7 +30,7 @@ sequenceDiagram
         else 登録済み
             Adapter-->>Service: FormData (function 固有形式)
         end
-        Service->>Flask: POST /api/&lt;route&gt;<br/>multipart/form-data
+        Service->>Flask: POST /api/{route}<br/>multipart/form-data
         Flask->>CV: imdecode → 変換 → imencode
         CV-->>Flask: JPEG buffer
         Flask-->>Service: image/jpeg
