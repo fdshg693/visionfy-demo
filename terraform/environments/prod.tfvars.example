@@ -1,0 +1,19 @@
+# =============================================================================
+# Production environment variables
+# =============================================================================
+# Copy this file to `prod.tfvars` and fill in real values.
+# `prod.tfvars` is gitignored (it contains secrets like gemini_api_key).
+
+# --- GCP project ---
+project_id      = "visionfy-demo-prod"
+project_name    = "Visionfy Demo"
+billing_account = "AABBCC-DDEEFF-112233"
+region          = "asia-northeast1"
+
+# --- Container image tags ---
+# In prod we pin to an immutable release tag (e.g. a git SHA or semver).
+backend_image_tag  = "latest"
+frontend_image_tag = "latest"
+
+# --- Secrets (DO NOT commit prod.tfvars) ---
+gemini_api_key = "your-prod-gemini-api-key-here"

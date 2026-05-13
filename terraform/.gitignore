@@ -14,3 +14,13 @@ override.tf.json
 DEPLOY.md
 .terraform.tfstate.lock.info
 .terraform.lock.hcl
+
+# Per-environment variable files (real values, may contain secrets).
+# Only the *.example templates are committed.
+environments/*.tfvars
+!environments/*.tfvars.example
+
+# Per-environment state files.
+# Keep the directory (.gitkeep) but ignore all state contents.
+states/*
+!states/.gitkeep

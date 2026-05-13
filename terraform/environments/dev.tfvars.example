@@ -1,0 +1,19 @@
+# =============================================================================
+# Development environment variables
+# =============================================================================
+# Copy this file to `dev.tfvars` and fill in real values.
+# `dev.tfvars` is gitignored (it contains secrets like gemini_api_key).
+
+# --- GCP project ---
+project_id      = "visionfy-demo-dev"
+project_name    = "Visionfy Demo (dev)"
+billing_account = "AABBCC-DDEEFF-112233"
+region          = "asia-northeast1"
+
+# --- Container image tags ---
+# In dev we typically use a moving tag for fast iteration.
+backend_image_tag  = "dev"
+frontend_image_tag = "dev"
+
+# --- Secrets (DO NOT commit dev.tfvars) ---
+gemini_api_key = "your-dev-gemini-api-key-here"
